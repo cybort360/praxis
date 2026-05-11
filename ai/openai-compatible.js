@@ -132,6 +132,7 @@ Return ONLY valid JSON:
   }
 
   async evaluateAnswer(question, userAnswer, transcript) {
+    if (!userAnswer?.trim()) throw new Error('evaluateAnswer: userAnswer must not be empty');
     const system = `You are a fair and encouraging coding tutor. Evaluate the user's free-text answer. Be strict about correctness but kind in tone. Return JSON only.`;
     const user = `
 Question: ${question}

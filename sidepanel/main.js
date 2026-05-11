@@ -476,7 +476,6 @@ const PROVIDER_MODELS = {
   groq: [
     { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B — Balanced (default)' },
     { id: 'llama-3.1-8b-instant',    label: 'Llama 3.1 8B — Fastest' },
-    { id: 'mixtral-8x7b-32768',      label: 'Mixtral 8x7B' },
     { id: 'gemma2-9b-it',            label: 'Gemma 2 9B' },
   ],
   gemini: [

@@ -14,7 +14,12 @@
 
   "host_permissions": [
     "https://www.youtube.com/*",
-    "https://youtube.com/*"
+    "https://youtube.com/*",
+    "https://api.anthropic.com/*",
+    "https://api.openai.com/*",
+    "https://openrouter.ai/*",
+    "https://api.groq.com/*",
+    "https://generativelanguage.googleapis.com/*"
   ],
 
   "background": {
