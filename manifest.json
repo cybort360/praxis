@@ -22,6 +22,15 @@
     "https://generativelanguage.googleapis.com/*"
   ],
 
+  "optional_host_permissions": [
+    "*://*.udemy.com/*",
+    "*://*.coursera.org/*",
+    "*://*.linkedin.com/*",
+    "*://*.khanacademy.org/*",
+    "*://*.pluralsight.com/*",
+    "*://*/*"
+  ],
+
   "background": {
     "service_worker": "background.js",
     "type": "module"
@@ -32,6 +41,15 @@
       "matches": ["https://www.youtube.com/*", "https://youtube.com/*"],
       "js": ["content/content.js"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["*://*/*"],
+      "js": ["content/generic.js"],
+      "run_at": "document_idle",
+      "exclude_matches": [
+        "https://www.youtube.com/*",
+        "https://youtube.com/*"
+      ]
     }
   ],
 
