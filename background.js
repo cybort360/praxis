@@ -3,6 +3,22 @@
 
 import { getAIProvider } from './ai/index.js';
 
+function transcriptToPlainText(segments) {
+  return segments.map(s => s.text).join(' ');
+}
+
+function transcriptToTimestamped(segments, maxChars = 6000) {
+  let out = '';
+  for (const seg of segments) {
+    const m = Math.floor(seg.t / 60);
+    const s = Math.floor(seg.t % 60).toString().padStart(2, '0');
+    const line = `[${m}:${s}] ${seg.text}\n`;
+    if (out.length + line.length > maxChars) break;
+    out += line;
+  }
+  return out;
+}
+
 // ── Message Router ──
 // All messages from content.js and sidepanel go through here.
 // This is intentional: the API key lives only in background, never exposed to page context.
@@ -27,7 +43,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // The panel pulls from storage on load — avoids the race where sendMessage fires
     // before the panel's listener is attached.
     case 'VIDEO_DETECTED': {
-      chrome.storage.session.set({ pendingSession: message.payload })
+      chrome.storage.session.set({ pendingSession: { ...message.payload, tabId: sender.tab.id } })
         .then(() => chrome.sidePanel.open({ tabId: sender.tab.id }))
         .then(() => sendResponse({ ok: true }))
         .catch(err => sendResponse({ ok: false, error: err.message }));
@@ -40,6 +56,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         .then(result => sendResponse({ ok: true, data: result }))
         .catch(err => sendResponse({ ok: false, error: err.message }));
       return true; // keep channel open for async response
+    }
+
+    case 'SEEK_VIDEO': {
+      const { t, tabId } = message.payload;
+      chrome.scripting.executeScript({
+        target: { tabId },
+        world: 'MAIN',
+        func: (seconds) => {
+          const video = document.querySelector('video');
+          if (video) video.currentTime = seconds;
+        },
+        args: [t],
+      })
+        .then(() => sendResponse({ ok: true }))
+        .catch(err => sendResponse({ ok: false, error: err.message }));
+      return true;
     }
 
     // Side panel requests AI to evaluate a free-text quiz answer
@@ -59,11 +91,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 async function handleGenerateSession({ transcript, videoTitle }) {
   const ai = await getAIProvider();
+  const plainText = transcriptToPlainText(transcript);
+  const timestampedText = transcriptToTimestamped(transcript);
 
   const [summary, quiz, challenge] = await Promise.all([
-    ai.generateSummary(transcript, videoTitle),
-    ai.generateQuiz(transcript, videoTitle),
-    ai.generateChallenge(transcript, videoTitle),
+    ai.generateSummary(plainText, videoTitle),
+    ai.generateQuiz(plainText, timestampedText, videoTitle),
+    ai.generateChallenge(plainText, videoTitle),
   ]);
 
   return { summary, quiz, challenge };
