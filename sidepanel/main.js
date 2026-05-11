@@ -408,9 +408,10 @@ function runCode(userCode) {
     window.parent.postMessage({ type: 'RUN_RESULT', logs, testResults }, '*');
   `;
 
-  // Write to sandbox iframe
-  const blob = new Blob([`<script>${sandboxCode}<\/script>`], { type: 'text/html' });
-  sandbox.src = URL.createObjectURL(blob);
+  // Write to sandbox iframe via srcdoc — blob: URLs fail in sandboxed iframes
+  // with null origin (no allow-same-origin) because they can't fetch from the
+  // extension's blob origin. srcdoc sets content directly with no fetch needed.
+  sandbox.srcdoc = `<script>${sandboxCode}<\/script>`;
 }
 
 // Listen for results from sandbox
