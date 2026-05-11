@@ -302,6 +302,7 @@ html, body {
 }
 
 .option-btn:hover { border-color: var(--accent); background: var(--surface2); }
+.option-btn.selected { border-color: var(--accent); background: rgba(124, 106, 247, 0.12); color: var(--text); }
 .option-btn.correct { border-color: var(--success); background: rgba(61, 186, 119, 0.1); }
 .option-btn.wrong { border-color: var(--error); background: rgba(224, 92, 92, 0.1); }
 
