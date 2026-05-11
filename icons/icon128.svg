@@ -1,5 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
-  <path d="M18 64 C18 40 40 24 64 46 C88 68 110 52 110 76 C110 100 88 116 64 94 C40 72 18 88 18 64Z"
-        stroke="#7c6af7" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <polygon points="56,50 56,78 82,64" fill="#a78bfa"/>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6d5be8"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#g)"/>
+  <path d="M64 64C59 57.5 52 54 46 54a18 18 0 0 0 0 36c6 0 13-3.5 18-10Z" stroke="white" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+  <path d="M64 64c5 6.5 12 10 18 10a18 18 0 0 0 0-36c-6 0-13 3.5-18 10Z" stroke="white" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+  <polygon points="57,52 57,76 80,64" fill="white"/>
 </svg>

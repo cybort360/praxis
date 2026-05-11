@@ -5,55 +5,266 @@
   <title>LearnLoop</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d14;
+      --surface: #16161f;
+      --surface-2: #1d1d2a;
+      --border: rgba(124, 106, 247, 0.15);
+      --accent: #7c6af7;
+      --accent-2: #a78bfa;
+      --accent-glow: rgba(124, 106, 247, 0.3);
+      --text: #eeeefb;
+      --text-2: #aeaece;
+      --text-muted: #6e6e9a;
+      --success: #34d399;
+      --radius: 10px;
+    }
+
     body {
-      width: 220px;
-      background: #0f0f13;
-      color: #e8e8f0;
+      width: 260px;
+      background: var(--bg);
+      color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       font-size: 13px;
-      padding: 16px;
+      line-height: 1.5;
+      overflow: hidden;
     }
-    .logo {
-      font-size: 15px;
+
+    /* ── Header ── */
+    .popup-header {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 14px 16px 13px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(124, 106, 247, 0.09) 0%, transparent 65%);
+    }
+
+    .logo-icon {
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 10px var(--accent-glow);
+    }
+
+    .logo-icon svg {
+      width: 17px;
+      height: 17px;
+      color: #fff;
+    }
+
+    .logo-text {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #fff 10%, var(--accent-2) 90%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Body ── */
+    .popup-body {
+      padding: 13px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* ── Status card ── */
+    .status-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 11px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+      flex-shrink: 0;
+    }
+
+    .status-dot.inactive {
+      background: var(--text-muted);
+      box-shadow: none;
+    }
+
+    .status-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
       font-weight: 600;
-      margin-bottom: 12px;
-      color: #7c6af7;
     }
-    .status {
+
+    .status-value {
+      margin-left: auto;
       font-size: 12px;
-      color: #888;
-      margin-bottom: 14px;
-      line-height: 1.4;
+      color: var(--text-2);
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: right;
+      font-weight: 500;
     }
-    .status strong { color: #e8e8f0; font-weight: 500; }
-    .btn {
-      display: block;
+
+    .status-value.highlight { color: var(--text); }
+
+    .status-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0 -2px;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
       width: 100%;
-      background: #7c6af7;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
       color: #fff;
       border: none;
-      border-radius: 6px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px var(--accent-glow);
+      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+      letter-spacing: 0.1px;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px var(--accent-glow);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      opacity: 1;
+      box-shadow: 0 2px 8px var(--accent-glow);
+    }
+
+    .btn-secondary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      background: var(--surface);
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       font-size: 13px;
       font-weight: 500;
-      padding: 8px 12px;
+      padding: 9px 14px;
       cursor: pointer;
-      margin-bottom: 8px;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-2);
+      color: var(--text);
+      border-color: rgba(124, 106, 247, 0.35);
+    }
+
+    .btn-secondary:active {
+      background: var(--surface);
+    }
+
+    .icon-sm { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ── Footer ── */
+    .popup-footer {
+      padding: 5px 14px 12px;
       text-align: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.2px;
     }
-    .btn:hover { background: #6b5ce7; }
-    .btn-secondary {
-      background: #1a1a24;
-      color: #e8e8f0;
-      border: 1px solid #2a2a3a;
-    }
-    .btn-secondary:hover { background: #2a2a3a; }
   </style>
 </head>
 <body>
-  <div class="logo">LearnLoop</div>
-  <div class="status" id="status">Loading…</div>
-  <button class="btn" id="btn-panel">Open Side Panel</button>
-  <button class="btn btn-secondary" id="btn-settings">⚙ Settings</button>
+
+  <header class="popup-header">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 12C10 9.5 8 8 6 8a4 4 0 0 0 0 8c2 0 4-1.5 6-4Z"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M12 12c2 2.5 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.5-6 4Z"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <polygon points="10.5,10 10.5,14 14.5,12" fill="currentColor"/>
+      </svg>
+    </div>
+    <span class="logo-text">LearnLoop</span>
+  </header>
+
+  <div class="popup-body">
+
+    <div class="status-card">
+      <div class="status-row">
+        <span class="status-dot inactive" id="status-dot"></span>
+        <span class="status-label">Provider</span>
+        <span class="status-value" id="status-provider">Loading…</span>
+      </div>
+      <div class="status-divider"></div>
+      <div class="status-row">
+        <span class="status-label">Model</span>
+        <span class="status-value" id="status-model">—</span>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn-panel">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="currentColor">
+        <polygon points="5,3 19,12 5,21"/>
+      </svg>
+      Open Side Panel
+    </button>
+
+    <button class="btn-secondary" id="btn-settings">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06
+                 a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09
+                 A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83
+                 l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09
+                 A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83
+                 l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09
+                 a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83
+                 l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09
+                 a1.65 1.65 0 0 0-1.51 1Z"/>
+      </svg>
+      Settings
+    </button>
+
+  </div>
+
+  <div class="popup-footer">v1.0 · AI-powered learning</div>
+
   <script src="popup.js"></script>
 </body>
 </html>
