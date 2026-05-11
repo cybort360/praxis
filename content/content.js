@@ -52,11 +52,13 @@
   async function onNewVideo(videoId) {
     if (sessionStarted) return;
     await sleep(2000);
+    if (videoId !== lastVideoId) return;
     injectStartButton(videoId);
     setupWatchGate(videoId);
   }
 
   function injectStartButton(videoId) {
+    if (startButton) return;
     startButton = document.createElement('button');
     startButton.id = '__ll_start_btn';
     startButton.textContent = '▶ Start LearnLoop';
