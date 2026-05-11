@@ -54,18 +54,24 @@ Return ONLY valid JSON in this exact shape:
     return this._parseJSON(raw);
   }
 
-  async generateQuiz(transcript, videoTitle) {
-    const system = `You are an expert coding tutor creating a quiz to test genuine understanding, not memorization. Focus on the "why" behind concepts. Return JSON only.`;
+  async generateQuiz(plainText, timestampedText, videoTitle) {
+    const difficultyInstruction = {
+      easy: 'Create straightforward recall questions that test basic understanding.',
+      medium: 'Create a mix of recall and application questions.',
+      hard: 'Create application and edge-case questions that require deep understanding of the concept.',
+    }[this.config.difficulty || 'medium'];
 
-    const user = `
-Video title: "${videoTitle}"
+    const system = `You are an expert coding tutor creating a quiz. ${difficultyInstruction} Focus on the "why" behind concepts, not rote memorisation. Return JSON only.
 
-Transcript:
-${transcript.slice(0, 8000)}
+When writing an explanation, if you reference a moment in the video, include a timestamp marker in the format [t=Ns] where N is the number of seconds (e.g. [t=272s]). Only use timestamps that appear in the provided transcript.`;
+
+    const user = `Video title: "${videoTitle}"
+Timestamped transcript:
+${timestampedText}
 
 Generate 3 quiz questions. Mix types: at least one multiple-choice, one predict-output (show a code snippet and ask what it outputs), and one free-text conceptual question.
 
-Return ONLY valid JSON as an array:
+Return ONLY a JSON array:
 [
   {
     "id": "q1",
@@ -73,27 +79,25 @@ Return ONLY valid JSON as an array:
     "question": "...",
     "options": ["A", "B", "C", "D"],
     "correctOption": 0,
-    "explanation": "Why this answer is correct"
+    "explanation": "..."
   },
   {
     "id": "q2",
     "type": "predict-output",
     "question": "What does this code output?",
-    "codeSnippet": "console.log(...)",
-    "options": ["A", "B", "C", "D"],
+    "codeSnippet": "...",
+    "options": ["output A", "output B", "output C", "output D"],
     "correctOption": 2,
     "explanation": "..."
   },
   {
     "id": "q3",
     "type": "free-text",
-    "question": "In your own words, explain why...",
+    "question": "...",
     "explanation": "A good answer would mention..."
   }
 ]`;
-
-    const raw = await this._call(system, user);
-    return this._parseJSON(raw);
+    return this._parseJSON(await this._call(system, user));
   }
 
   async generateChallenge(transcript, videoTitle) {

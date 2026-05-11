@@ -21,7 +21,8 @@ export class AIProvider {
 
   /**
    * Generate a quiz to test understanding before the user can code.
-   * @param {string} transcript
+   * @param {string} plainText - Full video transcript as plain text
+   * @param {string} timestampedText - Transcript with [m:ss] prefixes, capped ~6000 chars
    * @param {string} videoTitle
    * @returns {Promise<Question[]>}
    *
@@ -36,7 +37,7 @@ export class AIProvider {
    *   codeSnippet?: string,        // optional code to display with the question
    * }
    */
-  async generateQuiz(transcript, videoTitle) {
+  async generateQuiz(plainText, timestampedText, videoTitle) {
     throw new Error('generateQuiz() must be implemented by the provider');
   }
 

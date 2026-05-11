@@ -55,11 +55,20 @@ Return ONLY valid JSON:
     return this._parseJSON(await this._call(system, user));
   }
 
-  async generateQuiz(transcript, videoTitle) {
-    const system = `You are an expert coding tutor creating a quiz to test genuine understanding, not memorization. Focus on the "why" behind concepts. Return JSON only.`;
-    const user = `
-Video title: "${videoTitle}"
-Transcript: ${transcript.slice(0, 8000)}
+  async generateQuiz(plainText, timestampedText, videoTitle) {
+    const difficultyInstruction = {
+      easy: 'Create straightforward recall questions that test basic understanding.',
+      medium: 'Create a mix of recall and application questions.',
+      hard: 'Create application and edge-case questions that require deep understanding of the concept.',
+    }[this.config.difficulty || 'medium'];
+
+    const system = `You are an expert coding tutor creating a quiz. ${difficultyInstruction} Focus on the "why" behind concepts, not rote memorisation. Return JSON only.
+
+When writing an explanation, if you reference a moment in the video, include a timestamp marker in the format [t=Ns] where N is the number of seconds (e.g. [t=272s]). Only use timestamps that appear in the provided transcript.`;
+
+    const user = `Video title: "${videoTitle}"
+Timestamped transcript:
+${timestampedText}
 
 Generate 3 quiz questions. Mix types: at least one multiple-choice, one predict-output (show a code snippet and ask what it outputs), and one free-text conceptual question.
 
@@ -78,7 +87,7 @@ Return ONLY a JSON array:
     "type": "predict-output",
     "question": "What does this code output?",
     "codeSnippet": "...",
-    "options": ["A", "B", "C", "D"],
+    "options": ["output A", "output B", "output C", "output D"],
     "correctOption": 2,
     "explanation": "..."
   },
