@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,163 +9,326 @@
 </head>
 <body>
 
-  <!-- ── Global: Reset button (hidden on idle screen) ── -->
-  <button id="btn-reset" class="btn btn-ghost btn-sm hidden" style="position:fixed;top:12px;right:12px;z-index:100;">↺ Reset</button>
+<!-- SVG Sprite -->
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+    <symbol id="ic-logo" viewBox="0 0 24 24" fill="none">
+      <path d="M12 12C10 9.5 8 8 6 8a4 4 0 0 0 0 8c2 0 4-1.5 6-4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M12 12c2 2.5 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.5-6 4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <polygon points="10.5,10 10.5,14 14.5,12" fill="currentColor"/>
+    </symbol>
+    <symbol id="ic-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
+    </symbol>
+    <symbol id="ic-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m15 18-6-6 6-6"/>
+    </symbol>
+    <symbol id="ic-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+    </symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 6 9 17l-5-5"/>
+    </symbol>
+    <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 6 6 18M6 6l12 12"/>
+    </symbol>
+    <symbol id="ic-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
+      <path d="M9 18h6M10 22h4"/>
+    </symbol>
+    <symbol id="ic-play" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M8 5v14l11-7z"/>
+    </symbol>
+    <symbol id="ic-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+      <path d="M3 3v5h5"/>
+    </symbol>
+    <symbol id="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="4"/>
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+    </symbol>
+    <symbol id="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+    </symbol>
+    <symbol id="ic-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </symbol>
+    <symbol id="ic-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="16 18 22 12 16 6"/>
+      <polyline points="8 6 2 12 8 18"/>
+    </symbol>
+    <symbol id="ic-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+      <path d="M4 22h16M10 14.66V17a1 1 0 0 0 .33.75L12 19l1.67-1.25A1 1 0 0 0 14 17v-2.34"/>
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+    </symbol>
+    <symbol id="ic-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </symbol>
+    <symbol id="ic-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+    </symbol>
+    <symbol id="ic-quiz" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+      <path d="M12 17h.01"/>
+    </symbol>
+  </defs>
+</svg>
 
-  <!-- ── SCREEN: Idle ── -->
-  <div id="screen-idle" class="screen active">
+<!-- App Bar -->
+<header id="app-bar">
+  <div class="app-bar-brand">
+    <svg class="icon icon-md" aria-hidden="true"><use href="#ic-logo"/></svg>
+    <span>LearnLoop</span>
+  </div>
+  <div class="app-bar-actions">
+    <button id="btn-theme" class="icon-btn" title="Toggle theme">
+      <svg class="icon icon-sm" id="theme-icon"><use href="#ic-sun"/></svg>
+    </button>
+    <button id="btn-reset" class="icon-btn hidden" title="Reset session">
+      <svg class="icon icon-sm"><use href="#ic-refresh"/></svg>
+    </button>
+  </div>
+</header>
 
-    <!-- Welcome sub-state (shown when API key is configured) -->
-    <div id="idle-welcome" class="hidden">
-      <div class="welcome-hero">
-        <div class="welcome-logo">⟳ LearnLoop</div>
-        <p class="welcome-tagline">Turn YouTube tutorials<br>into real skills.</p>
-        <p class="welcome-steps">Watch &rarr; Quiz &rarr; Build</p>
+<!-- SCREEN: Idle -->
+<div id="screen-idle" class="screen active">
+
+  <div id="idle-welcome" class="hidden">
+    <div class="welcome-hero">
+      <div class="welcome-hero-icon">
+        <svg class="icon icon-xl" aria-hidden="true"><use href="#ic-logo"/></svg>
       </div>
-      <div class="welcome-instruction">
-        <p>Navigate to a YouTube tutorial and click the <strong>▶ Start LearnLoop</strong> button on the page.</p>
+      <p class="welcome-logo-text">LearnLoop</p>
+      <p class="welcome-tagline">Turn YouTube tutorials<br>into real skills.</p>
+      <div class="welcome-flow">
+        <span>Watch</span>
+        <span class="welcome-flow-dot"></span>
+        <span>Quiz</span>
+        <span class="welcome-flow-dot"></span>
+        <span>Build</span>
       </div>
-      <button id="btn-open-settings" class="btn btn-ghost btn-sm welcome-settings-btn">⚙ Settings</button>
     </div>
-
-    <!-- Settings sub-state (shown on first run or when user opens settings) -->
-    <div id="idle-settings">
-      <div class="settings-panel">
-        <div class="settings-panel-header">
-          <h3 class="settings-heading">API Settings</h3>
-          <button id="btn-back-settings" class="btn btn-ghost btn-sm hidden">← Back</button>
+    <div class="welcome-body">
+      <div class="welcome-instruction-card">
+        <div class="welcome-instruction-icon">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-play"/></svg>
         </div>
-        <div class="settings-field">
-          <label for="setting-provider">Provider</label>
-          <select id="setting-provider" class="settings-select">
-            <option value="anthropic">Anthropic (Claude)</option>
-            <option value="openai">OpenAI (GPT)</option>
-            <option value="openrouter">OpenRouter (free models available)</option>
-            <option value="groq">Groq (fast · free tier)</option>
-            <option value="gemini">Google Gemini</option>
-          </select>
-        </div>
-        <div class="settings-field">
-          <label for="setting-apikey">API Key</label>
-          <input type="password" id="setting-apikey" class="settings-input" placeholder="Paste your API key…" />
-        </div>
-        <div class="settings-field" id="model-field-container">
-          <label for="setting-model">Model <span class="settings-optional">(optional)</span></label>
-          <input type="text" id="setting-model" class="settings-input" placeholder="Leave blank for default" />
-        </div>
-        <button id="btn-save-settings" class="btn btn-primary" style="width:100%;margin-top:4px;">Save</button>
-        <p id="settings-status" class="settings-status"></p>
-        <button type="button" id="more-settings-link" class="link-btn">More settings →</button>
+        <p class="welcome-instruction-text">
+          Navigate to a YouTube tutorial and click the <strong>Start LearnLoop</strong> button on the page.
+        </p>
+      </div>
+      <div class="welcome-footer-row">
+        <button id="btn-open-settings" class="btn btn-ghost btn-sm">
+          <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-settings"/></svg>
+          Settings
+        </button>
       </div>
     </div>
-
   </div>
 
-  <!-- ── SCREEN: Loading (AI generating content) ── -->
-  <div id="screen-loading" class="screen">
-    <div class="loading-content">
-      <div class="spinner"></div>
-      <p id="loading-msg">Analysing transcript...</p>
-    </div>
-  </div>
-
-  <!-- ── SCREEN: Error ── -->
-  <div id="screen-error" class="screen">
-    <div class="screen-header">
-      <h2>Something went wrong</h2>
-    </div>
-    <p id="error-message" style="margin:16px 0;color:var(--text-muted);"></p>
-    <button id="btn-retry" class="btn btn-primary">Try Again</button>
-    <button id="btn-error-reset" class="btn btn-secondary" style="margin-top:8px;">Start Over</button>
-  </div>
-
-  <!-- ── SCREEN: Summary ── -->
-  <div id="screen-summary" class="screen">
-    <div class="screen-header">
-      <span class="step-badge">Step 1 of 3</span>
-      <h2 id="summary-title"></h2>
-    </div>
-    <p id="summary-text"></p>
-    <ul id="summary-points"></ul>
-    <button id="btn-start-quiz" class="btn btn-primary">Take the Quiz →</button>
-  </div>
-
-  <!-- ── SCREEN: Quiz ── -->
-  <div id="screen-quiz" class="screen">
-    <div class="screen-header">
-      <span class="step-badge">Step 2 of 3</span>
-      <h2>Prove You Understood It</h2>
-      <button id="btn-back-quiz" class="btn btn-ghost btn-sm">← Back</button>
-      <div class="progress-bar">
-        <div id="quiz-progress" class="progress-fill"></div>
+  <div id="idle-settings">
+    <div class="settings-panel">
+      <div class="settings-panel-header">
+        <p class="settings-heading">API Settings</p>
+        <button id="btn-back-settings" class="btn btn-ghost btn-sm hidden">
+          <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-chevron-left"/></svg>
+          Back
+        </button>
+      </div>
+      <div class="settings-field">
+        <label for="setting-provider">Provider</label>
+        <select id="setting-provider" class="settings-select">
+          <option value="anthropic">Anthropic (Claude)</option>
+          <option value="openai">OpenAI (GPT)</option>
+          <option value="openrouter">OpenRouter</option>
+          <option value="groq">Groq (fast · free tier)</option>
+          <option value="gemini">Google Gemini</option>
+        </select>
+      </div>
+      <div class="settings-field">
+        <label for="setting-apikey">API Key</label>
+        <input type="password" id="setting-apikey" class="settings-input" placeholder="Paste your API key…" />
+      </div>
+      <div class="settings-field" id="model-field-container">
+        <label for="setting-model">Model <span class="settings-optional">(optional)</span></label>
+        <input type="text" id="setting-model" class="settings-input" placeholder="Leave blank for default" />
+      </div>
+      <button id="btn-save-settings" class="btn btn-primary btn-full" style="margin-top:4px;">Save Settings</button>
+      <p id="settings-status" class="settings-status"></p>
+      <div style="text-align:center;margin-top:10px;">
+        <button type="button" id="more-settings-link" class="link-btn">
+          More settings
+          <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-arrow-right"/></svg>
+        </button>
       </div>
     </div>
+  </div>
 
-    <div id="quiz-question-wrap">
-      <p id="quiz-question"></p>
-      <pre id="quiz-code-snippet" class="code-block hidden"></pre>
+</div>
 
-      <!-- Multiple choice / predict-output -->
-      <div id="quiz-options"></div>
-
-      <!-- Free text -->
-      <textarea id="quiz-freetext" class="hidden" placeholder="Type your answer..."></textarea>
-
-      <div id="quiz-feedback" class="feedback hidden"></div>
-
-      <button id="btn-quiz-submit" class="btn btn-primary">Submit</button>
-      <button id="btn-quiz-next" class="btn btn-secondary hidden">Next Question →</button>
+<!-- SCREEN: Loading -->
+<div id="screen-loading" class="screen">
+  <div class="loading-content">
+    <div class="loading-logo">
+      <svg class="icon icon-2xl" aria-hidden="true"><use href="#ic-logo"/></svg>
     </div>
+    <div class="spinner"></div>
+    <p id="loading-msg" class="loading-text">Analysing transcript…</p>
+  </div>
+</div>
 
-    <div id="quiz-complete" class="hidden">
-      <div class="success-icon">✓</div>
-      <p>You passed! Now let's build something.</p>
-      <button id="btn-start-challenge" class="btn btn-primary">Open Challenge →</button>
+<!-- SCREEN: Error -->
+<div id="screen-error" class="screen">
+  <div class="error-card">
+    <div class="error-ring">
+      <svg class="icon icon-lg" aria-hidden="true"><use href="#ic-alert"/></svg>
+    </div>
+    <h2 style="font-size:17px;font-weight:700;">Something went wrong</h2>
+    <p id="error-message" class="error-msg-text"></p>
+    <button id="btn-retry" class="btn btn-primary btn-full">Try Again</button>
+    <button id="btn-error-reset" class="btn btn-secondary btn-full" style="margin-top:8px;">Start Over</button>
+  </div>
+</div>
+
+<!-- SCREEN: Summary -->
+<div id="screen-summary" class="screen">
+  <div class="screen-header">
+    <span class="step-badge">
+      <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-book"/></svg>
+      Step 1 of 3
+    </span>
+    <h2 id="summary-title"></h2>
+  </div>
+  <p id="summary-text"></p>
+  <ul id="summary-points"></ul>
+  <button id="btn-start-quiz" class="btn btn-primary btn-full">
+    Take the Quiz
+    <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-arrow-right"/></svg>
+  </button>
+</div>
+
+<!-- SCREEN: Quiz -->
+<div id="screen-quiz" class="screen">
+  <div class="screen-header">
+    <div class="step-header-row">
+      <span class="step-badge">
+        <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-quiz"/></svg>
+        Step 2 of 3
+      </span>
+      <button id="btn-back-quiz" class="btn btn-ghost btn-sm">
+        <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-chevron-left"/></svg>
+        Back
+      </button>
+    </div>
+    <h2>Prove You Understood It</h2>
+    <div class="progress-bar">
+      <div id="quiz-progress" class="progress-fill"></div>
     </div>
   </div>
 
-  <!-- ── SCREEN: Quiz Fail ── -->
-  <div id="screen-quiz-fail" class="screen">
-    <div class="screen-header">
-      <h2>Not quite</h2>
-    </div>
-    <p id="fail-score" style="margin:16px 0;font-size:1.1rem;"></p>
-    <p style="color:var(--text-muted);margin-bottom:24px;">Review the summary and give it another go.</p>
-    <button id="btn-retry-quiz" class="btn btn-primary">Try Again</button>
-    <button id="btn-fail-to-summary" class="btn btn-secondary" style="margin-top:8px;">Back to Summary</button>
+  <div id="quiz-question-wrap">
+    <p id="quiz-question"></p>
+    <pre id="quiz-code-snippet" class="code-block hidden"></pre>
+    <div id="quiz-options"></div>
+    <textarea id="quiz-freetext" class="hidden" placeholder="Type the exact output…"></textarea>
+    <div id="quiz-feedback" class="feedback hidden"></div>
+    <button id="btn-quiz-submit" class="btn btn-primary btn-full">Submit Answer</button>
+    <button id="btn-quiz-next" class="btn btn-secondary btn-full hidden">
+      Next Question
+      <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-arrow-right"/></svg>
+    </button>
   </div>
 
-  <!-- ── SCREEN: Challenge + IDE ── -->
-  <div id="screen-challenge" class="screen">
-    <div class="screen-header">
-      <span class="step-badge">Step 3 of 3</span>
-      <h2 id="challenge-title"></h2>
-      <button id="btn-back-challenge" class="btn btn-ghost btn-sm">← Back</button>
-    </div>
-
-    <p id="challenge-description"></p>
-
-    <div class="ide-wrap">
-      <div class="ide-toolbar">
-        <span class="ide-label">JavaScript</span>
-        <button id="btn-hint" class="btn btn-ghost btn-sm">💡 Hint</button>
-        <button id="btn-solution" class="btn btn-ghost btn-sm">Show Solution</button>
-        <button id="btn-run" class="btn btn-primary btn-sm">▶ Run</button>
+  <div id="quiz-complete" class="hidden">
+    <div class="quiz-complete-card">
+      <div class="success-ring">
+        <svg class="icon icon-lg" aria-hidden="true"><use href="#ic-trophy"/></svg>
       </div>
-      <div id="ide-editor-wrap"></div>
-      <div class="ide-output-header">Output</div>
-      <div id="ide-output" class="ide-output"></div>
+      <p class="quiz-complete-title">Quiz Passed!</p>
+      <p class="quiz-complete-sub">Excellent work. Time to build something with what you learned.</p>
+      <button id="btn-start-challenge" class="btn btn-primary btn-full">
+        Open Challenge
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-arrow-right"/></svg>
+      </button>
     </div>
+  </div>
+</div>
 
-    <div id="test-results" class="test-results"></div>
-    <div id="hint-display" class="hint-box hidden"></div>
+<!-- SCREEN: Quiz Fail -->
+<div id="screen-quiz-fail" class="screen">
+  <div class="fail-card">
+    <div class="fail-ring">
+      <svg class="icon icon-lg" aria-hidden="true"><use href="#ic-x"/></svg>
+    </div>
+    <h2 style="font-size:18px;font-weight:700;">Not quite</h2>
+    <p id="fail-score" class="fail-score"></p>
+    <p class="fail-sub">Review the summary and give it another go.</p>
+    <button id="btn-retry-quiz" class="btn btn-primary btn-full">Try Again</button>
+    <button id="btn-fail-to-summary" class="btn btn-secondary btn-full" style="margin-top:8px;">
+      <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-chevron-left"/></svg>
+      Back to Summary
+    </button>
+  </div>
+</div>
+
+<!-- SCREEN: Challenge + IDE -->
+<div id="screen-challenge" class="screen">
+  <div class="screen-header">
+    <div class="step-header-row">
+      <span class="step-badge">
+        <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-code"/></svg>
+        Step 3 of 3
+      </span>
+      <button id="btn-back-challenge" class="btn btn-ghost btn-sm">
+        <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-chevron-left"/></svg>
+        Back
+      </button>
+    </div>
+    <h2 id="challenge-title"></h2>
   </div>
 
-  <!-- ── Sandbox iframe (hidden, used to run user code safely) ── -->
-  <iframe id="sandbox" src="sandbox.html" style="display:none;"></iframe>
+  <p id="challenge-description" class="challenge-desc"></p>
 
-  <script src="vendor/codemirror.min.js"></script>
-  <script src="vendor/javascript.min.js"></script>
-  <script src="main.js"></script>
+  <div class="ide-wrap">
+    <div class="ide-toolbar">
+      <span class="ide-lang-tag">
+        <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-code"/></svg>
+        JavaScript
+      </span>
+      <button id="btn-hint" class="btn btn-ghost btn-sm">
+        <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-lightbulb"/></svg>
+        Hint
+      </button>
+      <button id="btn-solution" class="btn btn-ghost btn-sm">
+        <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-eye"/></svg>
+        Solution
+      </button>
+      <button id="btn-run" class="btn btn-primary btn-sm">
+        <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-play"/></svg>
+        Run
+      </button>
+    </div>
+    <div id="ide-editor-wrap"></div>
+    <div class="ide-output-header">OUTPUT</div>
+    <div id="ide-output" class="ide-output"></div>
+  </div>
+
+  <div id="test-results" class="test-results"></div>
+  <div id="hint-display" class="hint-box hidden"></div>
+</div>
+
+<!-- Sandbox iframe -->
+<iframe id="sandbox" src="sandbox.html" style="display:none;" sandbox="allow-scripts"></iframe>
+
+<script src="vendor/codemirror.min.js"></script>
+<script src="vendor/javascript.min.js"></script>
+<script src="main.js"></script>
 </body>
 </html>

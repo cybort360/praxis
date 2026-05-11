@@ -1,5 +1,23 @@
 // sidepanel/main.js — Learning loop controller
 
+// ── Theme toggle ──
+(function initTheme() {
+  const saved = localStorage.getItem('ll-theme') || 'dark';
+  applyTheme(saved);
+})();
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('ll-theme', theme);
+  const useEl = document.querySelector('#theme-icon use');
+  if (useEl) useEl.setAttribute('href', theme === 'light' ? '#ic-moon' : '#ic-sun');
+}
+
+document.getElementById('btn-theme').addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+});
+
 // ── Module-level editor instances ──
 let editor = null;
 let sandboxWindow = null;
@@ -35,7 +53,7 @@ function renderExplanation(text, containerEl) {
       a.href = '#';
       a.className = 'timestamp-link';
       a.dataset.t = String(t);
-      a.textContent = `▶ ${m}:${s}`;
+      a.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:9px;height:9px;vertical-align:middle;margin-right:2px"><path d="M8 5v14l11-7z"/></svg>${m}:${s}`;
       a.addEventListener('click', (e) => {
         e.preventDefault();
         chrome.runtime.sendMessage({ type: 'SEEK_VIDEO', payload: { t, tabId: state.tabId } });
@@ -315,7 +333,12 @@ function showFeedback(passed, feedback) {
   el.classList.remove('hidden', 'pass', 'fail');
   el.classList.add(passed ? 'pass' : 'fail');
   el.replaceChildren();
-  el.appendChild(document.createTextNode(passed ? '✓ ' : '✗ '));
+  const iconEl = document.createElement('span');
+  iconEl.className = 'feedback-icon';
+  iconEl.innerHTML = passed
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><path d="M20 6 9 17l-5-5"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><path d="M18 6 6 18M6 6l12 12"/></svg>`;
+  el.appendChild(iconEl);
   renderExplanation(feedback, el);
   document.getElementById('btn-quiz-submit').classList.add('hidden');
   document.getElementById('btn-quiz-next').classList.remove('hidden');
@@ -463,8 +486,15 @@ window.addEventListener('message', (event) => {
     const div = document.createElement('div');
     div.className = `test-case ${t.pass ? 'pass' : 'fail'}`;
     div.innerHTML = `
-      <span class="icon">${t.pass ? '✓' : '✗'}</span>
-      <span class="desc">${t.description}${!t.pass ? ` — got <code>${t.actual}</code>, expected <code>${t.expected}</code>` : ''}</span>
+      <span class="test-case-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px" stroke-width="${t.pass ? '2.5' : '2'}">
+          ${t.pass ? '<path d="M20 6 9 17l-5-5"/>' : '<path d="M18 6 6 18M6 6l12 12"/>'}
+        </svg>
+      </span>
+      <span class="test-case-body">
+        <span class="test-case-desc">${t.description}</span>
+        ${!t.pass ? `<span class="test-case-detail">got ${t.actual} &nbsp;·&nbsp; expected ${t.expected}</span>` : ''}
+      </span>
     `;
     resultsEl.appendChild(div);
   });
@@ -481,7 +511,14 @@ document.getElementById('btn-hint').addEventListener('click', () => {
     return;
   }
 
-  hintEl.textContent = `💡 Hint ${state.hintIndex + 1}: ${challenge.hints[state.hintIndex]}`;
+  hintEl.innerHTML = '';
+  const hintIconEl = document.createElement('span');
+  hintIconEl.className = 'hint-icon';
+  hintIconEl.innerHTML = `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/></svg>`;
+  const hintTextEl = document.createElement('span');
+  hintTextEl.textContent = `Hint ${state.hintIndex + 1}: ${challenge.hints[state.hintIndex]}`;
+  hintEl.appendChild(hintIconEl);
+  hintEl.appendChild(hintTextEl);
   hintEl.classList.remove('hidden');
   state.hintIndex++;
 });
