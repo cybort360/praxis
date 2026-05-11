@@ -46,41 +46,46 @@ function persistState(currentScreen) {
   const { videoTitle, transcript, summary, quiz, challenge, quizIndex, quizPassed } = state;
   chrome.storage.session.set({
     savedSession: { videoTitle, transcript, summary, quiz, challenge, quizIndex, quizPassed, currentScreen }
-  });
+  }).catch(e => console.error('[LearnLoop] persistState failed:', e));
 }
 
 async function restoreOrInit() {
-  const { savedSession } = await chrome.storage.session.get('savedSession');
-  if (savedSession) {
-    Object.assign(state, savedSession);
-    if (savedSession.currentScreen === 'challenge') {
-      renderChallenge();
-      showScreen('screen-challenge');
-    } else if (savedSession.currentScreen === 'quiz') {
-      if (state.quizIndex >= state.quiz.length) {
-        document.getElementById('quiz-question-wrap').classList.add('hidden');
-        document.getElementById('quiz-complete').classList.remove('hidden');
-      } else {
-        renderQuizQuestion();
-      }
-      showScreen('screen-quiz');
-    } else {
-      renderSummary();
-      showScreen('screen-summary');
+  try {
+    const { savedSession, pendingSession } = await chrome.storage.session.get(['savedSession', 'pendingSession']);
+
+    if (pendingSession) {
+      chrome.storage.session.remove(['pendingSession', 'savedSession']);
+      state.videoTitle = pendingSession.title;
+      state.transcript = pendingSession.transcript;
+      startSession();
+      return;
     }
-    return;
-  }
 
-  const { pendingSession } = await chrome.storage.session.get('pendingSession');
-  if (pendingSession) {
-    chrome.storage.session.remove('pendingSession');
-    state.videoTitle = pendingSession.title;
-    state.transcript = pendingSession.transcript;
-    startSession();
-    return;
-  }
+    if (savedSession) {
+      Object.assign(state, savedSession);
+      if (savedSession.currentScreen === 'challenge') {
+        renderChallenge();
+        showScreen('screen-challenge');
+      } else if (savedSession.currentScreen === 'quiz') {
+        if (state.quizIndex >= state.quiz.length) {
+          document.getElementById('quiz-question-wrap').classList.add('hidden');
+          document.getElementById('quiz-complete').classList.remove('hidden');
+        } else {
+          renderQuizQuestion();
+        }
+        showScreen('screen-quiz');
+      } else {
+        renderSummary();
+        showScreen('screen-summary');
+      }
+      return;
+    }
 
-  showScreen('screen-idle');
+    showScreen('screen-idle');
+  } catch (e) {
+    console.error('[LearnLoop] restoreOrInit failed:', e);
+    showScreen('screen-idle');
+  }
 }
 
 
@@ -265,6 +270,7 @@ document.getElementById('btn-back-quiz').addEventListener('click', () => {
   state.quizIndex = 0;
   state.quizPassed = 0;
   state.selectedOption = null;
+  persistState('summary');
   showScreen('screen-summary');
 });
 
