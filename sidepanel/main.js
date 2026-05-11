@@ -64,7 +64,7 @@ async function startSession() {
   });
 
   if (!response.ok) {
-    showError(`Failed to generate session: ${response.error}`);
+    showError(`Failed to generate session: ${response.error ?? 'unknown error'}`);
     return;
   }
 
@@ -172,13 +172,13 @@ document.getElementById('btn-quiz-submit').addEventListener('click', async () =>
       payload: { question: q.question, userAnswer: answer, transcript: state.transcript },
     });
 
-    showScreen('screen-quiz');
-
     if (res.ok) {
+      showScreen('screen-quiz');
       showFeedback(res.data.passed, res.data.feedback, q.explanation);
       if (res.data.passed) state.quizPassed++;
     } else {
-      showError(`Could not evaluate answer: ${res.error}`);
+      showError(`Could not evaluate answer: ${res.error ?? 'unknown error'}`);
+      return;
     }
   } else {
     if (state.selectedOption === null) { btn.disabled = false; return; }
@@ -210,6 +210,10 @@ function showFeedback(passed, feedback, explanation) {
 }
 
 document.getElementById('btn-retry').addEventListener('click', () => {
+  if (!state.transcript) {
+    showScreen('screen-idle');
+    return;
+  }
   startSession();
 });
 
