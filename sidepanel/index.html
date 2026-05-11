@@ -11,36 +11,52 @@
   <!-- ── Global: Reset button (hidden on idle screen) ── -->
   <button id="btn-reset" class="btn btn-ghost btn-sm hidden" style="position:fixed;top:12px;right:12px;z-index:100;">↺ Reset</button>
 
-  <!-- ── SCREEN: Idle (no video detected yet) ── -->
+  <!-- ── SCREEN: Idle ── -->
   <div id="screen-idle" class="screen active">
-    <div class="idle-content">
-      <div class="logo">⟳ LearnLoop</div>
-      <p>Navigate to a YouTube tutorial and click the <strong>▶ Start LearnLoop</strong> button.</p>
+
+    <!-- Welcome sub-state (shown when API key is configured) -->
+    <div id="idle-welcome" class="hidden">
+      <div class="welcome-hero">
+        <div class="welcome-logo">⟳ LearnLoop</div>
+        <p class="welcome-tagline">Turn YouTube tutorials<br>into real skills.</p>
+        <p class="welcome-steps">Watch &rarr; Quiz &rarr; Build</p>
+      </div>
+      <div class="welcome-instruction">
+        <p>Navigate to a YouTube tutorial and click the <strong>▶ Start LearnLoop</strong> button on the page.</p>
+      </div>
+      <button id="btn-open-settings" class="btn btn-ghost btn-sm welcome-settings-btn">⚙ Settings</button>
     </div>
 
-    <div class="settings-panel">
-      <h3 class="settings-heading">API Settings</h3>
-      <div class="settings-field">
-        <label for="setting-provider">Provider</label>
-        <select id="setting-provider" class="settings-select">
-          <option value="anthropic">Anthropic (Claude)</option>
-          <option value="openai">OpenAI (GPT)</option>
-          <option value="openrouter">OpenRouter (free models available)</option>
-          <option value="groq">Groq (fast · free tier)</option>
-          <option value="gemini">Google Gemini</option>
-        </select>
+    <!-- Settings sub-state (shown on first run or when user opens settings) -->
+    <div id="idle-settings">
+      <div class="settings-panel">
+        <div class="settings-panel-header">
+          <h3 class="settings-heading">API Settings</h3>
+          <button id="btn-back-settings" class="btn btn-ghost btn-sm hidden">← Back</button>
+        </div>
+        <div class="settings-field">
+          <label for="setting-provider">Provider</label>
+          <select id="setting-provider" class="settings-select">
+            <option value="anthropic">Anthropic (Claude)</option>
+            <option value="openai">OpenAI (GPT)</option>
+            <option value="openrouter">OpenRouter (free models available)</option>
+            <option value="groq">Groq (fast · free tier)</option>
+            <option value="gemini">Google Gemini</option>
+          </select>
+        </div>
+        <div class="settings-field">
+          <label for="setting-apikey">API Key</label>
+          <input type="password" id="setting-apikey" class="settings-input" placeholder="Paste your API key…" />
+        </div>
+        <div class="settings-field" id="model-field-container">
+          <label for="setting-model">Model <span class="settings-optional">(optional)</span></label>
+          <input type="text" id="setting-model" class="settings-input" placeholder="Leave blank for default" />
+        </div>
+        <button id="btn-save-settings" class="btn btn-primary" style="width:100%;margin-top:4px;">Save</button>
+        <p id="settings-status" class="settings-status"></p>
       </div>
-      <div class="settings-field">
-        <label for="setting-apikey">API Key</label>
-        <input type="password" id="setting-apikey" class="settings-input" placeholder="Paste your API key…" />
-      </div>
-      <div class="settings-field" id="model-field-container">
-        <label for="setting-model">Model <span class="settings-optional">(optional)</span></label>
-        <input type="text" id="setting-model" class="settings-input" placeholder="Leave blank for default" />
-      </div>
-      <button id="btn-save-settings" class="btn btn-primary" style="width:100%;margin-top:4px;">Save</button>
-      <p id="settings-status" class="settings-status"></p>
     </div>
+
   </div>
 
   <!-- ── SCREEN: Loading (AI generating content) ── -->

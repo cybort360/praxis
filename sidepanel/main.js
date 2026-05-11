@@ -532,11 +532,28 @@ function updateModelField(provider, savedModel) {
 
 // ── Settings ──
 
+function showWelcome() {
+  document.getElementById('idle-welcome').classList.remove('hidden');
+  document.getElementById('idle-settings').classList.add('hidden');
+}
+
+function showSettingsPanel() {
+  document.getElementById('idle-settings').classList.remove('hidden');
+  document.getElementById('idle-welcome').classList.add('hidden');
+}
+
 chrome.storage.local.get('llmConfig').then(({ llmConfig }) => {
   const provider = llmConfig?.provider || 'anthropic';
   document.getElementById('setting-provider').value = provider;
   document.getElementById('setting-apikey').value = llmConfig?.apiKey || '';
   updateModelField(provider, llmConfig?.model || '');
+
+  if (llmConfig?.apiKey) {
+    showWelcome();
+    document.getElementById('btn-back-settings').classList.remove('hidden');
+  } else {
+    showSettingsPanel();
+  }
 });
 
 document.getElementById('setting-provider').addEventListener('change', (e) => {
@@ -559,8 +576,20 @@ document.getElementById('btn-save-settings').addEventListener('click', () => {
     .then(() => {
       status.style.color = 'var(--success)';
       status.textContent = 'Saved!';
-      setTimeout(() => { status.textContent = ''; }, 2000);
+      document.getElementById('btn-back-settings').classList.remove('hidden');
+      setTimeout(() => {
+        status.textContent = '';
+        showWelcome();
+      }, 800);
     });
+});
+
+document.getElementById('btn-open-settings').addEventListener('click', () => {
+  showSettingsPanel();
+});
+
+document.getElementById('btn-back-settings').addEventListener('click', () => {
+  showWelcome();
 });
 
 // ── Init ──
