@@ -17,6 +17,7 @@ const state = {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  document.getElementById('btn-reset').classList.toggle('hidden', id === 'screen-idle');
 }
 
 function setLoadingMsg(msg) {
@@ -220,6 +221,24 @@ document.getElementById('btn-retry').addEventListener('click', () => {
 document.getElementById('btn-error-reset').addEventListener('click', () => {
   resetState();
   showScreen('screen-idle');
+});
+
+document.getElementById('btn-reset').addEventListener('click', () => {
+  resetState();
+  showScreen('screen-idle');
+});
+
+document.getElementById('btn-back-quiz').addEventListener('click', () => {
+  state.quizIndex = 0;
+  state.quizPassed = 0;
+  state.selectedOption = null;
+  showScreen('screen-summary');
+});
+
+document.getElementById('btn-back-challenge').addEventListener('click', () => {
+  document.getElementById('quiz-question-wrap').classList.add('hidden');
+  document.getElementById('quiz-complete').classList.remove('hidden');
+  showScreen('screen-quiz');
 });
 
 document.getElementById('btn-quiz-next').addEventListener('click', () => {
