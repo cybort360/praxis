@@ -2,27 +2,67 @@
 (function () {
   'use strict';
 
-  let lastVideoId = null;
+  let lastVideoId    = null;
   let sessionStarted = false;
-  let startButton = null;
-  let isTriggering = false;
+  let startButton    = null;
+  let isTriggering   = false;
 
+  // ── Context guard ─────────────────────────────────────────────────────────
+  // When the extension is reloaded/updated, the content script's chrome.*
+  // access is severed. All chrome API calls must go through this wrapper.
+  function isContextAlive() {
+    try {
+      // chrome.runtime.id throws / becomes undefined when context is gone
+      return !!chrome.runtime?.id;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Wraps a chrome API call; silently returns null if context is invalidated.
+  async function safeChrome(fn) {
+    if (!isContextAlive()) return null;
+    try {
+      return await fn();
+    } catch (e) {
+      if (e.message?.includes('Extension context invalidated') ||
+          e.message?.includes('context invalidated')) {
+        stopObserver();
+        return null;
+      }
+      throw e;
+    }
+  }
+
+  // ── Navigation observer ───────────────────────────────────────────────────
+  let observerActive = false;
   const observer = new MutationObserver(() => {
+    if (!isContextAlive()) { stopObserver(); return; }
     const videoId = getVideoId();
     if (videoId && videoId !== lastVideoId) {
-      lastVideoId = videoId;
+      lastVideoId    = videoId;
       sessionStarted = false;
-      isTriggering = false;
+      isTriggering   = false;
       teardown();
       onNewVideo(videoId);
     }
   });
 
+  function stopObserver() {
+    if (observerActive) {
+      observer.disconnect();
+      observerActive = false;
+    }
+    teardown();
+  }
+
   observer.observe(document.body, { childList: true, subtree: true });
+  observerActive = true;
 
   const initialId = getVideoId();
   if (initialId) onNewVideo(initialId);
 
+  // ── Helpers ───────────────────────────────────────────────────────────────
   function getVideoId() {
     const params = new URLSearchParams(window.location.search);
     return params.get('v') || null;
@@ -37,45 +77,41 @@
   }
 
   function teardown() {
-    if (startButton) {
-      startButton.remove();
-      startButton = null;
-    }
+    if (startButton) { startButton.remove(); startButton = null; }
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   function showButtonError(msg) {
     const tip = document.createElement('div');
     tip.textContent = msg;
     Object.assign(tip.style, {
-      position: 'fixed',
-      bottom: '130px',
-      right: '20px',
-      zIndex: '10000',
-      background: '#1a1a22',
-      color: '#e05c5c',
-      border: '1px solid #e05c5c',
-      borderRadius: '8px',
-      padding: '8px 12px',
-      fontSize: '12px',
-      maxWidth: '220px',
-      lineHeight: '1.4',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+      position: 'fixed', bottom: '130px', right: '20px', zIndex: '10000',
+      background: '#1a1a22', color: '#e05c5c', border: '1px solid #e05c5c',
+      borderRadius: '8px', padding: '8px 12px', fontSize: '12px',
+      maxWidth: '220px', lineHeight: '1.4', boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
     });
     document.body.appendChild(tip);
     setTimeout(() => tip.remove(), 4000);
   }
 
+  // ── Core flow ─────────────────────────────────────────────────────────────
   async function onNewVideo(videoId) {
     if (sessionStarted) return;
     await sleep(2000);
-    if (videoId !== lastVideoId) return;
+    if (videoId !== lastVideoId) return;          // navigated away during sleep
+    if (!isContextAlive()) return;                // extension was reloaded
 
-    const stored = await chrome.storage.local.get('llmConfig');
-    const cfg = stored.llmConfig || {};
-    const autoStart = !!cfg.autoStart;
+    const stored = await safeChrome(() => chrome.storage.local.get('llmConfig'));
+    if (stored === null) return;                  // context gone
+
+    const cfg         = stored.llmConfig || {};
+    const autoStart   = !!cfg.autoStart;
     const minWatchPct = typeof cfg.minWatchPct === 'number' ? cfg.minWatchPct : 0;
+    const video       = document.querySelector('video');
 
-    const video = document.querySelector('video');
     if (autoStart) {
       if (video) {
         watchForAutoStart(video, videoId, minWatchPct);
@@ -94,6 +130,7 @@
     }
 
     function onTimeUpdate() {
+      if (!isContextAlive()) { video.removeEventListener('timeupdate', onTimeUpdate); return; }
       if (!video.duration || video.duration === 0) return;
       const pct = (video.currentTime / video.duration) * 100;
       if (pct >= minWatchPct) {
@@ -111,26 +148,27 @@
     startButton.id = '__ll_start_btn';
     startButton.textContent = '▶ Start LearnLoop';
     Object.assign(startButton.style, {
-      position: 'fixed',
-      bottom: '80px',
-      right: '20px',
-      zIndex: '9999',
-      background: '#7c3aed',
-      color: '#fff',
-      border: 'none',
-      borderRadius: '9999px',
-      padding: '10px 18px',
-      fontSize: '14px',
-      fontWeight: '600',
-      cursor: 'pointer',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+      position: 'fixed', bottom: '80px', right: '20px', zIndex: '9999',
+      background: '#7c3aed', color: '#fff', border: 'none',
+      borderRadius: '9999px', padding: '10px 18px', fontSize: '14px',
+      fontWeight: '600', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
     });
-    startButton.addEventListener('click', () => triggerSession(videoId));
+    startButton.addEventListener('click', () => {
+      if (!isContextAlive()) {
+        showButtonError('Extension was reloaded — please refresh the page.');
+        return;
+      }
+      triggerSession(videoId);
+    });
     document.body.appendChild(startButton);
   }
 
-async function triggerSession(videoId) {
+  async function triggerSession(videoId) {
     if (isTriggering || sessionStarted) return;
+    if (!isContextAlive()) {
+      showButtonError('Extension was reloaded — please refresh the page.');
+      return;
+    }
     isTriggering = true;
 
     const title = getVideoTitle();
@@ -144,16 +182,21 @@ async function triggerSession(videoId) {
       return;
     }
 
+    if (!isContextAlive()) return;
+
     teardown();
     sessionStarted = true;
-    chrome.runtime.sendMessage({
-      type: 'VIDEO_DETECTED',
-      payload: { videoId, title, transcript },
-    });
+    await safeChrome(() =>
+      chrome.runtime.sendMessage({
+        type:    'VIDEO_DETECTED',
+        payload: { videoId, title, transcript },
+      })
+    );
   }
 
   function getPlayerData() {
     return new Promise((resolve, reject) => {
+      if (!isContextAlive()) { reject(new Error('Extension context invalidated')); return; }
       chrome.runtime.sendMessage({ type: 'GET_PLAYER_DATA' }, (response) => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
@@ -168,7 +211,7 @@ async function triggerSession(videoId) {
 
   async function fetchTranscript(videoId) {
     const playerResponse = await getPlayerData();
-    const captionTracks =
+    const captionTracks  =
       playerResponse?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
     if (!captionTracks || captionTracks.length === 0) {
       throw new Error('No caption tracks found');
@@ -184,16 +227,12 @@ async function triggerSession(videoId) {
 
   function parseTranscriptXML(xml) {
     const parser = new DOMParser();
-    const doc = parser.parseFromString(xml, 'text/xml');
+    const doc    = parser.parseFromString(xml, 'text/xml');
     return Array.from(doc.querySelectorAll('text'))
       .map(el => ({
-        t: parseFloat(el.getAttribute('start') || '0'),
+        t:    parseFloat(el.getAttribute('start') || '0'),
         text: el.textContent.replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim(),
       }))
       .filter(seg => seg.text);
-  }
-
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 })();
