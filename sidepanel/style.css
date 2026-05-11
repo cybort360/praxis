@@ -374,19 +374,6 @@ html, body {
   margin-right: auto;
 }
 
-.ide-editor {
-  width: 100%;
-  min-height: 200px;
-  padding: 12px;
-  background: var(--surface);
-  color: #c9d1d9;
-  font-family: var(--font-mono);
-  font-size: 12.5px;
-  line-height: 1.6;
-  border: none;
-  resize: vertical;
-  outline: none;
-}
 
 .ide-output-header {
   padding: 4px 12px;
@@ -493,21 +480,21 @@ html, body {
 .CodeMirror {
   height: auto;
   min-height: 120px;
-  background: var(--bg-secondary, #1e1e2e);
-  color: var(--text-primary, #cdd6f4);
+  background: var(--surface);
+  color: var(--text);
   font-family: 'Courier New', Courier, monospace;
   font-size: 13px;
   border-radius: 6px;
 }
 .CodeMirror-gutters {
-  background: var(--bg-secondary, #1e1e2e);
-  border-right: 1px solid var(--border, #313244);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
 }
 .CodeMirror-linenumber {
-  color: var(--text-muted, #6c7086);
+  color: var(--text-muted);
 }
 .CodeMirror-cursor {
-  border-left-color: var(--text-primary, #cdd6f4);
+  border-left-color: var(--text);
 }
 .CodeMirror-selected {
   background: rgba(124, 106, 247, 0.2) !important;

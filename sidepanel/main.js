@@ -405,7 +405,7 @@ function renderChallenge() {
   document.getElementById('hint-display').classList.add('hidden');
   state.hintIndex = 0;
 
-  // Initialize or reinitialize CodeMirror
+  // Initialize CodeMirror once; the instance is reused across challenges.
   const wrap = document.getElementById('ide-editor-wrap');
   if (!editor) {
     editor = CodeMirror(wrap, {
@@ -429,6 +429,7 @@ document.getElementById('btn-run').addEventListener('click', () => {
 });
 
 function runCode() {
+  if (!editor) return;
   document.getElementById('ide-output').textContent = '';
   document.getElementById('test-results').replaceChildren();
 
@@ -489,7 +490,7 @@ document.getElementById('btn-hint').addEventListener('click', () => {
 document.getElementById('btn-solution').addEventListener('click', () => {
   const { challenge } = state;
   if (confirm('Show the solution? Try the hints first!')) {
-    editor.setValue(challenge.solution);
+    if (editor) editor.setValue(challenge.solution || '');
   }
 });
 
