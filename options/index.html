@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnLoop Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>LearnLoop Settings</h1>
+    </header>
+
+    <main>
+      <section class="section">
+        <h2>AI Provider</h2>
+        <div class="field">
+          <label for="provider">Provider</label>
+          <select id="provider">
+            <option value="anthropic">Anthropic (Claude)</option>
+            <option value="openai">OpenAI (ChatGPT)</option>
+            <option value="gemini">Google Gemini</option>
+            <option value="openai-compatible">OpenAI-compatible</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="api-key">API Key</label>
+          <input type="password" id="api-key" placeholder="sk-…">
+        </div>
+        <div class="field" id="base-url-field" style="display:none">
+          <label for="base-url">Base URL</label>
+          <input type="text" id="base-url" placeholder="https://api.example.com/v1">
+        </div>
+        <div class="field">
+          <label for="model">Model</label>
+          <input type="text" id="model" placeholder="Leave blank for provider default">
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Quiz</h2>
+        <div class="field">
+          <label for="difficulty">Difficulty</label>
+          <select id="difficulty">
+            <option value="easy">Easy — recall questions</option>
+            <option value="medium">Medium — mix of recall and application</option>
+            <option value="hard">Hard — application and edge cases</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Auto-Start</h2>
+        <div class="field field-row">
+          <label for="auto-start">Auto-start quiz on video load</label>
+          <input type="checkbox" id="auto-start">
+        </div>
+        <div class="field" id="min-watch-field">
+          <label for="min-watch">Minimum watch percentage</label>
+          <div class="range-row">
+            <input type="range" id="min-watch" min="0" max="90" step="5" value="0">
+            <span id="min-watch-display">0%</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <button id="save-btn" class="btn-primary">Save Settings</button>
+      <p id="status-msg" class="status-msg"></p>
+    </footer>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

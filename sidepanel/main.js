@@ -625,5 +625,9 @@ document.getElementById('btn-back-settings').addEventListener('click', () => {
   showWelcome();
 });
 
+document.getElementById('more-settings-link').addEventListener('click', () => {
+  chrome.runtime.openOptionsPage();
+});
+
 // ── Init ──
 restoreOrInit();

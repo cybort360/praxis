@@ -39,6 +39,8 @@
     "pages": ["sidepanel/sandbox.html"]
   },
 
+  "options_page": "options/index.html",
+
   "side_panel": {
     "default_path": "sidepanel/index.html"
   },
