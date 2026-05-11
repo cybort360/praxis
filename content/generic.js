@@ -28,12 +28,13 @@
   }
 
   // ── State ─────────────────────────────────────────────────────────────────
-  let startButton    = null;
-  let sessionStarted = false;
-  let isTriggering   = false;
-  let currentUrl     = location.href;
-  let detectTimer    = null;
-  let navInterval    = null;
+  let startButton     = null;
+  let sessionStarted  = false;
+  let isTriggering    = false;
+  let currentUrl      = location.href;
+  let detectTimer     = null;
+  let navInterval     = null;
+  let fetchController = null;
 
   // ── Allow-list check ──────────────────────────────────────────────────────
   async function isAllowed() {
@@ -60,8 +61,9 @@
 
   // ── Teardown ──────────────────────────────────────────────────────────────
   function teardown() {
-    if (startButton)  { startButton.remove(); startButton = null; }
-    if (detectTimer)  { clearTimeout(detectTimer); detectTimer = null; }
+    if (startButton)     { startButton.remove(); startButton = null; }
+    if (detectTimer)     { clearTimeout(detectTimer); detectTimer = null; }
+    if (fetchController) { fetchController.abort(); fetchController = null; }
     sessionStarted = false;
     isTriggering   = false;
   }
@@ -200,6 +202,7 @@
     }
     isTriggering = true;
     setButtonState('Loading…', iconSpinner());
+    const sessionUrl = currentUrl; // capture at entry; bail if nav occurs during fetch
 
     const video = document.querySelector('video');
     const track = video ? getBestTrack(video) : null;
@@ -224,6 +227,7 @@
     }
 
     if (!isContextAlive()) return;
+    if (currentUrl !== sessionUrl) return; // user navigated away during fetch
     teardown();
     sessionStarted = true;
     await safeChrome(() =>
@@ -242,9 +246,15 @@
   async function fetchVTT(url) {
     // Try page-context fetch first
     try {
-      const res = await fetch(url);
+      fetchController = new AbortController();
+      const res = await fetch(url, { signal: fetchController.signal });
+      fetchController = null;
       if (res.ok) return await res.text();
-    } catch (_) { /* fall through to background fallback */ }
+    } catch (e) {
+      fetchController = null;
+      if (e.name === 'AbortError') return null; // navigation cancelled the fetch
+      // fall through to background fallback
+    }
     // Fallback: background fetches from extension origin (no CORS restriction)
     const result = await safeChrome(() =>
       chrome.runtime.sendMessage({ type: 'FETCH_VTT', payload: { url } })
