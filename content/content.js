@@ -145,11 +145,41 @@
     video.addEventListener('timeupdate', onTimeUpdate);
   }
 
+  // ── SVG icon helpers ──────────────────────────────────────────────────────
+  // Returns an inline SVG string. SMIL animation is used for the spinner so
+  // no injected <style> or keyframes are needed on YouTube's page.
+  function iconPlay() {
+    return `<svg viewBox="0 0 24 24" fill="currentColor"
+              style="width:14px;height:14px;display:block;flex-shrink:0">
+              <polygon points="5,3 19,12 5,21"/>
+            </svg>`;
+  }
+
+  function iconSpinner() {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round"
+              style="width:14px;height:14px;display:block;flex-shrink:0">
+              <circle cx="12" cy="12" r="9" stroke-opacity="0.25"/>
+              <path d="M12 3a9 9 0 0 1 9 9">
+                <animateTransform attributeName="transform" type="rotate"
+                  from="0 12 12" to="360 12 12" dur="0.75s" repeatCount="indefinite"/>
+              </path>
+            </svg>`;
+  }
+
+  function setButtonState(label, iconHtml) {
+    if (!startButton) return;
+    startButton.innerHTML =
+      `<span style="display:flex;align-items:center;gap:8px;pointer-events:none">
+         ${iconHtml}
+         <span>${label}</span>
+       </span>`;
+  }
+
   function injectStartButton(videoId) {
     if (startButton) return;
     startButton = document.createElement('button');
-    startButton.id          = '__ll_start_btn';
-    startButton.textContent = '▶ Start LearnLoop';
+    startButton.id = '__ll_start_btn';
     Object.assign(startButton.style, {
       position: 'fixed', bottom: '80px', right: '20px', zIndex: '9999',
       background: 'linear-gradient(135deg,#7c6af7,#a78bfa)',
@@ -158,7 +188,9 @@
       cursor: 'pointer', boxShadow: '0 4px 14px rgba(124,106,247,0.5)',
       transition: 'opacity .15s, transform .1s',
       fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+      lineHeight: '1',
     });
+    setButtonState('Start LearnLoop', iconPlay());
     startButton.onmouseenter = () => { startButton.style.opacity = '0.88'; startButton.style.transform = 'translateY(-1px)'; };
     startButton.onmouseleave = () => { startButton.style.opacity = '1';    startButton.style.transform = 'translateY(0)'; };
     startButton.addEventListener('click', () => {
@@ -176,8 +208,8 @@
     if (!isContextAlive()) { showToast('Extension was reloaded — please refresh the page.'); return; }
     isTriggering = true;
 
-    // Show a subtle loading state on the button while fetching transcript
-    if (startButton) startButton.textContent = '⏳ Loading…';
+    // Show spinner while fetching transcript
+    setButtonState('Loading…', iconSpinner());
 
     let transcript = null;
     try {
@@ -185,7 +217,7 @@
     } catch (e) {
       console.warn('[LearnLoop] Could not fetch transcript:', e.message);
       isTriggering = false;
-      if (startButton) startButton.textContent = '▶ Start LearnLoop';
+      setButtonState('Start LearnLoop', iconPlay());
       showToast('No captions found — captions are required');
       return;
     }
