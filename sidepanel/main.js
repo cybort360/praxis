@@ -42,17 +42,47 @@ function resetState() {
   chrome.storage.session.remove('savedSession');
 }
 
-// ── Pull pending session from storage on load ──
-// background.js writes to storage.session before opening the panel, so we pull
-// here instead of waiting for a push message that would arrive before this
-// listener is attached.
-chrome.storage.session.get('pendingSession').then(({ pendingSession }) => {
-  if (!pendingSession) return;
-  chrome.storage.session.remove('pendingSession');
-  state.videoTitle = pendingSession.title;
-  state.transcript = pendingSession.transcript;
-  startSession();
-});
+function persistState(currentScreen) {
+  const { videoTitle, transcript, summary, quiz, challenge, quizIndex, quizPassed } = state;
+  chrome.storage.session.set({
+    savedSession: { videoTitle, transcript, summary, quiz, challenge, quizIndex, quizPassed, currentScreen }
+  });
+}
+
+async function restoreOrInit() {
+  const { savedSession } = await chrome.storage.session.get('savedSession');
+  if (savedSession) {
+    Object.assign(state, savedSession);
+    if (savedSession.currentScreen === 'challenge') {
+      renderChallenge();
+      showScreen('screen-challenge');
+    } else if (savedSession.currentScreen === 'quiz') {
+      if (state.quizIndex >= state.quiz.length) {
+        document.getElementById('quiz-question-wrap').classList.add('hidden');
+        document.getElementById('quiz-complete').classList.remove('hidden');
+      } else {
+        renderQuizQuestion();
+      }
+      showScreen('screen-quiz');
+    } else {
+      renderSummary();
+      showScreen('screen-summary');
+    }
+    return;
+  }
+
+  const { pendingSession } = await chrome.storage.session.get('pendingSession');
+  if (pendingSession) {
+    chrome.storage.session.remove('pendingSession');
+    state.videoTitle = pendingSession.title;
+    state.transcript = pendingSession.transcript;
+    startSession();
+    return;
+  }
+
+  showScreen('screen-idle');
+}
+
 
 // ── Start session: call AI to generate all content ──
 async function startSession() {
@@ -77,6 +107,7 @@ async function startSession() {
   state.quizPassed = 0;
   state.hintIndex = 0;
 
+  persistState('summary');
   renderSummary();
   showScreen('screen-summary');
 }
@@ -252,11 +283,13 @@ document.getElementById('btn-quiz-next').addEventListener('click', () => {
     document.getElementById('quiz-question-wrap').classList.add('hidden');
     document.getElementById('quiz-complete').classList.remove('hidden');
   } else {
+    persistState('quiz');
     renderQuizQuestion();
   }
 });
 
 document.getElementById('btn-start-challenge').addEventListener('click', () => {
+  persistState('challenge');
   renderChallenge();
   showScreen('screen-challenge');
 });
@@ -383,5 +416,5 @@ document.getElementById('btn-solution').addEventListener('click', () => {
   }
 });
 
-// ── Init: check if already idle ──
-showScreen('screen-idle');
+// ── Init ──
+restoreOrInit();
