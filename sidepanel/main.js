@@ -461,5 +461,34 @@ document.getElementById('btn-solution').addEventListener('click', () => {
   }
 });
 
+// ── Settings ──
+
+chrome.storage.local.get('llmConfig').then(({ llmConfig }) => {
+  if (!llmConfig) return;
+  document.getElementById('setting-provider').value = llmConfig.provider || 'anthropic';
+  document.getElementById('setting-apikey').value = llmConfig.apiKey || '';
+  document.getElementById('setting-model').value = llmConfig.model || '';
+});
+
+document.getElementById('btn-save-settings').addEventListener('click', () => {
+  const provider = document.getElementById('setting-provider').value;
+  const apiKey = document.getElementById('setting-apikey').value.trim();
+  const model = document.getElementById('setting-model').value.trim();
+  const status = document.getElementById('settings-status');
+
+  if (!apiKey) {
+    status.style.color = 'var(--error)';
+    status.textContent = 'API key is required.';
+    return;
+  }
+
+  chrome.storage.local.set({ llmConfig: { provider, apiKey, model: model || undefined } })
+    .then(() => {
+      status.style.color = 'var(--success)';
+      status.textContent = 'Saved!';
+      setTimeout(() => { status.textContent = ''; }, 2000);
+    });
+});
+
 // ── Init ──
 restoreOrInit();

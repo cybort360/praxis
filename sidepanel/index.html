@@ -15,7 +15,28 @@
   <div id="screen-idle" class="screen active">
     <div class="idle-content">
       <div class="logo">⟳ LearnLoop</div>
-      <p>Navigate to a YouTube tutorial to get started.</p>
+      <p>Navigate to a YouTube tutorial and click the <strong>▶ Start LearnLoop</strong> button.</p>
+    </div>
+
+    <div class="settings-panel">
+      <h3 class="settings-heading">API Settings</h3>
+      <div class="settings-field">
+        <label for="setting-provider">Provider</label>
+        <select id="setting-provider" class="settings-select">
+          <option value="anthropic">Anthropic (Claude)</option>
+          <option value="openai">OpenAI (GPT)</option>
+        </select>
+      </div>
+      <div class="settings-field">
+        <label for="setting-apikey">API Key</label>
+        <input type="password" id="setting-apikey" class="settings-input" placeholder="Paste your API key…" />
+      </div>
+      <div class="settings-field">
+        <label for="setting-model">Model <span class="settings-optional">(optional)</span></label>
+        <input type="text" id="setting-model" class="settings-input" placeholder="Leave blank for default" />
+      </div>
+      <button id="btn-save-settings" class="btn btn-primary" style="width:100%;margin-top:4px;">Save</button>
+      <p id="settings-status" class="settings-status"></p>
     </div>
   </div>
 

@@ -57,6 +57,64 @@ html, body {
   letter-spacing: -0.5px;
 }
 
+/* ── Settings Panel (on idle screen) ── */
+.settings-panel {
+  margin: 16px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.settings-heading {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 14px;
+}
+
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.settings-field label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.settings-optional {
+  opacity: 0.6;
+}
+
+.settings-select,
+.settings-input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 13px;
+  padding: 7px 10px;
+  outline: none;
+  width: 100%;
+}
+
+.settings-select:focus,
+.settings-input:focus {
+  border-color: var(--accent);
+}
+
+.settings-status {
+  margin-top: 8px;
+  font-size: 12px;
+  min-height: 16px;
+  color: var(--success);
+}
+
 /* ── Loading Screen ── */
 .loading-content {
   display: flex;
