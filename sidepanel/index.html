@@ -8,6 +8,9 @@
 </head>
 <body>
 
+  <!-- ── Global: Reset button (hidden on idle screen) ── -->
+  <button id="btn-reset" class="btn btn-ghost btn-sm hidden" style="position:fixed;top:12px;right:12px;z-index:100;">↺ Reset</button>
+
   <!-- ── SCREEN: Idle (no video detected yet) ── -->
   <div id="screen-idle" class="screen active">
     <div class="idle-content">
@@ -22,6 +25,16 @@
       <div class="spinner"></div>
       <p id="loading-msg">Analysing transcript...</p>
     </div>
+  </div>
+
+  <!-- ── SCREEN: Error ── -->
+  <div id="screen-error" class="screen">
+    <div class="screen-header">
+      <h2>Something went wrong</h2>
+    </div>
+    <p id="error-message" style="margin:16px 0;color:var(--color-text-muted,#aaa);"></p>
+    <button id="btn-retry" class="btn btn-primary">Try Again</button>
+    <button id="btn-error-reset" class="btn btn-secondary" style="margin-top:8px;">Start Over</button>
   </div>
 
   <!-- ── SCREEN: Summary ── -->
@@ -40,6 +53,7 @@
     <div class="screen-header">
       <span class="step-badge">Step 2 of 3</span>
       <h2>Prove You Understood It</h2>
+      <button id="btn-back-quiz" class="btn btn-ghost btn-sm">← Back</button>
       <div class="progress-bar">
         <div id="quiz-progress" class="progress-fill"></div>
       </div>
@@ -68,11 +82,23 @@
     </div>
   </div>
 
+  <!-- ── SCREEN: Quiz Fail ── -->
+  <div id="screen-quiz-fail" class="screen">
+    <div class="screen-header">
+      <h2>Not quite</h2>
+    </div>
+    <p id="fail-score" style="margin:16px 0;font-size:1.1rem;"></p>
+    <p style="color:var(--color-text-muted,#aaa);margin-bottom:24px;">Review the summary and give it another go.</p>
+    <button id="btn-retry-quiz" class="btn btn-primary">Try Again</button>
+    <button id="btn-fail-to-summary" class="btn btn-secondary" style="margin-top:8px;">Back to Summary</button>
+  </div>
+
   <!-- ── SCREEN: Challenge + IDE ── -->
   <div id="screen-challenge" class="screen">
     <div class="screen-header">
       <span class="step-badge">Step 3 of 3</span>
       <h2 id="challenge-title"></h2>
+      <button id="btn-back-challenge" class="btn btn-ghost btn-sm">← Back</button>
     </div>
 
     <p id="challenge-description"></p>
