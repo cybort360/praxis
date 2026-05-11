@@ -51,6 +51,12 @@
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
     </symbol>
+    <symbol id="ic-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="2" y1="12" x2="22" y2="12"/>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    </symbol>
   </svg>
 
   <div class="page">
@@ -140,6 +146,32 @@
               <polyline points="6 9 12 15 18 9"/>
             </svg>
           </div>
+        </div>
+      </section>
+
+      <!-- Platforms -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-icon-wrap teal">
+            <svg class="icon icon-sm"><use href="#ic-globe"/></svg>
+          </div>
+          <h2 class="card-title">Platforms</h2>
+        </div>
+        <p class="field-hint" style="margin-bottom:14px">
+          LearnLoop appears on these sites when a captioned video is detected.
+          YouTube is always active.
+        </p>
+
+        <div id="default-platforms"></div>
+        <div id="custom-platforms"></div>
+
+        <div class="field" style="margin-top:14px">
+          <label for="add-site-input">Add a site</label>
+          <div class="add-site-row">
+            <input type="text" id="add-site-input" placeholder="e.g. egghead.io" autocomplete="off">
+            <button class="btn-add-site" id="add-site-btn" type="button">Add</button>
+          </div>
+          <p class="field-error" id="add-site-error"></p>
         </div>
       </section>
 
