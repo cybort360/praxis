@@ -593,7 +593,7 @@ document.getElementById('setting-provider').addEventListener('change', (e) => {
   updateModelField(e.target.value, '');
 });
 
-document.getElementById('btn-save-settings').addEventListener('click', () => {
+document.getElementById('btn-save-settings').addEventListener('click', async () => {
   const provider = document.getElementById('setting-provider').value;
   const apiKey = document.getElementById('setting-apikey').value.trim();
   const model = document.getElementById('setting-model').value.trim();
@@ -605,16 +605,19 @@ document.getElementById('btn-save-settings').addEventListener('click', () => {
     return;
   }
 
-  chrome.storage.local.set({ llmConfig: { provider, apiKey, model: model || undefined } })
-    .then(() => {
-      status.style.color = 'var(--success)';
-      status.textContent = 'Saved!';
-      document.getElementById('btn-back-settings').classList.remove('hidden');
-      setTimeout(() => {
-        status.textContent = '';
-        showWelcome();
-      }, 800);
-    });
+  const existing = await chrome.storage.local.get('llmConfig');
+  const currentCfg = existing.llmConfig || {};
+  await chrome.storage.local.set({
+    llmConfig: { ...currentCfg, provider, apiKey, model: model || undefined },
+  });
+
+  status.style.color = 'var(--success)';
+  status.textContent = 'Saved!';
+  document.getElementById('btn-back-settings').classList.remove('hidden');
+  setTimeout(() => {
+    status.textContent = '';
+    showWelcome();
+  }, 800);
 });
 
 document.getElementById('btn-open-settings').addEventListener('click', () => {
