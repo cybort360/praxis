@@ -492,9 +492,10 @@ html, body {
   height: auto;
   min-height: 120px;
   background: var(--surface);
-  color: var(--text);
-  font-family: 'Courier New', Courier, monospace;
+  color: #e8e8f0;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
   font-size: 13px;
+  line-height: 1.6;
   border-radius: 6px;
 }
 .CodeMirror-gutters {
@@ -505,8 +506,29 @@ html, body {
   color: var(--text-muted);
 }
 .CodeMirror-cursor {
-  border-left-color: var(--text);
+  border-left-color: #e8e8f0;
 }
 .CodeMirror-selected {
-  background: rgba(124, 106, 247, 0.2) !important;
+  background: rgba(124, 106, 247, 0.25) !important;
 }
+.CodeMirror-activeline-background {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Syntax token colors */
+.cm-keyword   { color: #c792ea; }          /* function, return, let, const, if */
+.cm-def       { color: #82aaff; }          /* defined function/variable name */
+.cm-variable  { color: #e8e8f0; }          /* identifiers */
+.cm-variable-2 { color: #89ddff; }         /* params, secondary vars */
+.cm-property  { color: #f07178; }          /* obj.property */
+.cm-string    { color: #c3e88d; }          /* "strings" */
+.cm-string-2  { color: #c3e88d; }          /* template literals */
+.cm-number    { color: #f78c6c; }          /* 42, 3.14 */
+.cm-atom      { color: #f78c6c; }          /* true, false, null, undefined */
+.cm-operator  { color: #89ddff; }          /* = + - * / === */
+.cm-punctuation { color: #89ddff; }        /* { } ( ) ; , */
+.cm-comment   { color: #546e7a; font-style: italic; }
+.cm-tag       { color: #f07178; }
+.cm-attribute { color: #ffcb6b; }
+.cm-builtin   { color: #ffcb6b; }          /* Math, Array, console */
+.cm-bracket   { color: #89ddff; }
