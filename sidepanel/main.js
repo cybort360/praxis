@@ -461,13 +461,87 @@ document.getElementById('btn-solution').addEventListener('click', () => {
   }
 });
 
+// ── Provider model lists ──
+const PROVIDER_MODELS = {
+  anthropic: [
+    { id: 'claude-haiku-4-5-20251001', label: 'Claude Haiku 4.5 — Fast · Cheap (default)' },
+    { id: 'claude-sonnet-4-6',         label: 'Claude Sonnet 4.6 — Balanced' },
+    { id: 'claude-opus-4-7',           label: 'Claude Opus 4.7 — Most capable' },
+  ],
+  openai: [
+    { id: 'gpt-4o-mini', label: 'GPT-4o mini — Fast · Cheap (default)' },
+    { id: 'gpt-4o',      label: 'GPT-4o — Most capable' },
+  ],
+  openrouter: null,
+  groq: [
+    { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B — Balanced (default)' },
+    { id: 'llama-3.1-8b-instant',    label: 'Llama 3.1 8B — Fastest' },
+    { id: 'mixtral-8x7b-32768',      label: 'Mixtral 8x7B' },
+    { id: 'gemma2-9b-it',            label: 'Gemma 2 9B' },
+  ],
+  gemini: [
+    { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash — Fast · Free tier (default)' },
+    { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
+    { id: 'gemini-1.5-pro',   label: 'Gemini 1.5 Pro — Most capable' },
+  ],
+};
+
+function updateModelField(provider, savedModel) {
+  const container = document.getElementById('model-field-container');
+  const models = PROVIDER_MODELS[provider];
+
+  while (container.firstChild) container.removeChild(container.firstChild);
+
+  const label = document.createElement('label');
+  label.setAttribute('for', 'setting-model');
+
+  if (models === null) {
+    label.textContent = 'Model ';
+    const hint = document.createElement('span');
+    hint.className = 'settings-optional';
+    hint.textContent = '(optional)';
+    label.appendChild(hint);
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = 'setting-model';
+    input.className = 'settings-input';
+    input.placeholder = 'e.g. meta-llama/llama-3.3-70b-instruct:free';
+    if (savedModel) input.value = savedModel;
+
+    container.appendChild(label);
+    container.appendChild(input);
+  } else {
+    label.textContent = 'Model';
+
+    const select = document.createElement('select');
+    select.id = 'setting-model';
+    select.className = 'settings-select';
+
+    models.forEach(m => {
+      const option = document.createElement('option');
+      option.value = m.id;
+      option.textContent = m.label;
+      if (savedModel === m.id) option.selected = true;
+      select.appendChild(option);
+    });
+
+    container.appendChild(label);
+    container.appendChild(select);
+  }
+}
+
 // ── Settings ──
 
 chrome.storage.local.get('llmConfig').then(({ llmConfig }) => {
-  if (!llmConfig) return;
-  document.getElementById('setting-provider').value = llmConfig.provider || 'anthropic';
-  document.getElementById('setting-apikey').value = llmConfig.apiKey || '';
-  document.getElementById('setting-model').value = llmConfig.model || '';
+  const provider = llmConfig?.provider || 'anthropic';
+  document.getElementById('setting-provider').value = provider;
+  document.getElementById('setting-apikey').value = llmConfig?.apiKey || '';
+  updateModelField(provider, llmConfig?.model || '');
+});
+
+document.getElementById('setting-provider').addEventListener('change', (e) => {
+  updateModelField(e.target.value, '');
 });
 
 document.getElementById('btn-save-settings').addEventListener('click', () => {
