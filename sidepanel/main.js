@@ -29,6 +29,19 @@ function showError(message) {
   showScreen('screen-error');
 }
 
+function resetQuiz() {
+  for (let i = state.quiz.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [state.quiz[i], state.quiz[j]] = [state.quiz[j], state.quiz[i]];
+  }
+  state.quizIndex = 0;
+  state.quizPassed = 0;
+  state.selectedOption = null;
+  document.getElementById('quiz-question-wrap').classList.remove('hidden');
+  document.getElementById('quiz-complete').classList.add('hidden');
+  document.getElementById('quiz-progress').style.width = '0%';
+}
+
 function resetState() {
   state.transcript = null;
   state.videoTitle = null;
@@ -280,14 +293,32 @@ document.getElementById('btn-back-challenge').addEventListener('click', () => {
   showScreen('screen-quiz');
 });
 
+document.getElementById('btn-retry-quiz').addEventListener('click', () => {
+  resetQuiz();
+  renderQuizQuestion();
+  showScreen('screen-quiz');
+});
+
+document.getElementById('btn-fail-to-summary').addEventListener('click', () => {
+  resetQuiz();
+  showScreen('screen-summary');
+});
+
 document.getElementById('btn-quiz-next').addEventListener('click', () => {
   state.quizIndex++;
 
   if (state.quizIndex >= state.quiz.length) {
-    // Quiz complete
     document.getElementById('quiz-progress').style.width = '100%';
-    document.getElementById('quiz-question-wrap').classList.add('hidden');
-    document.getElementById('quiz-complete').classList.remove('hidden');
+    const threshold = Math.ceil(state.quiz.length * 0.67);
+    if (state.quizPassed >= threshold) {
+      persistState('quiz');
+      document.getElementById('quiz-question-wrap').classList.add('hidden');
+      document.getElementById('quiz-complete').classList.remove('hidden');
+    } else {
+      document.getElementById('fail-score').textContent =
+        `You got ${state.quizPassed} of ${state.quiz.length} — need ${threshold} to continue.`;
+      showScreen('screen-quiz-fail');
+    }
   } else {
     persistState('quiz');
     renderQuizQuestion();
