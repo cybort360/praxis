@@ -17,28 +17,30 @@ window.addEventListener('message', (event) => {
   let testResults = [];
 
   try {
-    new Function(code)();
-
-    (tests || []).forEach(test => {
-      try {
-        const actual   = new Function('return (' + test.input + ')')();
-        const expected = new Function('return (' + test.expectedOutput + ')')();
-        const pass = JSON.stringify(actual) === JSON.stringify(expected);
-        testResults.push({
-          description: test.description,
-          pass,
-          actual: JSON.stringify(actual),
-          expected: JSON.stringify(expected),
-        });
-      } catch (e) {
-        testResults.push({
-          description: test.description,
-          pass: false,
-          actual: 'Error: ' + e.message,
-          expected: test.expectedOutput,
-        });
-      }
-    });
+    if (!tests || tests.length === 0) {
+      new Function(code)();
+    } else {
+      (tests || []).forEach(test => {
+        try {
+          const actual   = new Function(code + '\nreturn (' + test.input + ')')();
+          const expected = new Function('return (' + test.expectedOutput + ')')();
+          const pass = JSON.stringify(actual) === JSON.stringify(expected);
+          testResults.push({
+            description: test.description,
+            pass,
+            actual: JSON.stringify(actual),
+            expected: JSON.stringify(expected),
+          });
+        } catch (e) {
+          testResults.push({
+            description: test.description,
+            pass: false,
+            actual: 'Error: ' + e.message,
+            expected: test.expectedOutput,
+          });
+        }
+      });
+    }
   } catch (e) {
     logs.push('Error: ' + e.message);
   }
