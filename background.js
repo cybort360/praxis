@@ -3,16 +3,25 @@
 
 import { getAIProvider } from './ai/index.js';
 
-// ── Side Panel: open automatically when user clicks the extension icon ──
-chrome.sidePanel
-  .setPanelBehavior({ openPanelOnActionClick: true })
-  .catch(console.error);
-
 // ── Message Router ──
 // All messages from content.js and sidepanel go through here.
 // This is intentional: the API key lives only in background, never exposed to page context.
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   switch (message.type) {
+
+    // Content script requests ytInitialPlayerResponse from the page's MAIN world.
+    // chrome.scripting.executeScript with world:'MAIN' is exempt from the page's CSP,
+    // unlike inline <script> injection which YouTube's nonce-based CSP blocks.
+    case 'GET_PLAYER_DATA': {
+      chrome.scripting.executeScript({
+        target: { tabId: sender.tab.id },
+        world: 'MAIN',
+        func: () => window.ytInitialPlayerResponse,
+      })
+        .then(([{ result }]) => sendResponse({ ok: true, data: result }))
+        .catch(err => sendResponse({ ok: false, error: err.message }));
+      return true;
+    }
 
     // Content script found a video + transcript; store payload then open the panel.
     // The panel pulls from storage on load — avoids the race where sendMessage fires

@@ -98,22 +98,15 @@ async function triggerSession(videoId) {
 
   function getPlayerData() {
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(
-        () => reject(new Error('Timeout waiting for ytInitialPlayerResponse')),
-        5000
-      );
-      window.addEventListener('message', (e) => {
-        if (e.data?.type === '__LL_PLAYER_DATA') {
-          clearTimeout(timer);
-          resolve(e.data.data);
+      chrome.runtime.sendMessage({ type: 'GET_PLAYER_DATA' }, (response) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+        } else if (response?.ok) {
+          resolve(response.data);
+        } else {
+          reject(new Error(response?.error ?? 'Failed to get player data'));
         }
-      }, { once: true });
-      const script = document.createElement('script');
-      script.textContent = `
-        window.postMessage({ type: '__LL_PLAYER_DATA', data: window.ytInitialPlayerResponse }, '*');
-      `;
-      document.documentElement.appendChild(script);
-      script.remove();
+      });
     });
   }
 
