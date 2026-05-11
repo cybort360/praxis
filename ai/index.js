@@ -1,21 +1,17 @@
 // ai/index.js — Provider factory
-// To add a new provider:
-//   1. Create ai/yourprovider.js extending AIProvider
-//   2. Import it here and add a case to the switch below
-//   3. In the popup settings, add the provider name to the dropdown
+// To add a new OpenAI-compatible provider: add a case with baseURL + defaultModel.
+// To add a custom-API provider: create ai/yourprovider.js, import it, add a case.
 
 import { AnthropicProvider } from './anthropic.js';
-import { OpenAIProvider } from './openai.js';
+import { OpenAICompatibleProvider } from './openai-compatible.js';
+import { GeminiProvider } from './gemini.js';
 
 /**
- * Returns the configured AI provider instance.
- * Config is stored in chrome.storage.local under the key 'llmConfig'.
- *
- * llmConfig shape:
+ * llmConfig shape (stored in chrome.storage.local):
  * {
- *   provider: 'anthropic' | 'openai' | 'gemini' | ...,
- *   apiKey: 'sk-...',
- *   model: 'claude-haiku-4-5-20251001' (optional override)
+ *   provider: 'anthropic' | 'openai' | 'openrouter' | 'groq' | 'gemini',
+ *   apiKey: string,
+ *   model?: string  // exact model ID; if omitted, provider uses its default
  * }
  */
 export async function getAIProvider() {
@@ -34,13 +30,34 @@ export async function getAIProvider() {
       return new AnthropicProvider(llmConfig);
 
     case 'openai':
-      return new OpenAIProvider(llmConfig);
+      return new OpenAICompatibleProvider({
+        ...llmConfig,
+        baseURL: 'https://api.openai.com/v1/chat/completions',
+        defaultModel: 'gpt-4o-mini',
+      });
 
-    // ── Add new providers here ──
-    // case 'gemini':
-    //   return new GeminiProvider(llmConfig);
+    case 'openrouter':
+      return new OpenAICompatibleProvider({
+        ...llmConfig,
+        baseURL: 'https://openrouter.ai/api/v1/chat/completions',
+        defaultModel: 'meta-llama/llama-3.3-70b-instruct:free',
+        extraHeaders: {
+          'HTTP-Referer': 'https://github.com/learnloop',
+          'X-Title': 'LearnLoop',
+        },
+      });
+
+    case 'groq':
+      return new OpenAICompatibleProvider({
+        ...llmConfig,
+        baseURL: 'https://api.groq.com/openai/v1/chat/completions',
+        defaultModel: 'llama-3.3-70b-versatile',
+      });
+
+    case 'gemini':
+      return new GeminiProvider(llmConfig);
 
     default:
-      throw new Error(`Unknown provider: "${llmConfig.provider}". Check ai/index.js to add it.`);
+      throw new Error(`Unknown provider: "${llmConfig.provider}".`);
   }
 }
