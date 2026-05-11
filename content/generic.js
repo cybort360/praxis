@@ -41,7 +41,13 @@
     if (!stored) return false;
     const list   = stored.platformConfig?.enabled ?? DEFAULT_PLATFORMS;
     const urlKey = location.hostname + location.pathname;
-    return list.some(entry => urlKey.startsWith(entry));
+    return list.some(entry => {
+      if (!urlKey.startsWith(entry)) return false;
+      // For hostname-only entries, require a '/' boundary so 'udemy.com'
+      // does not match 'udemy.company.com'.
+      if (!entry.includes('/')) return urlKey[entry.length] === '/' || urlKey[entry.length] === undefined;
+      return true;
+    });
   }
 
   // ── Init ──────────────────────────────────────────────────────────────────
@@ -62,6 +68,7 @@
 
   function stopAll() {
     if (navInterval) { clearInterval(navInterval); navInterval = null; }
+    window.removeEventListener('popstate', onUrlChange);
     observer.disconnect();
     teardown();
   }
@@ -77,7 +84,10 @@
 
   function onUrlChange() {
     if (!isContextAlive()) { stopAll(); return; }
-    currentUrl = location.href;
+    const newUrl    = location.href;
+    const pathChanged = newUrl.split('#')[0] !== currentUrl.split('#')[0];
+    currentUrl = newUrl;
+    if (!pathChanged) return;  // hash-only change — don't restart session
     teardown();
     observer.observe(document.body, OBSERVER_OPTS);
     detectTimer = setTimeout(() => observer.disconnect(), 8000);
