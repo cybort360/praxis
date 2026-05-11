@@ -113,6 +113,8 @@ function renderQuizQuestion() {
   if (!q) return;
 
   // Reset UI
+  document.getElementById('quiz-question-wrap').classList.remove('hidden');
+  document.getElementById('quiz-complete').classList.add('hidden');
   state.selectedOption = null;
   document.getElementById('quiz-feedback').classList.add('hidden');
   document.getElementById('btn-quiz-next').classList.add('hidden');
