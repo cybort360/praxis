@@ -2,55 +2,6 @@
 <html>
 <head><meta charset="UTF-8"></head>
 <body>
-<script>
-// Declared in manifest.json under "sandbox" — relaxed CSP, no chrome.* API access.
-// Receives RUN_CODE messages, runs user code, posts results back via postMessage.
-
-window.addEventListener('message', (event) => {
-  if (event.data?.type !== 'RUN_CODE') return;
-
-  const { code, tests } = event.data;
-  const logs = [];
-  const origLog = console.log;
-
-  console.log = (...args) => {
-    logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '));
-  };
-
-  let testResults = [];
-
-  try {
-    // new Function runs user code in the sandbox's relaxed-CSP context.
-    // This page has no chrome.* API access, so user code is safely isolated.
-    new Function(code)();
-
-    (tests || []).forEach(test => {
-      try {
-        const actual   = new Function('return (' + test.input + ')')();
-        const expected = new Function('return (' + test.expectedOutput + ')')();
-        const pass = JSON.stringify(actual) === JSON.stringify(expected);
-        testResults.push({
-          description: test.description,
-          pass,
-          actual: JSON.stringify(actual),
-          expected: JSON.stringify(expected),
-        });
-      } catch (e) {
-        testResults.push({
-          description: test.description,
-          pass: false,
-          actual: 'Error: ' + e.message,
-          expected: test.expectedOutput,
-        });
-      }
-    });
-  } catch (e) {
-    logs.push('Error: ' + e.message);
-  }
-
-  console.log = origLog;
-  window.parent.postMessage({ type: 'RUN_RESULT', logs, testResults }, '*');
-});
-</script>
+<script src="sandbox-runner.js"></script>
 </body>
 </html>
