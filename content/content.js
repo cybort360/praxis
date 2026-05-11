@@ -44,7 +44,6 @@
   }
 
   function showButtonError(msg) {
-    if (!startButton) return;
     const tip = document.createElement('div');
     tip.textContent = msg;
     Object.assign(tip.style, {
@@ -70,7 +69,36 @@
     if (sessionStarted) return;
     await sleep(2000);
     if (videoId !== lastVideoId) return;
-    injectStartButton(videoId);
+
+    const stored = await chrome.storage.local.get('llmConfig');
+    const cfg = stored.llmConfig || {};
+    const autoStart = !!cfg.autoStart;
+    const minWatchPct = typeof cfg.minWatchPct === 'number' ? cfg.minWatchPct : 0;
+
+    const video = document.querySelector('video');
+    if (autoStart && video) {
+      watchForAutoStart(video, videoId, minWatchPct);
+    } else {
+      injectStartButton(videoId);
+    }
+  }
+
+  function watchForAutoStart(video, videoId, minWatchPct) {
+    if (minWatchPct === 0) {
+      triggerSession(videoId);
+      return;
+    }
+
+    function onTimeUpdate() {
+      if (!video.duration || video.duration === 0) return;
+      const pct = (video.currentTime / video.duration) * 100;
+      if (pct >= minWatchPct) {
+        video.removeEventListener('timeupdate', onTimeUpdate);
+        triggerSession(videoId);
+      }
+    }
+
+    video.addEventListener('timeupdate', onTimeUpdate);
   }
 
   function injectStartButton(videoId) {
