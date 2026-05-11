@@ -20,7 +20,7 @@ function transcriptToPlainText(segments) {
 }
 
 function renderExplanation(text, containerEl) {
-  const parts = text.split(/(\[t=\d+s\])/g);
+  const parts = (text ?? '').split(/(\[t=\d+s\])/g);
   parts.forEach(part => {
     const match = part.match(/\[t=(\d+)s\]/);
     if (match) {
@@ -277,11 +277,16 @@ document.getElementById('btn-quiz-submit').addEventListener('click', async () =>
   } else if (q.type === 'predict-output') {
     const answer = document.getElementById('quiz-freetext').value.trim();
     if (!answer) { btn.disabled = false; return; }
-    const correct = String(q.options[q.correctOption]).trim();
-    const passed = answer === correct;
+    if (!q.options || q.correctOption == null) {
+      showFeedback(false, q.explanation ?? 'No answer key available.');
+      btn.disabled = false;
+      return;
+    }
+    const correct = String(q.options[q.correctOption]).trim().replace(/\s+/g, ' ');
+    const normalised = answer.replace(/\s+/g, ' ');
+    const passed = normalised === correct;
     if (passed) state.quizPassed++;
     showFeedback(passed, q.explanation);
-    btn.disabled = false;
   } else {
     if (state.selectedOption === null) { btn.disabled = false; return; }
 

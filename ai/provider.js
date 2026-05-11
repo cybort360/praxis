@@ -31,8 +31,8 @@ export class AIProvider {
    *   id: string,
    *   type: 'multiple-choice' | 'free-text' | 'predict-output',
    *   question: string,
-   *   options?: string[],          // multiple-choice only
-   *   correctOption?: number,      // multiple-choice only (0-indexed)
+   *   options?: string[],          // multiple-choice and predict-output
+   *   correctOption?: number,      // multiple-choice and predict-output (0-indexed)
    *   explanation: string,         // shown after answering
    *   codeSnippet?: string,        // optional code to display with the question
    * }
