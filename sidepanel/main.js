@@ -1,5 +1,9 @@
 // sidepanel/main.js — Learning loop controller
 
+// ── Module-level editor instances ──
+let editor = null;
+let sandboxWindow = null;
+
 // ── State ──
 const state = {
   transcript: null,
@@ -396,32 +400,43 @@ function renderChallenge() {
   const { challenge } = state;
   document.getElementById('challenge-title').textContent = challenge.title;
   document.getElementById('challenge-description').textContent = challenge.description;
-  document.getElementById('ide-editor').value = challenge.starterCode;
   document.getElementById('test-results').innerHTML = '';
   document.getElementById('ide-output').textContent = '';
   document.getElementById('hint-display').classList.add('hidden');
   state.hintIndex = 0;
+
+  // Initialize or reinitialize CodeMirror
+  const wrap = document.getElementById('ide-editor-wrap');
+  if (!editor) {
+    editor = CodeMirror(wrap, {
+      mode: 'javascript',
+      lineNumbers: true,
+      matchBrackets: true,
+      indentWithTabs: false,
+      tabSize: 2,
+      extraKeys: {
+        'Ctrl-Enter': runCode,
+        'Cmd-Enter': runCode,
+      },
+    });
+  }
+  editor.setValue(challenge.starterCode || '');
 }
 
 // ── Run code ──
 document.getElementById('btn-run').addEventListener('click', () => {
-  const code = document.getElementById('ide-editor').value;
-  runCode(code);
+  runCode();
 });
 
-document.getElementById('ide-editor').addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-    e.preventDefault();
-    runCode(e.target.value);
-  }
-});
-
-function runCode(userCode) {
+function runCode() {
   document.getElementById('ide-output').textContent = '';
   document.getElementById('test-results').replaceChildren();
 
-  const sandbox = document.getElementById('sandbox');
-  sandbox.contentWindow.postMessage({
+  const userCode = editor.getValue();
+  if (!sandboxWindow) {
+    sandboxWindow = document.getElementById('sandbox').contentWindow;
+  }
+  sandboxWindow.postMessage({
     type: 'RUN_CODE',
     code: userCode,
     tests: state.challenge.tests,
@@ -431,7 +446,8 @@ function runCode(userCode) {
 // Listen for results from sandbox
 window.addEventListener('message', (event) => {
   if (event.data?.type !== 'RUN_RESULT') return;
-  if (event.source !== document.getElementById('sandbox').contentWindow) return;
+  if (!sandboxWindow) sandboxWindow = document.getElementById('sandbox').contentWindow;
+  if (event.source !== sandboxWindow) return;
 
   const { logs, testResults } = event.data;
 
@@ -473,7 +489,7 @@ document.getElementById('btn-hint').addEventListener('click', () => {
 document.getElementById('btn-solution').addEventListener('click', () => {
   const { challenge } = state;
   if (confirm('Show the solution? Try the hints first!')) {
-    document.getElementById('ide-editor').value = challenge.solution;
+    editor.setValue(challenge.solution);
   }
 });
 

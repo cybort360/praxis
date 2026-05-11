@@ -488,3 +488,27 @@ html, body {
 .timestamp-link:hover {
   background: rgba(124, 106, 247, 0.25);
 }
+
+/* CodeMirror dark theme */
+.CodeMirror {
+  height: auto;
+  min-height: 120px;
+  background: var(--bg-secondary, #1e1e2e);
+  color: var(--text-primary, #cdd6f4);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  border-radius: 6px;
+}
+.CodeMirror-gutters {
+  background: var(--bg-secondary, #1e1e2e);
+  border-right: 1px solid var(--border, #313244);
+}
+.CodeMirror-linenumber {
+  color: var(--text-muted, #6c7086);
+}
+.CodeMirror-cursor {
+  border-left-color: var(--text-primary, #cdd6f4);
+}
+.CodeMirror-selected {
+  background: rgba(124, 106, 247, 0.2) !important;
+}
