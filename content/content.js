@@ -79,8 +79,9 @@
     if (autoStart) {
       if (video) {
         watchForAutoStart(video, videoId, minWatchPct);
+      } else {
+        injectStartButton(videoId);
       }
-      // If video isn't ready yet, MutationObserver will re-invoke onNewVideo when it appears
     } else {
       injectStartButton(videoId);
     }
