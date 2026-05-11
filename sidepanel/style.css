@@ -469,3 +469,22 @@ html, body {
 
 /* ── Utilities ── */
 .hidden { display: none !important; }
+
+/* ── Timestamp links (in quiz feedback) ── */
+.timestamp-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.8em;
+  background: rgba(124, 106, 247, 0.12);
+  border: 1px solid rgba(124, 106, 247, 0.3);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin: 0 2px;
+  cursor: pointer;
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.timestamp-link:hover {
+  background: rgba(124, 106, 247, 0.25);
+}

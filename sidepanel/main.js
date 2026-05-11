@@ -4,6 +4,7 @@
 const state = {
   transcript: null,
   videoTitle: null,
+  tabId: null,
   summary: null,
   quiz: [],
   challenge: null,
@@ -12,6 +13,35 @@ const state = {
   hintIndex: 0,
   selectedOption: null,
 };
+
+function transcriptToPlainText(segments) {
+  if (!Array.isArray(segments)) return segments ?? '';
+  return segments.map(s => s.text).join(' ');
+}
+
+function renderExplanation(text, containerEl) {
+  const parts = text.split(/(\[t=\d+s\])/g);
+  parts.forEach(part => {
+    const match = part.match(/\[t=(\d+)s\]/);
+    if (match) {
+      const t = parseInt(match[1], 10);
+      const m = Math.floor(t / 60);
+      const s = (t % 60).toString().padStart(2, '0');
+      const a = document.createElement('a');
+      a.href = '#';
+      a.className = 'timestamp-link';
+      a.dataset.t = String(t);
+      a.textContent = `▶ ${m}:${s}`;
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        chrome.runtime.sendMessage({ type: 'SEEK_VIDEO', payload: { t, tabId: state.tabId } });
+      });
+      containerEl.appendChild(a);
+    } else if (part) {
+      containerEl.appendChild(document.createTextNode(part));
+    }
+  });
+}
 
 // ── Screen management ──
 function showScreen(id) {
@@ -45,6 +75,7 @@ function resetQuiz() {
 function resetState() {
   state.transcript = null;
   state.videoTitle = null;
+  state.tabId = null;
   state.summary = null;
   state.quiz = [];
   state.challenge = null;
@@ -56,9 +87,9 @@ function resetState() {
 }
 
 function persistState(currentScreen) {
-  const { videoTitle, transcript, summary, quiz, challenge, quizIndex, quizPassed } = state;
+  const { videoTitle, transcript, tabId, summary, quiz, challenge, quizIndex, quizPassed } = state;
   chrome.storage.session.set({
-    savedSession: { videoTitle, transcript, summary, quiz, challenge, quizIndex, quizPassed, currentScreen }
+    savedSession: { videoTitle, transcript, tabId, summary, quiz, challenge, quizIndex, quizPassed, currentScreen }
   }).catch(e => console.error('[LearnLoop] persistState failed:', e));
 }
 
@@ -70,6 +101,7 @@ async function restoreOrInit() {
       chrome.storage.session.remove(['pendingSession', 'savedSession']);
       state.videoTitle = pendingSession.title;
       state.transcript = pendingSession.transcript;
+      state.tabId = pendingSession.tabId;
       startSession();
       return;
     }
@@ -185,10 +217,16 @@ function renderQuizQuestion() {
     pre.classList.remove('hidden');
   }
 
-  if (q.type === 'multiple-choice' || q.type === 'predict-output') {
+  if (q.type === 'multiple-choice') {
     renderOptions(q);
+  } else if (q.type === 'predict-output') {
+    const ft = document.getElementById('quiz-freetext');
+    ft.placeholder = 'Type the exact output…';
+    ft.classList.remove('hidden');
   } else if (q.type === 'free-text') {
-    document.getElementById('quiz-freetext').classList.remove('hidden');
+    const ft = document.getElementById('quiz-freetext');
+    ft.placeholder = 'Type your answer...';
+    ft.classList.remove('hidden');
   }
 }
 
@@ -221,17 +259,29 @@ document.getElementById('btn-quiz-submit').addEventListener('click', async () =>
 
     const res = await chrome.runtime.sendMessage({
       type: 'EVALUATE_ANSWER',
-      payload: { question: q.question, userAnswer: answer, transcript: state.transcript },
+      payload: {
+        question: q.question,
+        userAnswer: answer,
+        transcript: transcriptToPlainText(state.transcript),
+      },
     });
 
     if (res.ok) {
       showScreen('screen-quiz');
-      showFeedback(res.data.passed, res.data.feedback, q.explanation);
+      showFeedback(res.data.passed, res.data.feedback);
       if (res.data.passed) state.quizPassed++;
     } else {
       showError(`Could not evaluate answer: ${res.error ?? 'unknown error'}`);
       return;
     }
+  } else if (q.type === 'predict-output') {
+    const answer = document.getElementById('quiz-freetext').value.trim();
+    if (!answer) { btn.disabled = false; return; }
+    const correct = String(q.options[q.correctOption]).trim();
+    const passed = answer === correct;
+    if (passed) state.quizPassed++;
+    showFeedback(passed, q.explanation);
+    btn.disabled = false;
   } else {
     if (state.selectedOption === null) { btn.disabled = false; return; }
 
@@ -245,18 +295,19 @@ document.getElementById('btn-quiz-submit').addEventListener('click', async () =>
       optBtn.disabled = true;
     });
 
-    showFeedback(passed, q.explanation, q.explanation);
+    showFeedback(passed, q.explanation);
   }
 
   btn.disabled = false;
 });
 
-function showFeedback(passed, feedback, explanation) {
+function showFeedback(passed, feedback) {
   const el = document.getElementById('quiz-feedback');
   el.classList.remove('hidden', 'pass', 'fail');
   el.classList.add(passed ? 'pass' : 'fail');
-  el.textContent = passed ? `✓ ${feedback}` : `✗ ${feedback}`;
-
+  el.replaceChildren();
+  el.appendChild(document.createTextNode(passed ? '✓ ' : '✗ '));
+  renderExplanation(feedback, el);
   document.getElementById('btn-quiz-submit').classList.add('hidden');
   document.getElementById('btn-quiz-next').classList.remove('hidden');
 }
