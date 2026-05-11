@@ -375,6 +375,7 @@ function runCode(userCode) {
 // Listen for results from sandbox
 window.addEventListener('message', (event) => {
   if (event.data?.type !== 'RUN_RESULT') return;
+  if (event.source !== document.getElementById('sandbox').contentWindow) return;
 
   const { logs, testResults } = event.data;
 

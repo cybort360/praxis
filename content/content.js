@@ -43,6 +43,29 @@
     }
   }
 
+  function showButtonError(msg) {
+    if (!startButton) return;
+    const tip = document.createElement('div');
+    tip.textContent = msg;
+    Object.assign(tip.style, {
+      position: 'fixed',
+      bottom: '130px',
+      right: '20px',
+      zIndex: '10000',
+      background: '#1a1a22',
+      color: '#e05c5c',
+      border: '1px solid #e05c5c',
+      borderRadius: '8px',
+      padding: '8px 12px',
+      fontSize: '12px',
+      maxWidth: '220px',
+      lineHeight: '1.4',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+    });
+    document.body.appendChild(tip);
+    setTimeout(() => tip.remove(), 4000);
+  }
+
   async function onNewVideo(videoId) {
     if (sessionStarted) return;
     await sleep(2000);
@@ -85,6 +108,7 @@ async function triggerSession(videoId) {
     } catch (e) {
       console.warn('[LearnLoop] Could not fetch transcript:', e.message);
       isTriggering = false;
+      showButtonError('No captions found — captions are required');
       return;
     }
 
