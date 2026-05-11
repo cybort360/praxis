@@ -1,35 +1,27 @@
-// popup/popup.js — Load and save AI provider settings
+async function init() {
+  const result = await chrome.storage.local.get('llmConfig');
+  const cfg = result.llmConfig;
+  const statusEl = document.getElementById('status');
 
-const providerEl = document.getElementById('provider');
-const apiKeyEl = document.getElementById('api-key');
-const modelEl = document.getElementById('model');
-const statusEl = document.getElementById('status');
-
-// Load saved config on open
-chrome.storage.local.get('llmConfig', ({ llmConfig }) => {
-  if (!llmConfig) return;
-  providerEl.value = llmConfig.provider || 'anthropic';
-  apiKeyEl.value = llmConfig.apiKey || '';
-  modelEl.value = llmConfig.model || '';
-});
-
-document.getElementById('btn-save').addEventListener('click', () => {
-  const provider = providerEl.value;
-  const apiKey = apiKeyEl.value.trim();
-  const model = modelEl.value.trim();
-
-  if (!apiKey) {
-    statusEl.style.color = '#e05c5c';
-    statusEl.textContent = 'API key is required.';
-    return;
+  if (!cfg || !cfg.apiKey) {
+    statusEl.innerHTML = 'Not configured — <strong>open Settings</strong> to add your API key.';
+  } else {
+    const model = cfg.model || 'default model';
+    statusEl.innerHTML = `<strong>${cfg.provider}</strong> · ${model}`;
   }
+}
 
-  const config = { provider, apiKey };
-  if (model) config.model = model;
-
-  chrome.storage.local.set({ llmConfig: config }, () => {
-    statusEl.style.color = '#3dba77';
-    statusEl.textContent = 'Saved!';
-    setTimeout(() => { statusEl.textContent = ''; }, 2000);
-  });
+document.getElementById('btn-panel').addEventListener('click', async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tab) {
+    await chrome.sidePanel.open({ tabId: tab.id });
+  }
+  window.close();
 });
+
+document.getElementById('btn-settings').addEventListener('click', () => {
+  chrome.runtime.openOptionsPage();
+  window.close();
+});
+
+init();
