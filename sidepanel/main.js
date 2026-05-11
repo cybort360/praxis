@@ -23,6 +23,24 @@ function setLoadingMsg(msg) {
   document.getElementById('loading-msg').textContent = msg;
 }
 
+function showError(message) {
+  document.getElementById('error-message').textContent = message;
+  showScreen('screen-error');
+}
+
+function resetState() {
+  state.transcript = null;
+  state.videoTitle = null;
+  state.summary = null;
+  state.quiz = [];
+  state.challenge = null;
+  state.quizIndex = 0;
+  state.quizPassed = 0;
+  state.hintIndex = 0;
+  state.selectedOption = null;
+  chrome.storage.session.remove('savedSession');
+}
+
 // ── Pull pending session from storage on load ──
 // background.js writes to storage.session before opening the panel, so we pull
 // here instead of waiting for a push message that would arrive before this
@@ -46,8 +64,7 @@ async function startSession() {
   });
 
   if (!response.ok) {
-    alert(`Error generating session: ${response.error}`);
-    showScreen('screen-idle');
+    showError(`Failed to generate session: ${response.error}`);
     return;
   }
 
@@ -160,6 +177,8 @@ document.getElementById('btn-quiz-submit').addEventListener('click', async () =>
     if (res.ok) {
       showFeedback(res.data.passed, res.data.feedback, q.explanation);
       if (res.data.passed) state.quizPassed++;
+    } else {
+      showError(`Could not evaluate answer: ${res.error}`);
     }
   } else {
     if (state.selectedOption === null) { btn.disabled = false; return; }
@@ -189,6 +208,15 @@ function showFeedback(passed, feedback, explanation) {
   document.getElementById('btn-quiz-submit').classList.add('hidden');
   document.getElementById('btn-quiz-next').classList.remove('hidden');
 }
+
+document.getElementById('btn-retry').addEventListener('click', () => {
+  startSession();
+});
+
+document.getElementById('btn-error-reset').addEventListener('click', () => {
+  resetState();
+  showScreen('screen-idle');
+});
 
 document.getElementById('btn-quiz-next').addEventListener('click', () => {
   state.quizIndex++;
