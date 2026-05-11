@@ -321,6 +321,13 @@ document.getElementById('btn-run').addEventListener('click', () => {
   runCode(code);
 });
 
+document.getElementById('ide-editor').addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    runCode(e.target.value);
+  }
+});
+
 function runCode(userCode) {
   const output = document.getElementById('ide-output');
   const sandbox = document.getElementById('sandbox');
