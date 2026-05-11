@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LearnLoop</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── SCREEN: Idle (no video detected yet) ── -->
+  <div id="screen-idle" class="screen active">
+    <div class="idle-content">
+      <div class="logo">⟳ LearnLoop</div>
+      <p>Navigate to a YouTube tutorial to get started.</p>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: Loading (AI generating content) ── -->
+  <div id="screen-loading" class="screen">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p id="loading-msg">Analysing transcript...</p>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: Summary ── -->
+  <div id="screen-summary" class="screen">
+    <div class="screen-header">
+      <span class="step-badge">Step 1 of 3</span>
+      <h2 id="summary-title"></h2>
+    </div>
+    <p id="summary-text"></p>
+    <ul id="summary-points"></ul>
+    <button id="btn-start-quiz" class="btn btn-primary">Take the Quiz →</button>
+  </div>
+
+  <!-- ── SCREEN: Quiz ── -->
+  <div id="screen-quiz" class="screen">
+    <div class="screen-header">
+      <span class="step-badge">Step 2 of 3</span>
+      <h2>Prove You Understood It</h2>
+      <div class="progress-bar">
+        <div id="quiz-progress" class="progress-fill"></div>
+      </div>
+    </div>
+
+    <div id="quiz-question-wrap">
+      <p id="quiz-question"></p>
+      <pre id="quiz-code-snippet" class="code-block hidden"></pre>
+
+      <!-- Multiple choice / predict-output -->
+      <div id="quiz-options"></div>
+
+      <!-- Free text -->
+      <textarea id="quiz-freetext" class="hidden" placeholder="Type your answer..."></textarea>
+
+      <div id="quiz-feedback" class="feedback hidden"></div>
+
+      <button id="btn-quiz-submit" class="btn btn-primary">Submit</button>
+      <button id="btn-quiz-next" class="btn btn-secondary hidden">Next Question →</button>
+    </div>
+
+    <div id="quiz-complete" class="hidden">
+      <div class="success-icon">✓</div>
+      <p>You passed! Now let's build something.</p>
+      <button id="btn-start-challenge" class="btn btn-primary">Open Challenge →</button>
+    </div>
+  </div>
+
+  <!-- ── SCREEN: Challenge + IDE ── -->
+  <div id="screen-challenge" class="screen">
+    <div class="screen-header">
+      <span class="step-badge">Step 3 of 3</span>
+      <h2 id="challenge-title"></h2>
+    </div>
+
+    <p id="challenge-description"></p>
+
+    <div class="ide-wrap">
+      <div class="ide-toolbar">
+        <span class="ide-label">JavaScript</span>
+        <button id="btn-hint" class="btn btn-ghost btn-sm">💡 Hint</button>
+        <button id="btn-solution" class="btn btn-ghost btn-sm">Show Solution</button>
+        <button id="btn-run" class="btn btn-primary btn-sm">▶ Run</button>
+      </div>
+      <textarea id="ide-editor" class="ide-editor" spellcheck="false"></textarea>
+      <div class="ide-output-header">Output</div>
+      <div id="ide-output" class="ide-output"></div>
+    </div>
+
+    <div id="test-results" class="test-results"></div>
+    <div id="hint-display" class="hint-box hidden"></div>
+  </div>
+
+  <!-- ── Sandbox iframe (hidden, used to run user code safely) ── -->
+  <iframe id="sandbox" src="about:blank" sandbox="allow-scripts" style="display:none;"></iframe>
+
+  <script src="main.js"></script>
+</body>
+</html>
