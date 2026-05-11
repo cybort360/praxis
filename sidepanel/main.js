@@ -495,7 +495,7 @@ function updateModelField(provider, savedModel) {
   const label = document.createElement('label');
   label.setAttribute('for', 'setting-model');
 
-  if (models === null) {
+  if (models == null) {
     label.textContent = 'Model ';
     const hint = document.createElement('span');
     hint.className = 'settings-optional';
