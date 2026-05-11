@@ -81,6 +81,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       return true;
     }
 
+    case 'FETCH_VTT': {
+      // Content script fetch failed (CORS); retry from extension origin.
+      fetch(message.payload.url)
+        .then(r => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.text();
+        })
+        .then(text => sendResponse({ ok: true, text }))
+        .catch(err => sendResponse({ ok: false, error: err.message }));
+      return true; // keep message channel open for async response
+    }
+
     default:
       break;
   }
