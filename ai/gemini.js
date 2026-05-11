@@ -11,12 +11,15 @@ export class GeminiProvider extends AIProvider {
   }
 
   async _call(systemPrompt, userPrompt) {
-    const url = `${this.baseURL}/${this.model}:generateContent?key=${this.apiKey}`;
+    const url = `${this.baseURL}/${this.model}:generateContent`;
     let res;
     try {
       res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': this.apiKey,
+        },
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: systemPrompt }] },
           contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
@@ -124,6 +127,7 @@ Return ONLY valid JSON:
   }
 
   async evaluateAnswer(question, userAnswer, transcript) {
+    if (!userAnswer?.trim()) throw new Error('evaluateAnswer: userAnswer must not be empty');
     const system = `You are a fair and encouraging coding tutor. Evaluate the user's free-text answer. Be strict about correctness but kind in tone. Return JSON only.`;
     const user = `
 Question: ${question}
