@@ -25,13 +25,16 @@
         <select id="setting-provider" class="settings-select">
           <option value="anthropic">Anthropic (Claude)</option>
           <option value="openai">OpenAI (GPT)</option>
+          <option value="openrouter">OpenRouter (free models available)</option>
+          <option value="groq">Groq (fast · free tier)</option>
+          <option value="gemini">Google Gemini</option>
         </select>
       </div>
       <div class="settings-field">
         <label for="setting-apikey">API Key</label>
         <input type="password" id="setting-apikey" class="settings-input" placeholder="Paste your API key…" />
       </div>
-      <div class="settings-field">
+      <div class="settings-field" id="model-field-container">
         <label for="setting-model">Model <span class="settings-optional">(optional)</span></label>
         <input type="text" id="setting-model" class="settings-input" placeholder="Leave blank for default" />
       </div>
