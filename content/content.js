@@ -76,8 +76,11 @@
     const minWatchPct = typeof cfg.minWatchPct === 'number' ? cfg.minWatchPct : 0;
 
     const video = document.querySelector('video');
-    if (autoStart && video) {
-      watchForAutoStart(video, videoId, minWatchPct);
+    if (autoStart) {
+      if (video) {
+        watchForAutoStart(video, videoId, minWatchPct);
+      }
+      // If video isn't ready yet, MutationObserver will re-invoke onNewVideo when it appears
     } else {
       injectStartButton(videoId);
     }
