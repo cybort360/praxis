@@ -7,7 +7,9 @@ async function init() {
     statusEl.innerHTML = 'Not configured — <strong>open Settings</strong> to add your API key.';
   } else {
     const model = cfg.model || 'default model';
-    statusEl.innerHTML = `<strong>${cfg.provider}</strong> · ${model}`;
+    const strong = document.createElement('strong');
+    strong.textContent = cfg.provider;
+    statusEl.replaceChildren(strong, document.createTextNode(` · ${model}`));
   }
 }
 
@@ -15,8 +17,10 @@ document.getElementById('btn-panel').addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (tab) {
     await chrome.sidePanel.open({ tabId: tab.id });
+    window.close();
+  } else {
+    document.getElementById('status').textContent = 'No active tab found.';
   }
-  window.close();
 });
 
 document.getElementById('btn-settings').addEventListener('click', () => {
