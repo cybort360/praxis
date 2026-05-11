@@ -12,23 +12,28 @@ export class OpenAICompatibleProvider extends AIProvider {
   }
 
   async _call(systemPrompt, userPrompt) {
-    const res = await fetch(this.baseURL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
-        ...this.extraHeaders,
-      },
-      body: JSON.stringify({
-        model: this.model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-        max_tokens: 2048,
-        temperature: 0.4,
-      }),
-    });
+    let res;
+    try {
+      res = await fetch(this.baseURL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+          ...this.extraHeaders,
+        },
+        body: JSON.stringify({
+          model: this.model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+          max_tokens: 2048,
+          temperature: 0.4,
+        }),
+      });
+    } catch (networkErr) {
+      throw new Error(`Network error reaching ${this.baseURL}: ${networkErr.message}`);
+    }
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
@@ -56,12 +61,12 @@ Return ONLY valid JSON:
   }
 
   async generateQuiz(transcript, videoTitle) {
-    const system = `You are an expert coding tutor. Create quiz questions that test genuine understanding, not memorization. Return JSON only.`;
+    const system = `You are an expert coding tutor creating a quiz to test genuine understanding, not memorization. Focus on the "why" behind concepts. Return JSON only.`;
     const user = `
 Video title: "${videoTitle}"
 Transcript: ${transcript.slice(0, 8000)}
 
-Generate 3 questions (one multiple-choice, one predict-output, one free-text).
+Generate 3 quiz questions. Mix types: at least one multiple-choice, one predict-output (show a code snippet and ask what it outputs), and one free-text conceptual question.
 
 Return ONLY a JSON array:
 [
@@ -93,34 +98,51 @@ Return ONLY a JSON array:
   }
 
   async generateChallenge(transcript, videoTitle) {
-    const system = `You are an expert coding tutor. Generate a JavaScript coding challenge based on what was taught. Return JSON only.`;
+    const system = `You are an expert coding tutor. Generate a JavaScript coding challenge based on what was taught. The challenge should require genuine understanding, not copying from the video. Return JSON only.`;
     const user = `
 Video title: "${videoTitle}"
 Transcript: ${transcript.slice(0, 8000)}
 
+Create one coding challenge. It must:
+- Be solvable in under 30 minutes
+- Require applying the core concept from the video in a slightly new context
+- Include runnable test cases
+- Have 3 progressive hints
+
 Return ONLY valid JSON:
 {
-  "title": "...",
-  "description": "...",
-  "starterCode": "function solution() {\n  // your code here\n}",
+  "title": "Challenge title",
+  "description": "What the user needs to build. Be specific about inputs and outputs.",
+  "starterCode": "// starter code with function signature\nfunction solution() {\n  // your code here\n}",
   "tests": [
-    { "description": "...", "input": "solution(...)", "expectedOutput": "..." }
+    {
+      "description": "handles basic case",
+      "input": "solution(arg1, arg2)",
+      "expectedOutput": "expectedValue"
+    }
   ],
-  "hints": ["Hint 1", "Hint 2", "Hint 3"],
-  "solution": "// full solution"
+  "hints": [
+    "Hint 1 — gentle nudge",
+    "Hint 2 — more specific",
+    "Hint 3 — near-answer"
+  ],
+  "solution": "// full working solution\nfunction solution() { ... }"
 }`;
     return this._parseJSON(await this._call(system, user));
   }
 
   async evaluateAnswer(question, userAnswer, transcript) {
-    const system = `You are a fair and encouraging coding tutor. Evaluate answers strictly but kindly. Return JSON only.`;
+    const system = `You are a fair and encouraging coding tutor. Evaluate the user's free-text answer. Be strict about correctness but kind in tone. Return JSON only.`;
     const user = `
 Question: ${question}
 User's answer: ${userAnswer}
-Context: ${transcript.slice(0, 2000)}
+Relevant transcript context: ${transcript.slice(0, 2000)}
 
 Return ONLY valid JSON:
-{ "passed": true or false, "feedback": "1-2 sentence feedback" }`;
+{
+  "passed": true or false,
+  "feedback": "1-2 sentences of feedback. If wrong, explain what was missing without giving the answer directly."
+}`;
     return this._parseJSON(await this._call(system, user));
   }
 }
