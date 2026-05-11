@@ -17,7 +17,7 @@ const state = {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.getElementById('btn-reset').classList.toggle('hidden', id === 'screen-idle');
+  document.getElementById('btn-reset').classList.toggle('hidden', id === 'screen-idle' || id === 'screen-loading');
 }
 
 function setLoadingMsg(msg) {
@@ -52,7 +52,7 @@ function resetState() {
   state.quizPassed = 0;
   state.hintIndex = 0;
   state.selectedOption = null;
-  chrome.storage.session.remove('savedSession');
+  chrome.storage.session.remove(['savedSession', 'pendingSession']);
 }
 
 function persistState(currentScreen) {
@@ -290,6 +290,7 @@ document.getElementById('btn-back-quiz').addEventListener('click', () => {
 document.getElementById('btn-back-challenge').addEventListener('click', () => {
   document.getElementById('quiz-question-wrap').classList.add('hidden');
   document.getElementById('quiz-complete').classList.remove('hidden');
+  persistState('quiz');
   showScreen('screen-quiz');
 });
 
@@ -309,7 +310,7 @@ document.getElementById('btn-quiz-next').addEventListener('click', () => {
 
   if (state.quizIndex >= state.quiz.length) {
     document.getElementById('quiz-progress').style.width = '100%';
-    const threshold = Math.ceil(state.quiz.length * 0.67);
+    const threshold = Math.ceil(state.quiz.length * (2 / 3));
     if (state.quizPassed >= threshold) {
       persistState('quiz');
       document.getElementById('quiz-question-wrap').classList.add('hidden');

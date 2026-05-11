@@ -95,7 +95,6 @@
   async function triggerSession(videoId) {
     if (isTriggering || sessionStarted) return;
     isTriggering = true;
-    teardown();
 
     const title = getVideoTitle();
     let transcript = null;
@@ -107,6 +106,7 @@
       return;
     }
 
+    teardown();
     sessionStarted = true;
     chrome.runtime.sendMessage({
       type: 'VIDEO_DETECTED',
