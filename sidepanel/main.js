@@ -361,57 +361,15 @@ document.getElementById('ide-editor').addEventListener('keydown', (e) => {
 });
 
 function runCode(userCode) {
-  const output = document.getElementById('ide-output');
+  document.getElementById('ide-output').textContent = '';
+  document.getElementById('test-results').replaceChildren();
+
   const sandbox = document.getElementById('sandbox');
-  const results = document.getElementById('test-results');
-
-  output.textContent = '';
-  results.innerHTML = '';
-
-  const { challenge } = state;
-
-  // Build the sandboxed code:
-  // 1. Capture console.log output
-  // 2. Run user's code
-  // 3. Run each test case
-  // 4. Post results back via postMessage
-
-  const tests = JSON.stringify(challenge.tests);
-
-  const sandboxCode = `
-    const logs = [];
-    const origLog = console.log;
-    console.log = (...args) => {
-      logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '));
-    };
-
-    let testResults = [];
-
-    try {
-      ${userCode}
-
-      const tests = ${tests};
-      tests.forEach(test => {
-        try {
-          const actual = eval(test.input);
-          const expected = eval(test.expectedOutput);
-          const pass = JSON.stringify(actual) === JSON.stringify(expected);
-          testResults.push({ description: test.description, pass, actual: JSON.stringify(actual), expected: JSON.stringify(expected) });
-        } catch (e) {
-          testResults.push({ description: test.description, pass: false, actual: 'Error: ' + e.message, expected: test.expectedOutput });
-        }
-      });
-    } catch (e) {
-      logs.push('Error: ' + e.message);
-    }
-
-    window.parent.postMessage({ type: 'RUN_RESULT', logs, testResults }, '*');
-  `;
-
-  // Write to sandbox iframe via srcdoc — blob: URLs fail in sandboxed iframes
-  // with null origin (no allow-same-origin) because they can't fetch from the
-  // extension's blob origin. srcdoc sets content directly with no fetch needed.
-  sandbox.srcdoc = `<script>${sandboxCode}<\/script>`;
+  sandbox.contentWindow.postMessage({
+    type: 'RUN_CODE',
+    code: userCode,
+    tests: state.challenge.tests,
+  }, '*');
 }
 
 // Listen for results from sandbox
