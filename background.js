@@ -10,9 +10,8 @@ function transcriptToPlainText(segments) {
 function transcriptToTimestamped(segments, maxChars = 6000) {
   let out = '';
   for (const seg of segments) {
-    const m = Math.floor(seg.t / 60);
-    const s = Math.floor(seg.t % 60).toString().padStart(2, '0');
-    const line = `[${m}:${s}] ${seg.text}\n`;
+    const t = Math.floor(seg.t);
+    const line = `[t=${t}s] ${seg.text}\n`;
     if (out.length + line.length > maxChars) break;
     out += line;
   }

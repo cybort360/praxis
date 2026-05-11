@@ -61,11 +61,14 @@ Return ONLY valid JSON:
   }
 
   async generateQuiz(plainText, timestampedText, videoTitle) {
-    const difficultyInstruction = {
+    const DIFFICULTY_INSTRUCTIONS = {
       easy: 'Create straightforward recall questions that test basic understanding.',
       medium: 'Create a mix of recall and application questions.',
       hard: 'Create application and edge-case questions that require deep understanding of the concept.',
-    }[this.config.difficulty || 'medium'];
+    };
+    const difficultyInstruction =
+      DIFFICULTY_INSTRUCTIONS[this.config.difficulty] ??
+      DIFFICULTY_INSTRUCTIONS['medium'];
 
     const system = `You are an expert coding tutor creating a quiz. ${difficultyInstruction} Focus on the "why" behind concepts, not rote memorisation. Return JSON only.
 
