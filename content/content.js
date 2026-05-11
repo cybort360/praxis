@@ -153,11 +153,12 @@ async function triggerSession(videoId) {
   function parseTranscriptXML(xml) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(xml, 'text/xml');
-    const texts = doc.querySelectorAll('text');
-    return Array.from(texts)
-      .map(el => el.textContent.replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim())
-      .filter(Boolean)
-      .join(' ');
+    return Array.from(doc.querySelectorAll('text'))
+      .map(el => ({
+        t: parseFloat(el.getAttribute('start') || '0'),
+        text: el.textContent.replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim(),
+      }))
+      .filter(seg => seg.text);
   }
 
   function sleep(ms) {
