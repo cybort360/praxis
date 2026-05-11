@@ -5,7 +5,6 @@
   let lastVideoId = null;
   let sessionStarted = false;
   let startButton = null;
-  let videoTimeListener = null;
   let isTriggering = false;
 
   const observer = new MutationObserver(() => {
@@ -42,11 +41,6 @@
       startButton.remove();
       startButton = null;
     }
-    const video = document.querySelector('video');
-    if (video && videoTimeListener) {
-      video.removeEventListener('timeupdate', videoTimeListener);
-      videoTimeListener = null;
-    }
   }
 
   async function onNewVideo(videoId) {
@@ -54,7 +48,6 @@
     await sleep(2000);
     if (videoId !== lastVideoId) return;
     injectStartButton(videoId);
-    setupWatchGate(videoId);
   }
 
   function injectStartButton(videoId) {
@@ -81,18 +74,7 @@
     document.body.appendChild(startButton);
   }
 
-  function setupWatchGate(videoId) {
-    const video = document.querySelector('video');
-    if (!video) return;
-    videoTimeListener = () => {
-      if (video.duration && video.currentTime / video.duration >= 0.3) {
-        triggerSession(videoId);
-      }
-    };
-    video.addEventListener('timeupdate', videoTimeListener);
-  }
-
-  async function triggerSession(videoId) {
+async function triggerSession(videoId) {
     if (isTriggering || sessionStarted) return;
     isTriggering = true;
 
