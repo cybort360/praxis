@@ -205,22 +205,8 @@
     const sessionUrl = currentUrl; // capture at entry; bail if nav occurs during fetch
 
     const video = document.querySelector('video');
-    const track = video ? getBestTrack(video) : null;
-    if (!track?.src) {
-      resetButton();
-      showToast('No captions found — enable captions in the video player first.');
-      return;
-    }
-
-    const vttText = await fetchVTT(track.src);
-    if (!vttText) {
-      resetButton();
-      showToast('No captions found — enable captions in the video player first.');
-      return;
-    }
-
-    const transcript = parseVTT(vttText);
-    if (!transcript.length) {
+    const transcript = video ? await getTranscript(video) : null;
+    if (!transcript?.length) {
       resetButton();
       showToast('No captions found — enable captions in the video player first.');
       return;
@@ -241,6 +227,46 @@
   function resetButton() {
     isTriggering = false;
     setButtonState('Start LearnLoop', iconPlay());
+  }
+
+  // ── Transcript strategies ─────────────────────────────────────────────────
+  // Strategy 1: find a <track src> element → fetch + parse VTT file
+  // Strategy 2: read cues directly from video.textTracks (Udemy/video.js)
+  async function getTranscript(video) {
+    // Strategy 1 — <track> element with src URL
+    const trackEl = getBestTrack(video);
+    if (trackEl?.src) {
+      const vttText = await fetchVTT(trackEl.src);
+      if (vttText) {
+        const result = parseVTT(vttText);
+        if (result.length) return result;
+      }
+    }
+
+    // Strategy 2 — native TextTrack cues (Udemy, video.js players)
+    // Captions showing → cues are already loaded; just read them.
+    const textTracks = Array.from(video.textTracks || []);
+    const active =
+      textTracks.find(t =>
+        (t.kind === 'captions' || t.kind === 'subtitles') &&
+        t.language?.startsWith('en') && t.mode !== 'disabled' && t.cues?.length > 0) ||
+      textTracks.find(t =>
+        (t.kind === 'captions' || t.kind === 'subtitles') &&
+        t.mode !== 'disabled' && t.cues?.length > 0);
+    if (!active?.cues?.length) return null;
+
+    return Array.from(active.cues)
+      .map(cue => ({
+        t:    cue.startTime,
+        text: (cue.text || '')
+          .replace(/<[^>]+>/g, '')
+          .replace(/&amp;/g,  '&')
+          .replace(/&#39;/g,  "'")
+          .replace(/&lt;/g,   '<')
+          .replace(/&gt;/g,   '>')
+          .trim(),
+      }))
+      .filter(s => s.text);
   }
 
   async function fetchVTT(url) {
