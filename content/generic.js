@@ -125,9 +125,9 @@
     if (sessionStarted || startButton) return;
     const video = document.querySelector('video');
     if (!video) return;
-    const track = getBestTrack(video);
-    if (!track?.src) return;
-    // Found a usable track — stop watching and show button
+    // Show button whenever a video is found. Track availability is checked
+    // on click (triggerSession). Platforms like Udemy only add a <track src>
+    // after the user enables CC, so we can't require it upfront.
     observer.disconnect();
     if (detectTimer) { clearTimeout(detectTimer); detectTimer = null; }
     injectStartButton();
