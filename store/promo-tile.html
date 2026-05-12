@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 440px;
+    height: 280px;
+    overflow: hidden;
+    background: #0d0d14;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tile {
+    width: 440px;
+    height: 280px;
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+  }
+
+  /* ── Left column ── */
+  .left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 28px 0 28px 32px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ── Right column ── */
+  .right {
+    width: 172px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 20px 20px 8px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Background glows */
+  .glow-left {
+    position: absolute;
+    top: -80px; left: -80px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(124,106,247,0.2) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .glow-right {
+    position: absolute;
+    bottom: -60px; right: -40px;
+    width: 260px; height: 260px;
+    background: radial-gradient(circle, rgba(167,139,250,0.13) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Subtle grid */
+  .grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,106,247,0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,106,247,0.055) 1px, transparent 1px);
+    background-size: 36px 36px;
+    z-index: 1;
+  }
+
+  /* Divider line between columns */
+  .left::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 20%; bottom: 20%;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(124,106,247,0.2), transparent);
+  }
+
+  /* Logo */
+  .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 14px;
+  }
+
+  .logo-icon {
+    width: 30px; height: 30px;
+    background: linear-gradient(135deg, #7c6af7, #a78bfa);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 12px rgba(124,106,247,0.5);
+    flex-shrink: 0;
+  }
+
+  .logo-name {
+    font-size: 17px;
+    font-weight: 800;
+    color: #eeeefb;
+    letter-spacing: -0.02em;
+  }
+
+  /* Tagline */
+  .tagline {
+    font-size: 24px;
+    font-weight: 800;
+    color: #eeeefb;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+  }
+
+  .tagline .accent {
+    background: linear-gradient(90deg, #7c6af7, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Pills */
+  .pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .pill {
+    background: rgba(124,106,247,0.12);
+    border: 1px solid rgba(124,106,247,0.28);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #a78bfa;
+    white-space: nowrap;
+  }
+
+  /* ── Right: feature card ── */
+  .feature-card {
+    width: 148px;
+    background: #13131e;
+    border: 1px solid #2e2e48;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,106,247,0.08);
+  }
+
+  .card-header {
+    padding: 9px 12px 8px;
+    border-bottom: 1px solid #26263c;
+    font-size: 9px;
+    font-weight: 700;
+    color: #5c5c8a;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .feature-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 12px;
+    border-bottom: 1px solid #1e1e2e;
+  }
+  .feature-row:last-child { border-bottom: none; }
+
+  .f-dot {
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .f-dot.purple { background: rgba(124,106,247,0.2); color: #a78bfa; }
+  .f-dot.green  { background: rgba(52,211,153,0.15); color: #34d399; }
+  .f-dot.amber  { background: rgba(249,174,88,0.15); color: #f9ae58; }
+  .f-dot.cyan   { background: rgba(86,209,247,0.15); color: #56d1f7; }
+
+  .f-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #c8c8e8;
+  }
+  .f-sub {
+    font-size: 9px;
+    color: #5c5c8a;
+    margin-top: 1px;
+  }
+
+  /* Bottom strip */
+  .bottom-strip {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 28px;
+    background: linear-gradient(to right, rgba(124,106,247,0.06), rgba(167,139,250,0.04));
+    border-top: 1px solid rgba(124,106,247,0.1);
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    z-index: 3;
+  }
+  .bottom-strip span {
+    font-size: 9.5px;
+    color: #3e3e60;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .bottom-strip .dot { margin: 0 7px; color: #2e2e50; }
+</style>
+</head>
+<body>
+<div class="tile">
+  <div class="glow-left"></div>
+  <div class="glow-right"></div>
+  <div class="grid"></div>
+
+  <!-- Left -->
+  <div class="left">
+    <div class="logo-row">
+      <div class="logo-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+          <path d="M12 12C10 9.5 8 8 6 8a4 4 0 0 0 0 8c2 0 4-1.5 6-4Z"
+                stroke="white" stroke-width="1.9" stroke-linecap="round"/>
+          <path d="M12 12c2 2.5 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.5-6 4Z"
+                stroke="white" stroke-width="1.9" stroke-linecap="round"/>
+          <polygon points="10.5,10 10.5,14 14.5,12" fill="white"/>
+        </svg>
+      </div>
+      <span class="logo-name">Praxis</span>
+    </div>
+
+    <div class="tagline">
+      Watch tutorials.<br><span class="accent">Actually learn.</span>
+    </div>
+
+    <div class="pills">
+      <div class="pill">YouTube</div>
+      <div class="pill">Udemy</div>
+      <div class="pill">+ more</div>
+    </div>
+  </div>
+
+  <!-- Right -->
+  <div class="right">
+    <div class="feature-card">
+      <div class="card-header">Learning Loop</div>
+      <div class="feature-row">
+        <div class="f-dot purple">1</div>
+        <div>
+          <div class="f-label">AI Summary</div>
+          <div class="f-sub">Key points extracted</div>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="f-dot green">2</div>
+        <div>
+          <div class="f-label">Quiz</div>
+          <div class="f-sub">Test your knowledge</div>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="f-dot amber">3</div>
+        <div>
+          <div class="f-label">Code Challenge</div>
+          <div class="f-sub">Build something real</div>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="f-dot cyan">✦</div>
+        <div>
+          <div class="f-label">AI Tutor Chat</div>
+          <div class="f-sub">Ask anything</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom strip -->
+  <div class="bottom-strip">
+    <span>Free</span>
+    <span class="dot">·</span>
+    <span>Bring your own API key</span>
+    <span class="dot">·</span>
+    <span>No data collected</span>
+  </div>
+</div>
+</body>
+</html>
