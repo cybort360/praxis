@@ -82,6 +82,23 @@
       <circle cx="12" cy="12" r="10"/>
       <polyline points="12 6 12 12 16 14"/>
     </symbol>
+    <symbol id="ic-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/>
+    </symbol>
+    <symbol id="ic-medal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="14" r="6"/>
+      <path d="m8 2 1.88 5.65a1 1 0 0 0 .96.7h2.32a1 1 0 0 0 .96-.7L16 2"/>
+      <path d="m9.5 8.5 2.5 7.5 2.5-7.5"/>
+    </symbol>
+    <symbol id="ic-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/>
+      <path d="m6.08 9.5-3.5 1.6a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.84l-3.5-1.6"/>
+      <path d="m6.08 14.5-3.5 1.6a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.84l-3.5-1.6"/>
+    </symbol>
+    <symbol id="ic-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="m9 12 2 2 4-4"/>
+    </symbol>
   </defs>
 </svg>
 
@@ -92,10 +109,10 @@
     <span>Praxis</span>
   </div>
   <div class="app-bar-actions">
-    <button id="btn-history" class="icon-btn" title="Session history" style="opacity:0.35;pointer-events:none;">
+    <button id="btn-history" class="icon-btn" data-tooltip="Session history" style="opacity:0.35;pointer-events:none;">
       <svg class="icon icon-sm"><use href="#ic-history"/></svg>
     </button>
-    <button id="btn-reset" class="icon-btn hidden" title="Reset session">
+    <button id="btn-reset" class="icon-btn hidden" data-tooltip="Reset session">
       <svg class="icon icon-sm"><use href="#ic-refresh"/></svg>
     </button>
     <button id="btn-theme" class="icon-btn" title="Toggle theme">

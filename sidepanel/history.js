@@ -90,25 +90,31 @@ const History = (() => {
     el.innerHTML = '';
 
     const items = [
-      { emoji: '🔥', value: s.currentStreak,  label: 'day streak'   },
-      { emoji: '🏆', value: s.longestStreak,  label: 'best streak'  },
-      { emoji: '📚', value: s.totalSessions,  label: 'sessions'     },
+      { icon: 'ic-flame',  color: '#f97316', value: s.currentStreak, label: 'Day Streak'  },
+      { icon: 'ic-medal',  color: '#eab308', value: s.longestStreak, label: 'Best Streak' },
+      { icon: 'ic-layers', color: '#7c6af7', value: s.totalSessions, label: 'Sessions'    },
     ];
 
-    items.forEach(({ emoji, value, label }) => {
+    items.forEach(({ icon, color, value, label }) => {
       const stat = document.createElement('div');
       stat.className = 'stat-item';
 
-      const top = document.createElement('div');
-      top.className = 'stat-value';
-      top.textContent = `${emoji} ${value}`;
+      const wrap = document.createElement('div');
+      wrap.className = 'stat-icon-wrap';
+      wrap.style.color = color;
+      wrap.innerHTML = `<svg class="icon icon-sm" aria-hidden="true"><use href="#${icon}"/></svg>`;
 
-      const bot = document.createElement('div');
-      bot.className = 'stat-label';
-      bot.textContent = label;
+      const num = document.createElement('div');
+      num.className = 'stat-number';
+      num.textContent = value;
 
-      stat.appendChild(top);
-      stat.appendChild(bot);
+      const lbl = document.createElement('div');
+      lbl.className = 'stat-label';
+      lbl.textContent = label;
+
+      stat.appendChild(wrap);
+      stat.appendChild(num);
+      stat.appendChild(lbl);
       el.appendChild(stat);
     });
   }

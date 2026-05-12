@@ -711,14 +711,30 @@ async function showCompletionScreen() {
   const statsEl = document.getElementById('complete-stats');
   statsEl.innerHTML = '';
   const items = [
-    { emoji: '🔥', value: stats.currentStreak, label: 'streak'   },
-    { emoji: '📚', value: stats.totalSessions,  label: 'sessions' },
-    { emoji: '✅', value: `${state.quizPassed}/${state.quiz.length}`, label: 'quiz'  },
+    { icon: 'ic-flame',        color: '#f97316', value: stats.currentStreak,                      label: 'Streak'   },
+    { icon: 'ic-layers',       color: '#7c6af7', value: stats.totalSessions,                      label: 'Sessions' },
+    { icon: 'ic-circle-check', color: '#34d399', value: `${state.quizPassed}/${state.quiz.length}`, label: 'Quiz'   },
   ];
-  items.forEach(({ emoji, value, label }) => {
-    const item = document.createElement('div');
+  items.forEach(({ icon, color, value, label }) => {
+    const item  = document.createElement('div');
     item.className = 'stat-item';
-    item.innerHTML = `<div class="stat-value">${emoji} ${value}</div><div class="stat-label">${label}</div>`;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'stat-icon-wrap';
+    wrap.style.color = color;
+    wrap.innerHTML = `<svg class="icon icon-sm" aria-hidden="true"><use href="#${icon}"/></svg>`;
+
+    const num = document.createElement('div');
+    num.className = 'stat-number';
+    num.textContent = value;
+
+    const lbl = document.createElement('div');
+    lbl.className = 'stat-label';
+    lbl.textContent = label;
+
+    item.appendChild(wrap);
+    item.appendChild(num);
+    item.appendChild(lbl);
     statsEl.appendChild(item);
   });
 

@@ -151,8 +151,32 @@ html, body {
   color: var(--text-muted);
   cursor: pointer;
   transition: background var(--t), color var(--t);
+  position: relative;
 }
 .icon-btn:hover { background: var(--surface-2); color: var(--text); }
+
+/* Tooltip */
+.icon-btn[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface-3);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 9px;
+  border-radius: var(--r-sm);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  border: 1px solid var(--border-2);
+  box-shadow: var(--shadow-xs);
+  z-index: 300;
+}
+.icon-btn[data-tooltip]:hover::after { opacity: 1; }
 
 /* 7. Screens */
 .screen {
@@ -1249,23 +1273,37 @@ html, body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r);
-  padding: 10px 6px;
+  padding: 12px 6px 10px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
-.stat-value {
+.stat-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  margin-bottom: 2px;
+}
+
+.stat-number {
   font-size: 18px;
-  font-weight: 700;
-  line-height: 1.2;
+  font-weight: 800;
+  line-height: 1;
   color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 
 .stat-label {
   font-size: 10px;
   color: var(--text-muted);
-  margin-top: 3px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
 
 /* ── History cards ── */
