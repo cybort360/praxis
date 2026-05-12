@@ -241,7 +241,18 @@ function renderTranscript() {
     const s   = String(t % 60).padStart(2, '0');
     const btn = document.createElement('button');
     btn.className = 'transcript-row';
-    btn.innerHTML = `<span class="transcript-ts">${m}:${s}</span><span class="transcript-text">${seg.text}</span>`;
+
+    const tsSpan = document.createElement('span');
+    tsSpan.className = 'transcript-ts';
+    tsSpan.textContent = `${m}:${s}`;
+
+    const textSpan = document.createElement('span');
+    textSpan.className = 'transcript-text';
+    textSpan.textContent = seg.text;
+
+    btn.appendChild(tsSpan);
+    btn.appendChild(textSpan);
+
     btn.addEventListener('click', () => {
       chrome.runtime.sendMessage({ type: 'SEEK_VIDEO', payload: { t, tabId: state.tabId } });
       btn.classList.add('highlight');
