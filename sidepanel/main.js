@@ -73,6 +73,16 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
   const hideReset = id === 'screen-idle' || id === 'screen-loading' || id === 'screen-history';
   document.getElementById('btn-reset').classList.toggle('hidden', hideReset);
+  if (id === 'screen-complete') _restartConfetti();
+}
+
+function _restartConfetti() {
+  document.querySelectorAll('.complete-fireworks i').forEach(el => {
+    el.style.animation = 'none';
+    // Force reflow so the browser registers the reset before re-applying
+    void el.offsetWidth;
+    el.style.animation = '';
+  });
 }
 
 function setLoadingMsg(msg) {
