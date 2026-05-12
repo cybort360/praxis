@@ -81,6 +81,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       return true;
     }
 
+    // Side panel wants to run code in a non-JS language via Piston API.
+    // Piston is free, requires no API key, and supports 70+ languages.
+    case 'EXECUTE_CODE': {
+      const { language, code } = message.payload;
+      fetch('https://emkc.org/api/v2/piston/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ language, version: '*', files: [{ content: code }] }),
+      })
+        .then(r => r.json())
+        .then(data => sendResponse({
+          ok:       true,
+          stdout:   data.run?.stdout   || '',
+          stderr:   data.run?.stderr   || '',
+          exitCode: data.run?.code     ?? -1,
+        }))
+        .catch(err => sendResponse({ ok: false, error: err.message }));
+      return true;
+    }
+
     case 'FETCH_VTT': {
       // Content script fetch failed (CORS); retry from extension origin.
       fetch(message.payload.url)

@@ -419,6 +419,10 @@ document.getElementById('btn-start-challenge').addEventListener('click', () => {
 // STEP 3: Challenge + IDE
 // ──────────────────────────────────────────────
 
+// CodeMirror mode names for languages we bundle a mode file for.
+// Any language not listed here falls back to plain text (null mode).
+const CM_MODES = { javascript: 'javascript', typescript: 'javascript' };
+
 function renderChallenge() {
   const { challenge } = state;
   document.getElementById('challenge-title').textContent = challenge.title;
@@ -428,61 +432,50 @@ function renderChallenge() {
   document.getElementById('hint-display').classList.add('hidden');
   state.hintIndex = 0;
 
-  // Initialize CodeMirror once; the instance is reused across challenges.
+  const lang = (challenge.language || 'javascript').toLowerCase();
+  const mode = CM_MODES[lang] || null;
+
+  // Initialize CodeMirror once; update mode + content on each challenge.
   const wrap = document.getElementById('ide-editor-wrap');
   if (!editor) {
     editor = CodeMirror(wrap, {
-      mode: 'javascript',
+      mode,
       lineNumbers: true,
       matchBrackets: true,
       indentWithTabs: false,
       tabSize: 2,
-      extraKeys: {
-        'Ctrl-Enter': runCode,
-        'Cmd-Enter': runCode,
-      },
+      extraKeys: { 'Ctrl-Enter': runCode, 'Cmd-Enter': runCode },
     });
+  } else {
+    editor.setOption('mode', mode);
   }
   editor.setValue(challenge.starterCode || '');
 }
 
-// ── Run code ──
-document.getElementById('btn-run').addEventListener('click', () => {
-  runCode();
-});
-
-function runCode() {
-  if (!editor) return;
-  document.getElementById('ide-output').textContent = '';
-  document.getElementById('test-results').replaceChildren();
-
-  const userCode = editor.getValue();
-  if (!sandboxWindow) {
-    sandboxWindow = document.getElementById('sandbox').contentWindow;
-  }
-  sandboxWindow.postMessage({
-    type: 'RUN_CODE',
-    code: userCode,
-    tests: state.challenge.tests,
-  }, '*');
+// ── Parse PASS/FAIL stdout protocol ───────────────────────────────────────
+// Any language's test harness should print either:
+//   PASS: <description>
+//   FAIL: <description> | got: <actual> | expected: <expected>
+function parseTestOutput(stdout) {
+  return stdout.split('\n')
+    .map(l => l.trim())
+    .filter(l => l.startsWith('PASS:') || l.startsWith('FAIL:'))
+    .map(l => {
+      if (l.startsWith('PASS:')) return { description: l.slice(5).trim(), pass: true, actual: '', expected: '' };
+      const body   = l.slice(5).trim();
+      const parts  = body.split(' | ');
+      const description = parts[0].trim();
+      const actual      = (parts.find(p => p.startsWith('got:'))      || '').replace(/^got:\s*/, '');
+      const expected    = (parts.find(p => p.startsWith('expected:')) || '').replace(/^expected:\s*/, '');
+      return { description, pass: false, actual, expected };
+    });
 }
 
-// Listen for results from sandbox
-window.addEventListener('message', (event) => {
-  if (event.data?.type !== 'RUN_RESULT') return;
-  if (!sandboxWindow) sandboxWindow = document.getElementById('sandbox').contentWindow;
-  if (event.source !== sandboxWindow) return;
-
-  const { logs, testResults } = event.data;
-
-  // Show console output
-  const output = document.getElementById('ide-output');
-  output.textContent = logs.join('\n') || '(no output)';
-
-  // Show test cases
-  const resultsEl = document.getElementById('test-results');
-  resultsEl.innerHTML = '';
-  testResults.forEach(t => {
+// ── Render test results (shared by both sandbox and Piston paths) ─────────
+function displayTestResults(results) {
+  const el = document.getElementById('test-results');
+  el.innerHTML = '';
+  results.forEach(t => {
     const div = document.createElement('div');
     div.className = `test-case ${t.pass ? 'pass' : 'fail'}`;
     div.innerHTML = `
@@ -494,10 +487,97 @@ window.addEventListener('message', (event) => {
       <span class="test-case-body">
         <span class="test-case-desc">${t.description}</span>
         ${!t.pass ? `<span class="test-case-detail">got ${t.actual} &nbsp;·&nbsp; expected ${t.expected}</span>` : ''}
-      </span>
-    `;
-    resultsEl.appendChild(div);
+      </span>`;
+    el.appendChild(div);
   });
+}
+
+// ── Run code ──────────────────────────────────────────────────────────────
+document.getElementById('btn-run').addEventListener('click', () => runCode());
+
+function runCode() {
+  if (!editor) return;
+  document.getElementById('ide-output').textContent = '';
+  document.getElementById('test-results').replaceChildren();
+
+  const userCode  = editor.getValue();
+  const challenge = state.challenge;
+  const lang      = (challenge.language || 'javascript').toLowerCase();
+
+  if (lang === 'javascript') {
+    // ── JavaScript: run in local sandbox (fast, works offline) ──
+    if (!sandboxWindow) sandboxWindow = document.getElementById('sandbox').contentWindow;
+
+    if (challenge.testRunner) {
+      // New format: testRunner appended to user code; PASS/FAIL lines in logs
+      sandboxWindow.postMessage(
+        { type: 'RUN_CODE', code: userCode + '\n' + challenge.testRunner, tests: [] }, '*');
+    } else {
+      // Legacy format: tests array with input/expectedOutput
+      sandboxWindow.postMessage(
+        { type: 'RUN_CODE', code: userCode, tests: challenge.tests || [] }, '*');
+    }
+  } else {
+    // ── Other languages: execute via Piston API ──
+    if (!challenge.testRunner) {
+      document.getElementById('ide-output').textContent = 'No test runner — regenerate the challenge.';
+      return;
+    }
+
+    const btn = document.getElementById('btn-run');
+    btn.disabled  = true;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:12px;height:12px;display:inline-block;vertical-align:middle">
+      <circle cx="12" cy="12" r="9" stroke-opacity="0.25"/>
+      <path d="M12 3a9 9 0 0 1 9 9">
+        <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.75s" repeatCount="indefinite"/>
+      </path></svg> Running…`;
+
+    chrome.runtime.sendMessage(
+      { type: 'EXECUTE_CODE', payload: { language: lang, code: userCode + '\n' + challenge.testRunner } },
+      (resp) => {
+        btn.disabled  = false;
+        btn.innerHTML = `<svg class="icon icon-xs" aria-hidden="true"><use href="#ic-play"/></svg> Run`;
+
+        const outputEl = document.getElementById('ide-output');
+        if (!resp?.ok) {
+          outputEl.textContent = 'Error: ' + (resp?.error || 'Unknown error');
+          return;
+        }
+
+        // Stderr = compiler/runtime errors; show separately from test output
+        const nonTestLines = resp.stdout.split('\n')
+          .filter(l => !l.trim().match(/^(PASS|FAIL):/))
+          .join('\n').trim();
+        outputEl.textContent = resp.stderr
+          ? resp.stderr.trim() + (nonTestLines ? '\n' + nonTestLines : '')
+          : (nonTestLines || '(no output)');
+
+        displayTestResults(parseTestOutput(resp.stdout));
+      }
+    );
+  }
+}
+
+// ── Sandbox result handler (JavaScript only) ──────────────────────────────
+window.addEventListener('message', (event) => {
+  if (event.data?.type !== 'RUN_RESULT') return;
+  if (!sandboxWindow) sandboxWindow = document.getElementById('sandbox').contentWindow;
+  if (event.source !== sandboxWindow) return;
+
+  const { logs, testResults: rawResults } = event.data;
+  const outputEl = document.getElementById('ide-output');
+
+  if (rawResults?.length > 0) {
+    // Legacy tests-array path: sandbox produced structured results
+    outputEl.textContent = logs.join('\n') || '(no output)';
+    displayTestResults(rawResults);
+  } else {
+    // testRunner path: PASS/FAIL lines mixed into logs
+    const allOutput  = logs.join('\n');
+    const nonTest    = logs.filter(l => !l.trim().match(/^(PASS|FAIL):/)).join('\n').trim();
+    outputEl.textContent = nonTest || '(no output)';
+    displayTestResults(parseTestOutput(allOutput));
+  }
 });
 
 // ── Hints ──
