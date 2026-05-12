@@ -2,7 +2,8 @@
 // Exposes the History global. Loaded before main.js in index.html.
 
 const History = (() => {
-  const KEY = 'praxisHistory';
+  const KEY       = 'praxisHistory';
+  const STATS_KEY = 'praxisStats';
   const MAX = 50;
 
   function inferPlatform(url) {
@@ -33,6 +34,87 @@ const History = (() => {
     return new Date(ts).toLocaleDateString();
   }
 
+  // ── Stats helpers ─────────────────────────────────────────────────────────
+
+  function _dateKey(ts) {
+    return new Date(ts).toISOString().split('T')[0]; // "YYYY-MM-DD"
+  }
+
+  async function _updateStats() {
+    try {
+      const today   = _dateKey(Date.now());
+      const stored  = await chrome.storage.local.get(STATS_KEY);
+      const s = stored[STATS_KEY] || {
+        totalSessions:   0,
+        currentStreak:   0,
+        longestStreak:   0,
+        lastSessionDate: null,
+      };
+
+      s.totalSessions++;
+
+      if (!s.lastSessionDate) {
+        s.currentStreak = 1;
+      } else if (s.lastSessionDate === today) {
+        // Multiple sessions in one day — streak already counted, just bump total
+      } else {
+        const yesterday = _dateKey(Date.now() - 86_400_000);
+        s.currentStreak = (s.lastSessionDate === yesterday) ? s.currentStreak + 1 : 1;
+      }
+
+      s.longestStreak   = Math.max(s.longestStreak, s.currentStreak);
+      s.lastSessionDate = today;
+
+      await chrome.storage.local.set({ [STATS_KEY]: s });
+    } catch (e) {
+      console.error('[Praxis] History._updateStats failed:', e);
+    }
+  }
+
+  async function loadStats() {
+    try {
+      const stored = await chrome.storage.local.get(STATS_KEY);
+      return stored[STATS_KEY] || {
+        totalSessions: 0, currentStreak: 0, longestStreak: 0, lastSessionDate: null,
+      };
+    } catch (e) {
+      console.error('[Praxis] History.loadStats failed:', e);
+      return { totalSessions: 0, currentStreak: 0, longestStreak: 0, lastSessionDate: null };
+    }
+  }
+
+  async function renderStats() {
+    const s  = await loadStats();
+    const el = document.getElementById('history-stats');
+    if (!el) return;
+    el.innerHTML = '';
+
+    const items = [
+      { emoji: '🔥', value: s.currentStreak,  label: 'day streak'   },
+      { emoji: '🏆', value: s.longestStreak,  label: 'best streak'  },
+      { emoji: '📚', value: s.totalSessions,  label: 'sessions'     },
+    ];
+
+    items.forEach(({ emoji, value, label }) => {
+      const stat = document.createElement('div');
+      stat.className = 'stat-item';
+
+      const top = document.createElement('div');
+      top.className = 'stat-value';
+      top.textContent = `${emoji} ${value}`;
+
+      const bot = document.createElement('div');
+      bot.className = 'stat-label';
+      bot.textContent = label;
+
+      stat.appendChild(top);
+      stat.appendChild(bot);
+      el.appendChild(stat);
+    });
+  }
+
+  // ── Session storage ───────────────────────────────────────────────────────
+
   async function saveSession(data) {
     try {
       const stored = await chrome.storage.local.get(KEY);
@@ -51,6 +133,7 @@ const History = (() => {
       });
       if (list.length > MAX) list.length = MAX;
       await chrome.storage.local.set({ [KEY]: list });
+      await _updateStats();
       // Reveal the history toolbar icon now that there is at least one entry
       document.getElementById('btn-history').classList.remove('hidden');
     } catch (e) {
@@ -137,5 +220,5 @@ const History = (() => {
     }
   }
 
-  return { saveSession, loadHistory, renderHistory, clearHistory };
+  return { saveSession, loadHistory, renderHistory, clearHistory, loadStats, renderStats };
 })();

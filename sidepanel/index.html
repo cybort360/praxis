@@ -222,6 +222,12 @@
   <div class="tab-panel active" data-tab="summary">
     <p id="summary-text"></p>
     <ul id="summary-points"></ul>
+    <button id="btn-copy-summary" class="btn btn-ghost btn-sm btn-full" style="margin-bottom:8px;">
+      <svg class="icon icon-xs" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+      </svg>
+      Copy as Markdown
+    </button>
     <button id="btn-start-quiz" class="btn btn-primary btn-full">
       Take the Quiz
       <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-arrow-right"/></svg>
@@ -358,6 +364,7 @@
     </div>
     <h2>Session History</h2>
   </div>
+  <div id="history-stats" class="stats-card"></div>
   <div id="history-list"></div>
   <button id="btn-clear-history" class="btn btn-ghost btn-sm" style="margin-top:16px;width:100%;color:var(--error);">
     Clear history

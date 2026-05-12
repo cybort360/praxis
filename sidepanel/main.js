@@ -219,6 +219,29 @@ function renderSummary() {
   Chat.init(state.transcript, state.videoTitle);
 }
 
+document.getElementById('btn-copy-summary').addEventListener('click', async () => {
+  const { summary } = state;
+  if (!summary) return;
+  const md = [
+    `# ${summary.title}`,
+    '',
+    summary.summary,
+    '',
+    '## Key Points',
+    ...summary.keyPoints.map(p => `- ${p}`),
+  ].join('\n');
+  try {
+    await navigator.clipboard.writeText(md);
+    const btn = document.getElementById('btn-copy-summary');
+    const original = btn.innerHTML;
+    btn.textContent = '✓ Copied!';
+    btn.disabled = true;
+    setTimeout(() => { btn.innerHTML = original; btn.disabled = false; }, 2000);
+  } catch (e) {
+    console.error('[Praxis] Copy failed:', e);
+  }
+});
+
 document.getElementById('btn-start-quiz').addEventListener('click', () => {
   renderQuizQuestion();
   showScreen('screen-quiz');
@@ -833,6 +856,7 @@ document.getElementById('more-settings-link').addEventListener('click', () => {
 // ── History navigation ──
 document.getElementById('btn-history').addEventListener('click', () => {
   previousScreen = document.querySelector('.screen.active')?.id || 'screen-idle';
+  History.renderStats();
   History.renderHistory();
   showScreen('screen-history');
 });
