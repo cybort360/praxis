@@ -230,8 +230,9 @@
   }
 
   // ── Transcript strategies ─────────────────────────────────────────────────
-  // Strategy 1: find a <track src> element → fetch + parse VTT file
-  // Strategy 2: read cues directly from video.textTracks (Udemy/video.js)
+  // 1. <track src> element → fetch + parse VTT file (Coursera, Khan Academy…)
+  // 2. video.textTracks cues in memory (video.js platforms with native tracks)
+  // 3. VTT captured by vtt-interceptor.js page-world script (Udemy, etc.)
   async function getTranscript(video) {
     // Strategy 1 — <track> element with src URL
     const trackEl = getBestTrack(video);
@@ -243,8 +244,7 @@
       }
     }
 
-    // Strategy 2 — native TextTrack cues (Udemy, video.js players)
-    // Captions showing → cues are already loaded; just read them.
+    // Strategy 2 — native TextTrack cues already in memory
     const textTracks = Array.from(video.textTracks || []);
     const active =
       textTracks.find(t =>
@@ -253,20 +253,32 @@
       textTracks.find(t =>
         (t.kind === 'captions' || t.kind === 'subtitles') &&
         t.mode !== 'disabled' && t.cues?.length > 0);
-    if (!active?.cues?.length) return null;
+    if (active?.cues?.length) {
+      const result = Array.from(active.cues)
+        .map(cue => ({
+          t:    cue.startTime,
+          text: (cue.text || '')
+            .replace(/<[^>]+>/g, '')
+            .replace(/&amp;/g,  '&')
+            .replace(/&#39;/g,  "'")
+            .replace(/&lt;/g,   '<')
+            .replace(/&gt;/g,   '>')
+            .trim(),
+        }))
+        .filter(s => s.text);
+      if (result.length) return result;
+    }
 
-    return Array.from(active.cues)
-      .map(cue => ({
-        t:    cue.startTime,
-        text: (cue.text || '')
-          .replace(/<[^>]+>/g, '')
-          .replace(/&amp;/g,  '&')
-          .replace(/&#39;/g,  "'")
-          .replace(/&lt;/g,   '<')
-          .replace(/&gt;/g,   '>')
-          .trim(),
-      }))
-      .filter(s => s.text);
+    // Strategy 3 — VTT file captured by vtt-interceptor.js (document_start).
+    // Intercepts fetch/XHR calls the video player makes to load .vtt files,
+    // storing them in window.__llVttList before the player finishes loading.
+    for (const cached of (window.__llVttList || [])) {
+      if (!cached?.text) continue;
+      const result = parseVTT(cached.text);
+      if (result.length) return result;
+    }
+
+    return null;
   }
 
   async function fetchVTT(url) {

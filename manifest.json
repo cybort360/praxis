@@ -44,6 +44,15 @@
     },
     {
       "matches": ["*://*/*"],
+      "js": ["content/vtt-interceptor.js"],
+      "run_at": "document_start",
+      "exclude_matches": [
+        "https://www.youtube.com/*",
+        "https://youtube.com/*"
+      ]
+    },
+    {
+      "matches": ["*://*/*"],
       "js": ["content/generic.js"],
       "run_at": "document_idle",
       "exclude_matches": [
