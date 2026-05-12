@@ -21,11 +21,13 @@ document.getElementById('btn-theme').addEventListener('click', () => {
 // ── Module-level editor instances ──
 let editor = null;
 let sandboxWindow = null;
+let previousScreen = 'screen-idle';
 
 // ── State ──
 const state = {
   transcript: null,
   videoTitle: null,
+  videoUrl:   null,
   tabId: null,
   summary: null,
   quiz: [],
@@ -69,7 +71,8 @@ function renderExplanation(text, containerEl) {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.getElementById('btn-reset').classList.toggle('hidden', id === 'screen-idle' || id === 'screen-loading');
+  const hideReset = id === 'screen-idle' || id === 'screen-loading' || id === 'screen-history';
+  document.getElementById('btn-reset').classList.toggle('hidden', hideReset);
 }
 
 function setLoadingMsg(msg) {
@@ -97,6 +100,7 @@ function resetQuiz() {
 function resetState() {
   state.transcript = null;
   state.videoTitle = null;
+  state.videoUrl   = null;
   state.tabId = null;
   state.summary = null;
   state.quiz = [];
@@ -105,6 +109,7 @@ function resetState() {
   state.quizPassed = 0;
   state.hintIndex = 0;
   state.selectedOption = null;
+  Chat.reset();
   chrome.storage.session.remove(['savedSession', 'pendingSession']);
 }
 
@@ -122,6 +127,7 @@ async function restoreOrInit() {
     if (pendingSession) {
       chrome.storage.session.remove(['pendingSession', 'savedSession']);
       state.videoTitle = pendingSession.title;
+      state.videoUrl   = pendingSession.videoId;
       state.transcript = pendingSession.transcript;
       state.tabId = pendingSession.tabId;
       startSession();
@@ -179,6 +185,8 @@ async function startSession() {
   state.quizPassed = 0;
   state.hintIndex = 0;
 
+  History.saveSession({ videoTitle: state.videoTitle, url: state.videoUrl, summary });
+
   persistState('summary');
   renderSummary();
   showScreen('screen-summary');
@@ -191,7 +199,7 @@ async function startSession() {
 function renderSummary() {
   const { summary } = state;
   document.getElementById('summary-title').textContent = summary.title;
-  document.getElementById('summary-text').textContent = summary.summary;
+  document.getElementById('summary-text').textContent  = summary.summary;
 
   const list = document.getElementById('summary-points');
   list.innerHTML = '';
@@ -200,12 +208,60 @@ function renderSummary() {
     li.textContent = point;
     list.appendChild(li);
   });
+
+  // Reset to Summary tab on every render
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('.tab-btn[data-tab="summary"]').classList.add('active');
+  document.querySelector('.tab-panel[data-tab="summary"]').classList.add('active');
+
+  renderTranscript();
+  Chat.init(state.transcript, state.videoTitle);
 }
 
 document.getElementById('btn-start-quiz').addEventListener('click', () => {
   renderQuizQuestion();
   showScreen('screen-quiz');
 });
+
+function renderTranscript() {
+  const list = document.getElementById('transcript-list');
+  list.innerHTML = '';
+  const segs = state.transcript;
+
+  if (!Array.isArray(segs) || segs.length === 0) {
+    list.innerHTML =
+      '<p style="color:var(--text-muted);font-size:13px;padding:24px 0;text-align:center">Transcript not available for this session.</p>';
+    return;
+  }
+
+  segs.forEach(seg => {
+    const t   = Math.floor(seg.t);
+    const m   = Math.floor(t / 60);
+    const s   = String(t % 60).padStart(2, '0');
+    const btn = document.createElement('button');
+    btn.className = 'transcript-row';
+    btn.innerHTML = `<span class="transcript-ts">${m}:${s}</span><span class="transcript-text">${seg.text}</span>`;
+    btn.addEventListener('click', () => {
+      chrome.runtime.sendMessage({ type: 'SEEK_VIDEO', payload: { t, tabId: state.tabId } });
+      btn.classList.add('highlight');
+      setTimeout(() => btn.classList.remove('highlight'), 700);
+    });
+    list.appendChild(btn);
+  });
+}
+
+function initSummaryTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelector(`.tab-panel[data-tab="${tab}"]`).classList.add('active');
+    });
+  });
+}
 
 // ──────────────────────────────────────────────
 // STEP 2: Quiz
@@ -763,5 +819,29 @@ document.getElementById('more-settings-link').addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
 });
 
+// ── History navigation ──
+document.getElementById('btn-history').addEventListener('click', () => {
+  previousScreen = document.querySelector('.screen.active')?.id || 'screen-idle';
+  History.renderHistory();
+  showScreen('screen-history');
+});
+
+document.getElementById('btn-back-history').addEventListener('click', () => {
+  showScreen(previousScreen);
+});
+
+document.getElementById('btn-clear-history').addEventListener('click', async () => {
+  if (confirm('Clear all session history?')) {
+    await History.clearHistory();
+  }
+});
+
 // ── Init ──
+initSummaryTabs();
+
+// Show history icon if past sessions exist
+History.loadHistory().then(list => {
+  if (list.length > 0) document.getElementById('btn-history').classList.remove('hidden');
+});
+
 restoreOrInit();
