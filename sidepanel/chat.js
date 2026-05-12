@@ -84,22 +84,30 @@ const Chat = (() => {
     input.disabled = true;
     const typingEl = _appendTypingIndicator();
 
-    const resp = await chrome.runtime.sendMessage({
-      type:    'CHAT_MESSAGE',
-      payload: { messages: _messages, transcript: _transcript, videoTitle: _videoTitle },
-    });
+    try {
+      const resp = await chrome.runtime.sendMessage({
+        type:    'CHAT_MESSAGE',
+        payload: { messages: _messages, transcript: _transcript, videoTitle: _videoTitle },
+      });
 
-    typingEl.remove();
-    _isLoading     = false;
-    input.disabled = false;
-    input.focus();
+      typingEl.remove();
+      _isLoading     = false;
+      input.disabled = false;
+      input.focus();
 
-    if (resp?.ok) {
-      const reply = resp.data.reply;
-      _messages.push({ role: 'assistant', content: reply });
-      _appendBubble('assistant', reply);
-    } else {
+      if (resp?.ok) {
+        const reply = resp.data.reply;
+        _messages.push({ role: 'assistant', content: reply });
+        _appendBubble('assistant', reply);
+      } else {
+        _appendBubble('assistant', 'Something went wrong — try again.');
+      }
+    } catch (err) {
+      typingEl.remove();
+      _isLoading     = false;
+      input.disabled = false;
       _appendBubble('assistant', 'Something went wrong — try again.');
+      console.error('[Praxis] Chat._send failed:', err);
     }
   }
 
