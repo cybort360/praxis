@@ -527,6 +527,23 @@ const CM_MODES = {
   bash:        'shell',
 };
 
+// Human-readable labels for the IDE language badge.
+const LANG_DISPLAY = {
+  javascript: 'JavaScript',
+  typescript: 'TypeScript',
+  python:     'Python',
+  rust:       'Rust',
+  go:         'Go',
+  java:       'Java',
+  c:          'C',
+  cpp:        'C++',
+  'c++':      'C++',
+  csharp:     'C#',
+  'c#':       'C#',
+  shell:      'Shell',
+  bash:       'Bash',
+};
+
 function renderChallenge() {
   const { challenge } = state;
   document.getElementById('challenge-title').textContent = challenge.title;
@@ -538,6 +555,11 @@ function renderChallenge() {
 
   const lang = (challenge.language || 'javascript').toLowerCase();
   const mode = CM_MODES[lang] || null;
+
+  // Update the IDE language badge to reflect actual language
+  const displayName = LANG_DISPLAY[lang]
+    || lang.charAt(0).toUpperCase() + lang.slice(1);
+  document.getElementById('ide-lang-name').textContent = displayName;
 
   // Initialize CodeMirror once; update mode + content on each challenge.
   const wrap = document.getElementById('ide-editor-wrap');
