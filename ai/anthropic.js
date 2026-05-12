@@ -142,6 +142,8 @@ Return ONLY valid JSON:
 
 LANGUAGE-SPECIFIC RULES for testRunner:
 
+For CSS or HTML topics: set language to "javascript". Write a JavaScript function that generates or validates the CSS/HTML output, then test it with console.log PASS/FAIL assertions. Do NOT set language to "css" or "html" — those cannot be executed.
+
 For JavaScript/TypeScript: testRunner is JS that calls the function and uses console.log for PASS/FAIL.
 Example:
   const r = solution(2, 3);

@@ -522,9 +522,13 @@ document.getElementById('btn-start-challenge').addEventListener('click', () => {
 
 // CodeMirror mode names for languages we bundle a mode file for.
 // Any language not listed here falls back to plain text (null mode).
+// CSS and HTML are non-executable; their challenges always use a JS testRunner,
+// so we map them to the JavaScript mode so syntax highlighting works correctly.
 const CM_MODES = {
   javascript:  'javascript',
   typescript:  'javascript',
+  css:         'javascript',
+  html:        'javascript',
   rust:        'rust',
   python:      'python',
   c:           'text/x-csrc',
@@ -542,6 +546,8 @@ const CM_MODES = {
 const LANG_DISPLAY = {
   javascript: 'JavaScript',
   typescript: 'TypeScript',
+  css:        'CSS',
+  html:       'HTML',
   python:     'Python',
   rust:       'Rust',
   go:         'Go',
@@ -639,7 +645,9 @@ function runCode() {
 
   const userCode  = editor.getValue();
   const challenge = state.challenge;
-  const lang      = (challenge.language || 'javascript').toLowerCase();
+  const rawLang   = (challenge.language || 'javascript').toLowerCase();
+  // CSS and HTML are non-executable; their challenges use a JS testRunner.
+  const lang      = (rawLang === 'css' || rawLang === 'html') ? 'javascript' : rawLang;
 
   if (lang === 'javascript') {
     // ── JavaScript: run in local sandbox (fast, works offline) ──
