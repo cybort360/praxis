@@ -421,7 +421,21 @@ document.getElementById('btn-start-challenge').addEventListener('click', () => {
 
 // CodeMirror mode names for languages we bundle a mode file for.
 // Any language not listed here falls back to plain text (null mode).
-const CM_MODES = { javascript: 'javascript', typescript: 'javascript' };
+const CM_MODES = {
+  javascript:  'javascript',
+  typescript:  'javascript',
+  rust:        'rust',
+  python:      'python',
+  c:           'text/x-csrc',
+  cpp:         'text/x-c++src',
+  'c++':       'text/x-c++src',
+  java:        'text/x-java',
+  csharp:      'text/x-csharp',
+  'c#':        'text/x-csharp',
+  go:          'go',
+  shell:       'shell',
+  bash:        'shell',
+};
 
 function renderChallenge() {
   const { challenge } = state;

@@ -110,43 +110,59 @@ Return ONLY a JSON array:
   }
 
   async generateChallenge(transcript, videoTitle) {
-    const system = `You are an expert coding tutor. Generate a JavaScript coding challenge based on what was taught. The challenge should require genuine understanding, not copying from the video. Return JSON only.`;
+    const system = `You are an expert coding tutor. Generate a coding challenge based on what was taught. Detect the primary programming language from the video title and transcript. The challenge should require genuine understanding, not copying from the video. Return JSON only.`;
     const user = `
 Video title: "${videoTitle}"
 Transcript: ${transcript.slice(0, 8000)}
 
-Create one coding challenge. It must:
+First, identify the primary programming language taught in this video. Then create one coding challenge in that language. It must:
 - Be solvable in under 30 minutes
 - Require applying the core concept from the video in a slightly new context
-- Include runnable test cases
+- Include a self-contained testRunner that prints PASS/FAIL lines
 - Have 3 progressive hints
+
+The testRunner must use this exact stdout protocol:
+  PASS: <description>
+  FAIL: <description> | got: <actual> | expected: <expected>
 
 Return ONLY valid JSON:
 {
+  "language": "rust",
   "title": "Challenge title",
   "description": "What the user needs to build. Be specific about inputs and outputs.",
-  "starterCode": "// starter code with function signature\nfunction solution() {\n  // your code here\n}",
-  "tests": [
-    {
-      "description": "handles basic case",
-      "input": "solution(arg1, arg2)",
-      "expectedOutput": "42"
-    },
-    {
-      "description": "handles string return",
-      "input": "solution('hello')",
-      "expectedOutput": "'Hello, world!'"
-    }
-  ],
+  "starterCode": "starter code with the function signature the user must implement",
+  "testRunner": "self-contained code that calls the user solution and prints PASS/FAIL lines — this is appended to the user's code and run as a complete program",
   "hints": [
     "Hint 1 — gentle nudge",
     "Hint 2 — more specific",
     "Hint 3 — near-answer"
   ],
-  "solution": "// full working solution\nfunction solution() { ... }"
+  "solution": "full working solution"
 }
 
-IMPORTANT: "input" must be a JavaScript expression (e.g. solution(true)). "expectedOutput" must also be a valid JavaScript expression — wrap strings in single quotes (e.g. 'Access Denied'), use bare numbers (e.g. 42) or booleans (e.g. true) for non-string values.`;
+LANGUAGE-SPECIFIC RULES for testRunner:
+
+For Rust: starterCode contains the fn to implement (no main). testRunner is a fn main() that calls it and prints PASS/FAIL.
+Example testRunner for Rust:
+  fn main() {
+    let r = solution(2, 3);
+    if r == 5 { println!("PASS: adds two numbers"); }
+    else { println!("FAIL: adds two numbers | got: {} | expected: 5", r); }
+  }
+
+For Python: testRunner is plain Python that calls the function and prints PASS/FAIL.
+Example:
+  r = solution(2, 3)
+  if r == 5: print("PASS: adds two numbers")
+  else: print(f"FAIL: adds two numbers | got: {r} | expected: 5")
+
+For JavaScript/TypeScript: testRunner is JS that calls the function and uses console.log for PASS/FAIL.
+Example:
+  const r = solution(2, 3);
+  if (r === 5) console.log("PASS: adds two numbers");
+  else console.log(\`FAIL: adds two numbers | got: \${r} | expected: 5\`);
+
+For C/C++/Java/Go/other: follow the same PASS/FAIL pattern using that language's print function. testRunner must be a valid entry point (main function) that can run standalone when appended to the user's solution code.`;
     return this._parseJSON(await this._call(system, user));
   }
 
