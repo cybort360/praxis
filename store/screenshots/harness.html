@@ -209,41 +209,82 @@ html, body { width: 1280px; height: 800px; overflow: hidden; background: #111; f
 }
 
 /* ── Challenge screen ── */
-.challenge-desc { font-size: 13px; color: #aeaece; line-height: 1.6; }
+.challenge-desc { font-size: 13px; color: #aeaece; line-height: 1.8; margin-bottom: 14px; }
+/* IDE window */
 .code-editor {
-  background: #0f0f1c; border: 1px solid #26263c; border-radius: 10px; overflow: hidden;
+  background: #0f0f1c;
+  border: 1px solid rgba(124,106,247,0.22);
+  border-radius: 14px; overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(124,106,247,0.07);
 }
 .editor-toolbar {
-  padding: 8px 12px; border-bottom: 1px solid #1e1e2e;
-  display: flex; align-items: center; justify-content: space-between;
-  background: #1a1a28;
+  padding: 9px 12px 8px;
+  border-bottom: 1px solid rgba(124,106,247,0.14);
+  display: flex; align-items: center; gap: 8px;
+  background: #16162a;
 }
-.editor-lang { font-size: 10px; font-weight: 700; color: #a78bfa; background: rgba(124,106,247,0.15); padding: 2px 8px; border-radius: 4px; }
+.ide-dots { display: flex; align-items: center; gap: 5px; margin-right: 4px; }
+.ide-dots span { display: block; width: 10px; height: 10px; border-radius: 50%; }
+.ide-dots span:nth-child(1) { background: #ff5f57; }
+.ide-dots span:nth-child(2) { background: #febc2e; }
+.ide-dots span:nth-child(3) { background: #28c840; }
+.editor-lang {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600; color: #a78bfa; font-family: monospace;
+  background: rgba(124,106,247,0.12); border: 1px solid rgba(124,106,247,0.25);
+  padding: 3px 10px; border-radius: 9999px;
+}
+.editor-actions { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.editor-ghost-btn {
+  font-size: 11px; font-weight: 600; color: #6e6e9a;
+  background: transparent; border: 1px solid #26263c; padding: 4px 10px; border-radius: 7px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 4px;
+}
 .editor-run-btn {
-  font-size: 11px; font-weight: 700; color: #0f0f1c;
-  background: #7c6af7; padding: 4px 12px; border-radius: 6px; border: none; cursor: pointer;
+  font-size: 11px; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, #7c6af7, #a78bfa);
+  padding: 5px 12px; border-radius: 7px; border: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 5px;
+  box-shadow: 0 2px 10px rgba(124,106,247,0.4);
 }
-.code-lines { padding: 12px 0; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 11.5px; line-height: 1.7; }
-.code-line { padding: 0 12px; display: flex; gap: 14px; }
-.ln { color: #3a3a5c; width: 18px; text-align: right; flex-shrink: 0; user-select: none; }
+.code-lines { padding: 10px 0; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 11.5px; line-height: 1.75; }
+.code-line { padding: 0 14px 0 0; display: flex; }
+.ln { color: #3a3a5c; width: 38px; text-align: right; flex-shrink: 0; user-select: none; padding-right: 14px; font-size: 11px; }
 .kw { color: #d881f5; }
 .fn { color: #61afef; }
 .str { color: #98d174; }
 .num { color: #f9ae58; }
-.cm { color: #5c6370; font-style: italic; }
+.cm-comment { color: #5c6370; font-style: italic; }
 .pun { color: #aeaece; }
-.test-results { display: flex; flex-direction: column; gap: 6px; }
+/* Output */
+.editor-output-header {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px; font-size: 10.5px; font-weight: 700;
+  color: #6e6e9a; background: #16162a; border-top: 1px solid rgba(124,106,247,0.14);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.editor-output {
+  padding: 10px 14px 12px; background: #09090f;
+  font-family: monospace; font-size: 11.5px; line-height: 1.7; color: #a0e8b0; min-height: 40px;
+}
+/* Test results */
+.test-results { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
 .test-result {
-  display: flex; align-items: center; gap: 10px; padding: 8px 12px;
-  background: #16161f; border: 1px solid #26263c; border-radius: 8px; font-size: 12px;
+  display: flex; align-items: center; gap: 10px; padding: 9px 12px 9px 15px;
+  background: #16161f; border: 1px solid #26263c; border-radius: 12px; font-size: 12px;
+  position: relative; overflow: hidden;
 }
-.test-result.pass { border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.06); }
-.test-result.fail { border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.06); }
+.test-result::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.test-result.pass { border-color: rgba(52,211,153,0.22); }
+.test-result.pass::before { background: #34d399; }
+.test-result.fail { border-color: rgba(248,113,113,0.22); }
+.test-result.fail::before { background: #f87171; }
 .test-badge {
-  font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px;
-  background: rgba(52,211,153,0.15); color: #34d399;
+  width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 10px;
+  background: rgba(52,211,153,0.12); color: #34d399;
 }
-.test-badge.fail-badge { background: rgba(248,113,113,0.15); color: #f87171; }
+.test-badge.fail-badge { background: rgba(248,113,113,0.12); color: #f87171; }
 .test-name { color: #aeaece; }
 
 /* ── Transcript screen ── */
@@ -542,18 +583,28 @@ function renderQuiz() {
 }
 
 // ── Screen: Challenge ──────────────────────────────────────────────────
+const _svgChkSmall = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+const _svgPlay = `<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+const _svgEye  = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const _svgHint = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C7.85786 2 4.5 5.35786 4.5 9.5C4.5 11.816 5.54973 13.8867 7.19934 15.2625C8.19018 16.0889 9 17.2098 9 18.5H15C15 17.2098 15.8098 16.0889 16.8007 15.2625C18.4503 13.8867 19.5 11.816 19.5 9.5C19.5 5.35786 16.1421 2 12 2Z"/><path d="M15 18.5H9V20.5C9 21.3284 9.67157 22 10.5 22H13.5C14.3284 22 15 21.3284 15 20.5V18.5Z"/></svg>`;
+const _svgCode = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
+const _svgTerm = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>`;
+
 function renderChallenge() {
   return `
   ${header('Challenge')}
   <div class="panel-body">
-    <div>
-      <div class="section-label">Coding Challenge</div>
-      <p class="challenge-desc">Fix the component below so that <code style="color:#a78bfa;font-size:11px">ExpensiveChild</code> only re-renders when <code style="color:#a78bfa;font-size:11px">count</code> actually changes — not on every keystroke in the text input.</p>
-    </div>
+    <p class="challenge-desc">Fix the component below so that <code style="color:#a78bfa;font-size:11px;background:rgba(124,106,247,0.1);padding:1px 5px;border-radius:4px">ExpensiveChild</code> only re-renders when <code style="color:#a78bfa;font-size:11px;background:rgba(124,106,247,0.1);padding:1px 5px;border-radius:4px">count</code> changes — not on every keystroke in the text input.</p>
+
     <div class="code-editor">
       <div class="editor-toolbar">
-        <span class="editor-lang">JavaScript</span>
-        <button class="editor-run-btn">▶ Run Tests</button>
+        <div class="ide-dots"><span></span><span></span><span></span></div>
+        <span class="editor-lang">${_svgCode} JavaScript</span>
+        <div class="editor-actions">
+          <button class="editor-ghost-btn">${_svgHint} Hint</button>
+          <button class="editor-ghost-btn">${_svgEye} Solution</button>
+          <button class="editor-run-btn">${_svgPlay} Run</button>
+        </div>
       </div>
       <div class="code-lines">
         <div class="code-line"><span class="ln">1</span><span><span class="kw">function</span> <span class="fn">App</span><span class="pun">() {</span></span></div>
@@ -565,21 +616,19 @@ function renderChallenge() {
         <div class="code-line"><span class="ln">7</span><span>  <span class="pun">},</span> <span class="pun">[]);</span></span></div>
         <div class="code-line"><span class="ln">8</span><span>&nbsp;</span></div>
         <div class="code-line"><span class="ln">9</span><span>  <span class="kw">return</span> <span class="pun">(</span></span></div>
-        <div class="code-line"><span class="ln">10</span><span>    <span class="pun">&lt;</span><span class="fn">div</span><span class="pun">&gt;</span></span></div>
-        <div class="code-line"><span class="ln">11</span><span>      <span class="pun">&lt;</span><span class="fn">ExpensiveChild</span> <span class="pun">onClick={</span><span class="fn">handleClick</span><span class="pun">} count={</span>count<span class="pun">} /&gt;</span></span></div>
-        <div class="code-line"><span class="ln">12</span><span>      <span class="pun">&lt;</span><span class="fn">input</span> <span class="pun">value={</span>text<span class="pun">}</span> <span class="pun">onChange={e =></span> <span class="fn">setText</span><span class="pun">(e.target.value)}</span> <span class="pun">/&gt;</span></span></div>
-        <div class="code-line"><span class="ln">13</span><span>    <span class="pun">&lt;/</span><span class="fn">div</span><span class="pun">&gt;</span></span></div>
-        <div class="code-line"><span class="ln">14</span><span>  <span class="pun">);</span></span></div>
-        <div class="code-line"><span class="ln">15</span><span><span class="pun">}</span></span></div>
+        <div class="code-line"><span class="ln">10</span><span>    <span class="pun">&lt;</span><span class="fn">ExpensiveChild</span> <span class="pun">onClick={</span><span class="fn">handleClick</span><span class="pun">}</span></span></div>
+        <div class="code-line"><span class="ln">11</span><span>      <span class="pun">count={</span>count<span class="pun">} /&gt;</span></span></div>
+        <div class="code-line"><span class="ln">12</span><span>    <span class="pun">&lt;</span><span class="fn">input</span> <span class="pun">value={</span>text<span class="pun">}</span></span></div>
+        <div class="code-line"><span class="ln">13</span><span>      <span class="pun">onChange={e =></span> <span class="fn">setText</span><span class="pun">(e.target.value)} /&gt;</span></span></div>
       </div>
+      <div class="editor-output-header">${_svgTerm} Output</div>
+      <div class="editor-output">All 3 tests passed ✓</div>
     </div>
-    <div>
-      <div class="section-label">Test Results</div>
-      <div class="test-results">
-        <div class="test-result pass"><span class="test-badge">PASS</span><span class="test-name">handleClick reference is stable across renders</span></div>
-        <div class="test-result pass"><span class="test-badge">PASS</span><span class="test-name">ExpensiveChild does not re-render on text input change</span></div>
-        <div class="test-result pass"><span class="test-badge">PASS</span><span class="test-name">ExpensiveChild re-renders when count changes</span></div>
-      </div>
+
+    <div class="test-results">
+      <div class="test-result pass"><span class="test-badge">${_svgChkSmall}</span><span class="test-name">handleClick reference is stable across renders</span></div>
+      <div class="test-result pass"><span class="test-badge">${_svgChkSmall}</span><span class="test-name">ExpensiveChild does not re-render on keystroke</span></div>
+      <div class="test-result pass"><span class="test-badge">${_svgChkSmall}</span><span class="test-name">ExpensiveChild re-renders when count changes</span></div>
     </div>
   </div>`;
 }

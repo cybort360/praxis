@@ -896,68 +896,114 @@ html, body {
 /* 19. IDE / Challenge */
 .challenge-desc {
   color: var(--text-2);
-  font-size: 13.5px;
-  line-height: 1.75;
+  font-size: 13px;
+  line-height: 1.8;
+  margin-bottom: 14px;
 }
 
+/* ── IDE window ── */
 .ide-wrap {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border-2);
+  border: 1px solid rgba(124,106,247,0.22);
   border-radius: var(--r-lg);
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  background: #0f0f1c;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(124,106,247,0.07);
 }
 
+/* Title bar (window chrome) */
 .ide-toolbar {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 10px;
-  background: #1a1a28;
-  border-bottom: 1px solid var(--border-2);
+  gap: 8px;
+  padding: 9px 12px 8px;
+  background: #16162a;
+  border-bottom: 1px solid rgba(124,106,247,0.14);
+  flex-shrink: 0;
 }
 
+/* macOS-style window dots */
+.ide-win-dots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: 4px;
+}
+.ide-win-dots span {
+  display: block;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+.ide-win-dots span:nth-child(1) { background: #ff5f57; }
+.ide-win-dots span:nth-child(2) { background: #febc2e; }
+.ide-win-dots span:nth-child(3) { background: #28c840; }
+
+/* Language badge */
 .ide-lang-tag {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   font-size: 11px;
+  font-weight: 600;
   color: var(--accent-2);
   font-family: var(--font-mono);
   background: var(--accent-surface);
   border: 1px solid rgba(124,106,247,0.25);
   border-radius: var(--r-full);
   padding: 3px 10px;
-  margin-right: auto;
 }
 
+/* Hint / Solution / Run buttons pushed right */
+.ide-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+/* Output bar */
 .ide-output-header {
-  padding: 4px 12px;
-  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  font-size: 10.5px;
   font-weight: 700;
   color: var(--text-muted);
-  background: #1a1a28;
-  border-top: 1px solid var(--border-2);
+  background: #16162a;
+  border-top: 1px solid rgba(124,106,247,0.14);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
 }
 
 .ide-output {
-  padding: 10px 14px;
-  background: #0c0c16;
+  padding: 10px 14px 12px;
+  background: #09090f;
   font-family: var(--font-mono);
   font-size: 12px;
-  min-height: 48px;
-  max-height: 120px;
+  min-height: 52px;
+  max-height: 130px;
   overflow-y: auto;
-  color: #c8c8e8;
+  color: #a0e8b0;
   white-space: pre-wrap;
-  line-height: 1.65;
+  line-height: 1.7;
+}
+
+.ide-output:empty::before {
+  content: 'Run your code to see output…';
+  color: var(--text-faint);
+  font-style: italic;
 }
 
 /* 20. Test results */
-.test-results { display: flex; flex-direction: column; gap: 7px; }
+.test-results {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
 
 .test-case {
   display: flex;
@@ -966,10 +1012,21 @@ html, body {
   padding: 10px 12px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--r);
+  border-radius: var(--r-lg);
   font-size: 12.5px;
-  box-shadow: var(--shadow-xs);
+  position: relative;
+  overflow: hidden;
 }
+
+/* Subtle left accent per result */
+.test-case::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.test-case.pass::before { background: var(--success); }
+.test-case.fail::before { background: var(--error); }
 
 .test-case-icon {
   flex-shrink: 0;
@@ -985,12 +1042,16 @@ html, body {
 .test-case.fail .test-case-icon { background: var(--error-surface);   color: var(--error);   }
 
 .test-case-body  { flex: 1; min-width: 0; }
-.test-case-desc  { color: var(--text-2); line-height: 1.4; }
+.test-case-desc  { color: var(--text-2); line-height: 1.5; }
 .test-case-detail {
-  margin-top: 3px;
+  margin-top: 4px;
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text-muted);
+  background: var(--surface-2);
+  border-radius: var(--r-sm);
+  padding: 3px 6px;
+  display: inline-block;
 }
 
 /* 21. Hint */
@@ -999,12 +1060,13 @@ html, body {
   gap: 10px;
   align-items: flex-start;
   padding: 12px 14px;
-  background: var(--warning-surface);
-  border: 1px solid rgba(251,191,36,0.25);
-  border-radius: var(--r);
+  background: rgba(251,191,36,0.06);
+  border: 1px solid rgba(251,191,36,0.2);
+  border-radius: var(--r-lg);
   font-size: 13px;
   color: var(--text-2);
-  line-height: 1.55;
+  line-height: 1.6;
+  margin-top: 12px;
 }
 
 .hint-icon { color: var(--warning); flex-shrink: 0; margin-top: 2px; }
@@ -1121,25 +1183,41 @@ html, body {
 /* 26. CodeMirror — dark */
 .CodeMirror {
   height: auto;
-  min-height: 140px;
-  max-height: 260px;
+  min-height: 160px;
+  max-height: 280px;
   overflow-y: auto;
   background: #0f0f1c;
   color: #e2e2f4;
   font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.7;
+  font-size: 12.5px;
+  line-height: 1.75;
 }
-.CodeMirror-scroll { min-height: 140px; }
+
+.CodeMirror-scroll { min-height: 160px; }
+
+.CodeMirror-lines {
+  /* breathing room above/below code block */
+  padding: 8px 0 8px;
+}
+
+/* Restore padding stripped by * { padding:0 } reset */
 .CodeMirror-gutters {
-  background: #0c0c18;
-  border-right: 1px solid #2a2a42;
-  padding-right: 4px;
+  background: #0c0c16;
+  border-right: 1px solid #22223a;
+  padding-right: 0;
 }
-.CodeMirror-linenumber          { color: #454568; }
+
+.CodeMirror-linenumber {
+  color: #3a3a5c;
+  font-size: 11px;
+  /* critical: * { padding:0 } strips CM's default 0 3px 0 5px — put it back */
+  padding: 0 10px 0 8px;
+  min-width: 14px;
+}
+
 .CodeMirror-cursor              { border-left: 2px solid #a78bfa; }
-.CodeMirror-selected            { background: rgba(124,106,247,0.22) !important; }
-.CodeMirror-activeline-background { background: rgba(255,255,255,0.04) !important; }
+.CodeMirror-selected            { background: rgba(124,106,247,0.2) !important; }
+.CodeMirror-activeline-background { background: rgba(255,255,255,0.03) !important; }
 
 /* Vibrant syntax — One Dark Pro palette */
 .cm-keyword    { color: #d881f5; font-weight: 600; }
