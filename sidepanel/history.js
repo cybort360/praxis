@@ -217,16 +217,6 @@ const History = (() => {
       container.appendChild(sec);
 
       entries.forEach(entry => {
-        // ── Accent class ──────────────────────────────────────────────────
-        let accentClass = 'ha-muted';
-        if (entry.challengePassed === true) {
-          accentClass = 'ha-green';
-        } else if (entry.quizScore !== null && entry.quizTotal) {
-          accentClass = (entry.quizScore / entry.quizTotal) >= 0.6 ? 'ha-amber' : 'ha-muted';
-        } else if (entry.summary) {
-          accentClass = 'ha-purple';
-        }
-
         // ── Quiz pill ─────────────────────────────────────────────────────
         let quizPill = '';
         if (entry.quizScore !== null && entry.quizTotal) {
@@ -277,7 +267,7 @@ const History = (() => {
 
         // ── Assemble card ─────────────────────────────────────────────────
         const card = document.createElement('div');
-        card.className = `history-card ${accentClass}`;
+        card.className = 'history-card';
         card.innerHTML = `
           <div class="history-card-body">
             <div class="history-card-top">

@@ -1467,27 +1467,10 @@ html, body {
   background: var(--surface);
   transition: border-color var(--t), box-shadow var(--t);
   margin-bottom: 8px;
-  position: relative;
 }
 
-/* Coloured left-edge accent */
-.history-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: var(--_ha, var(--border));
-  border-radius: var(--r-lg) 0 0 var(--r-lg);
-  z-index: 1;
-}
-
-.history-card.ha-green  { --_ha: var(--success); }
-.history-card.ha-amber  { --_ha: var(--warning); }
-.history-card.ha-purple { --_ha: var(--accent); }
-.history-card.ha-muted  { --_ha: var(--border-2); }
-
-.history-card:hover            { border-color: var(--border-2); }
-.history-card.expanded         { border-color: var(--border-2); box-shadow: var(--shadow-sm); }
+.history-card:hover    { border-color: var(--border-2); }
+.history-card.expanded { border-color: var(--border-2); box-shadow: var(--shadow-sm); }
 
 .history-card-body {
   padding: 11px 14px 11px 18px;

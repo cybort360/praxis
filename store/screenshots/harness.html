@@ -340,16 +340,9 @@ html, body { width: 1280px; height: 800px; overflow: hidden; background: #111; f
 .history-section-label:first-child { margin-top: 0; }
 .history-card {
   background: #16161f; border: 1px solid #26263c; border-radius: 12px;
-  margin-bottom: 8px; position: relative; overflow: hidden;
+  margin-bottom: 8px; overflow: hidden;
 }
-.history-card::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-  background: var(--_ha, #26263c); border-radius: 12px 0 0 12px;
-}
-.history-card.ha-green  { --_ha: #34d399; }
-.history-card.ha-amber  { --_ha: #fbbf24; }
-.history-card.ha-purple { --_ha: #7c6af7; }
-.history-card-body { padding: 11px 14px 11px 18px; display: flex; flex-direction: column; gap: 7px; }
+.history-card-body { padding: 11px 14px; display: flex; flex-direction: column; gap: 7px; }
 .history-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 .history-title {
   font-size: 13px; font-weight: 600; color: #eeeefb; line-height: 1.4;
@@ -670,11 +663,11 @@ const _svgChk  = `<svg style="width:9px;height:9px;flex-shrink:0" viewBox="0 0 2
 
 function renderHistory() {
   const sessions = [
-    { title:'React Hooks Deep Dive: useCallback, useMemo & Performance Optimization', platform:'YouTube', time:'2h ago',  accent:'ha-green',  quiz:'5/5',  quizCls:'h-pill-pass',    built:true  },
-    { title:'TypeScript Generics — From Basics to Advanced Patterns',                platform:'YouTube', time:'Today',   accent:'ha-amber',  quiz:'3/5',  quizCls:'h-pill-partial', built:false },
-    { title:'Building a REST API with Node.js, Express & MongoDB',                   platform:'Udemy',   time:'Yesterday', accent:'ha-green', quiz:'4/4',  quizCls:'h-pill-pass',    built:true  },
-    { title:'CSS Grid vs Flexbox: When to Use Which',                                platform:'YouTube', time:'3 days ago', accent:'ha-amber', quiz:'4/5', quizCls:'h-pill-pass',    built:false },
-    { title:'Python Async/Await and asyncio — The Complete Guide',                   platform:'Coursera',time:'Last week',accent:'ha-purple', quiz:null,   quizCls:'',               built:false },
+    { title:'React Hooks Deep Dive: useCallback, useMemo & Performance Optimization', platform:'YouTube', time:'2h ago',    quiz:'5/5', quizCls:'h-pill-pass',    built:true  },
+    { title:'TypeScript Generics — From Basics to Advanced Patterns',                platform:'YouTube', time:'Today',     quiz:'3/5', quizCls:'h-pill-partial', built:false },
+    { title:'Building a REST API with Node.js, Express & MongoDB',                   platform:'Udemy',   time:'Yesterday', quiz:'4/4', quizCls:'h-pill-pass',    built:true  },
+    { title:'CSS Grid vs Flexbox: When to Use Which',                                platform:'YouTube', time:'3 days ago',quiz:'4/5', quizCls:'h-pill-pass',    built:false },
+    { title:'Python Async/Await and asyncio — The Complete Guide',                   platform:'Coursera',time:'Last week', quiz:null,  quizCls:'',               built:false },
   ];
 
   const groups = [
@@ -686,7 +679,7 @@ function renderHistory() {
   const cardsHTML = groups.map(g => `
     <p class="history-section-label">${g.label}</p>
     ${g.items.map(s => `
-      <div class="history-card ${s.accent}">
+      <div class="history-card">
         <div class="history-card-body">
           <div class="history-card-top">
             <p class="history-title">${s.title}</p>
