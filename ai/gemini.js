@@ -115,9 +115,42 @@ Video title: "${videoTitle}"
 What was taught:
 ${summaryText}
 
-First, identify the primary programming language taught in this video. Then create one coding challenge in that language. It must:
+STEP 1 — Assess the audience:
+Read the title and content carefully. Is this video aimed at complete beginners (e.g. "CSS for beginners", "intro to HTML", first-time learners who likely don't know what a function is) or at people who already know how to program?
+
+STEP 2 — Pick the language:
+CSS and HTML are not executable. If the video is about CSS or HTML, set language to "javascript".
+For everything else, use the language actually taught.
+
+STEP 3 — Design the challenge for the audience:
+
+If BEGINNER (no prior programming knowledge assumed):
+  - Do NOT write function definitions. Beginners don't know what functions are.
+  - Use simple const variable assignments. The user fills in 1–3 specific values.
+  - Starter code should be ~80% complete. The user makes small, targeted edits.
+  - Example (CSS color video):
+      // Complete the styles for a danger button
+      const backgroundColor = ''; // should be '#dc2626'
+      const borderRadius = '';    // should be '6px'
+  - testRunner checks each variable directly:
+      if (backgroundColor === '#dc2626') console.log('PASS: correct background color');
+      else console.log(\`FAIL: background color | got: \${backgroundColor} | expected: #dc2626\`);
+
+If INTERMEDIATE / ADVANCED (viewer already knows the basics):
+  - Function-based challenge is fine.
+  - For CSS/HTML topics: CSS properties must be JavaScript string values or object properties. NEVER write raw CSS syntax inside JS code — it causes a syntax error.
+  - WRONG (invalid JavaScript — will crash):
+      .icon { background-image: url('sprite.png'); width: 50px; }
+      function getStyles() { ... }
+  - CORRECT (CSS as JS string values):
+      function getSpritePosition(iconIndex) {
+        // return a string like '-50px 0px'
+        return '';
+      }
+
+The challenge must:
 - Be solvable in under 30 minutes
-- Require applying the core concept from the video in a slightly new context
+- Require applying the core concept in a slightly new context
 - Include a self-contained testRunner that prints PASS/FAIL lines
 - Have 3 progressive hints
 
@@ -127,44 +160,39 @@ The testRunner must use this exact stdout protocol:
 
 Return ONLY valid JSON:
 {
-  "language": "rust",
+  "language": "javascript",
   "title": "Challenge title",
-  "description": "What the user needs to build. Be specific about inputs and outputs.",
-  "starterCode": "starter code with the function signature the user must implement",
-  "testRunner": "self-contained code that calls the user solution and prints PASS/FAIL lines — this is appended to the user's code and run as a complete program",
+  "description": "Clear description of what the user needs to do. For beginners: explain without assuming any programming knowledge.",
+  "starterCode": "The code the user edits. For beginners: nearly complete, user fills in values. For advanced: function signature to implement.",
+  "testRunner": "Self-contained code appended to user code that prints PASS/FAIL lines.",
   "hints": [
     "Hint 1 — gentle nudge",
     "Hint 2 — more specific",
     "Hint 3 — near-answer"
   ],
-  "solution": "full working solution"
+  "solution": "Full working solution"
 }
 
-LANGUAGE-SPECIFIC RULES for testRunner:
+LANGUAGE RULES for testRunner:
 
-For CSS or HTML topics: set language to "javascript". Write a JavaScript function that generates or validates the CSS/HTML output, then test it with console.log PASS/FAIL assertions. Do NOT set language to "css" or "html" — those cannot be executed.
+JavaScript/TypeScript — console.log PASS/FAIL:
+  const r = solution(2, 3);
+  if (r === 5) console.log("PASS: adds two numbers");
+  else console.log(\`FAIL: adds two numbers | got: \${r} | expected: 5\`);
 
-For Rust: starterCode contains the fn to implement (no main). testRunner is a fn main() that calls it and prints PASS/FAIL.
-Example testRunner for Rust:
+Python — print PASS/FAIL:
+  r = solution(2, 3)
+  if r == 5: print("PASS: adds two numbers")
+  else: print(f"FAIL: adds two numbers | got: {r} | expected: 5")
+
+Rust — fn main() that calls the function and prints PASS/FAIL:
   fn main() {
     let r = solution(2, 3);
     if r == 5 { println!("PASS: adds two numbers"); }
     else { println!("FAIL: adds two numbers | got: {} | expected: 5", r); }
   }
 
-For Python: testRunner is plain Python that calls the function and prints PASS/FAIL.
-Example:
-  r = solution(2, 3)
-  if r == 5: print("PASS: adds two numbers")
-  else: print(f"FAIL: adds two numbers | got: {r} | expected: 5")
-
-For JavaScript/TypeScript: testRunner is JS that calls the function and uses console.log for PASS/FAIL.
-Example:
-  const r = solution(2, 3);
-  if (r === 5) console.log("PASS: adds two numbers");
-  else console.log(\`FAIL: adds two numbers | got: \${r} | expected: 5\`);
-
-For C/C++/Java/Go/other: follow the same PASS/FAIL pattern using that language's print function. testRunner must be a valid entry point (main function) that can run standalone when appended to the user's solution code.`;
+C/C++/Java/Go/other — same PASS/FAIL pattern using that language's print. testRunner must be a complete valid entry point appended to user code.`;
     return this._parseJSON(await this._call(system, user));
   }
 
