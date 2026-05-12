@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0a12; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 40px; font-family: system-ui; color: #a78bfa; }
+  .row { display: flex; align-items: center; gap: 28px; }
+  .label { font-size: 11px; color: #3a3a5c; width: 42px; text-align: right; }
+
+  /* mirror the actual icon sizes from style.css */
+  .icon-md  { width: 18px; height: 18px; }
+  .icon-xl  { width: 28px; height: 28px; }
+  .icon-2xl { width: 40px; height: 40px; }
+  .icon-128 { width: 128px; height: 128px; }
+
+  /* header mockup */
+  .header { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: #111120; border-radius: 8px; }
+  .header-title { font-size: 14px; font-weight: 700; color: #eeeefb; }
+
+  /* idle hero mockup */
+  .hero-circle {
+    width: 96px; height: 96px; border-radius: 50%;
+    border: 1.5px solid rgba(124,106,247,0.35);
+    background: rgba(124,106,247,0.06);
+    display: flex; align-items: center; justify-content: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- SVG Sprite (copied from sidepanel/index.html) -->
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+    <symbol id="ic-logo" viewBox="0 0 24 24" fill="none">
+      <circle cx="12"   cy="7.9"  r="5.8" stroke="currentColor" stroke-width="1.35" stroke-opacity="0.45"/>
+      <circle cx="7.5"  cy="16.5" r="5.8" stroke="currentColor" stroke-width="1.35" stroke-opacity="0.45"/>
+      <circle cx="16.5" cy="16.5" r="5.8" stroke="currentColor" stroke-width="1.35" stroke-opacity="0.45"/>
+      <!-- R1 over R3 -->
+      <path d="M 17.07 10.72 A 5.8 5.8 0 0 1 11.43 13.66" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+      <!-- R2 over R1 -->
+      <path d="M 6.93 10.72 A 5.8 5.8 0 0 1 12.57 13.66" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+      <!-- R3 over R2 -->
+      <path d="M 12 20.18 A 5.8 5.8 0 0 1 12 12.82" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- Header mockup -->
+<div class="header">
+  <svg class="icon-md" aria-hidden="true"><use href="#ic-logo"/></svg>
+  <span class="header-title">Praxis</span>
+</div>
+
+<!-- Idle screen hero circle -->
+<div class="hero-circle">
+  <svg class="icon-xl" aria-hidden="true"><use href="#ic-logo"/></svg>
+</div>
+
+<!-- Loading screen 2xl -->
+<div class="row">
+  <span class="label">2xl</span>
+  <svg class="icon-2xl" aria-hidden="true"><use href="#ic-logo"/></svg>
+</div>
+
+<!-- All sizes side by side -->
+<div class="row" style="align-items:flex-end">
+  <span class="label">18px</span>
+  <svg class="icon-md"  aria-hidden="true"><use href="#ic-logo"/></svg>
+  <svg class="icon-xl"  aria-hidden="true"><use href="#ic-logo"/></svg>
+  <svg class="icon-2xl" aria-hidden="true"><use href="#ic-logo"/></svg>
+  <svg class="icon-128" aria-hidden="true"><use href="#ic-logo"/></svg>
+  <span class="label" style="width:auto; color:#3a3a5c; font-size:10px">128px</span>
+</div>
+
+</body>
+</html>
