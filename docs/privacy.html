@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Praxis</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: #1a1a2e;
+      background: #f8f8fc;
+      padding: 48px 24px 80px;
+    }
+
+    .page {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 48px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+    }
+
+    .brand-name {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+
+    .meta {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-top: 40px;
+      margin-bottom: 12px;
+      color: #1a1a2e;
+    }
+
+    p {
+      margin-bottom: 16px;
+      color: #333;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 16px;
+      color: #333;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .callout {
+      background: #eef0ff;
+      border-left: 3px solid #6c63ff;
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 24px 0;
+    }
+
+    .callout p {
+      margin: 0;
+      color: #2d2b5e;
+      font-size: 15px;
+    }
+
+    a {
+      color: #6c63ff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      background: #ededf8;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #e5e5f0;
+      color: #333;
+      vertical-align: top;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid #e5e5f0;
+      font-size: 13px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <a class="brand" href="https://github.com/cybort360/praxis">
+      <svg class="brand-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="14" stroke="#6c63ff" stroke-width="2"/>
+        <circle cx="16" cy="16" r="8"  stroke="#6c63ff" stroke-width="2"/>
+        <circle cx="16" cy="16" r="2"  fill="#6c63ff"/>
+      </svg>
+      <span class="brand-name">Praxis</span>
+    </a>
+
+    <h1>Privacy Policy</h1>
+    <p class="meta">Last updated: May 2026</p>
+
+    <div class="callout">
+      <p><strong>Short version:</strong> Praxis has no servers and no accounts. Your API key and session history live only on your device. The only data that ever leaves your browser is the video transcript, sent directly to the AI provider you configure.</p>
+    </div>
+
+    <h2>What Praxis does not do</h2>
+    <ul>
+      <li>Praxis does not have a backend server</li>
+      <li>Praxis does not collect analytics or usage data</li>
+      <li>Praxis does not create or require an account</li>
+      <li>Praxis does not sell, share, or transmit your data to any party other than the AI provider you explicitly configure</li>
+    </ul>
+
+    <h2>Data stored on your device</h2>
+    <p>Praxis uses <code>chrome.storage.local</code> and <code>chrome.storage.session</code> — both of which store data locally in your browser, never on a remote server.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Where stored</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>API key</td>
+          <td>chrome.storage.local</td>
+          <td>Authenticate requests to your chosen AI provider</td>
+        </tr>
+        <tr>
+          <td>Provider and model choice</td>
+          <td>chrome.storage.local</td>
+          <td>Remember your settings between sessions</td>
+        </tr>
+        <tr>
+          <td>Session history</td>
+          <td>chrome.storage.local</td>
+          <td>Display past sessions, streaks, and summaries in the History tab (max 50 entries)</td>
+        </tr>
+        <tr>
+          <td>Active session state</td>
+          <td>chrome.storage.session</td>
+          <td>Restore the side panel if the browser reloads mid-session; cleared when the session ends</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>You can delete all history at any time using the <strong>Clear History</strong> button in the History tab.</p>
+
+    <h2>Data sent over the network</h2>
+    <p>When you start a learning session, Praxis sends the following to your AI provider:</p>
+    <ul>
+      <li>The video transcript (text only — no audio or video)</li>
+      <li>The video title</li>
+    </ul>
+    <p>This data is sent directly from your browser to the AI provider's API using your own API key. Praxis is not an intermediary — the request goes straight from your device to the provider.</p>
+    <p>When you use the tutor chat, your questions and the session summary are sent to the AI provider. Raw transcript data is <strong>not</strong> resent on every chat message — only the compact AI-generated summary is included.</p>
+
+    <h2>Third-party AI providers</h2>
+    <p>Praxis supports multiple AI providers. Each provider has their own privacy policy governing how they handle data sent to their API:</p>
+    <ul>
+      <li><a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">Anthropic (Claude)</a></li>
+      <li><a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">OpenAI (GPT)</a></li>
+      <li><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google (Gemini)</a></li>
+      <li><a href="https://groq.com/privacy-policy/" target="_blank" rel="noopener">Groq</a></li>
+      <li><a href="https://openrouter.ai/privacy" target="_blank" rel="noopener">OpenRouter</a></li>
+    </ul>
+    <p>You are responsible for reviewing the privacy policy of the provider you choose to use with Praxis.</p>
+
+    <h2>Permissions</h2>
+    <p>Praxis requests the following Chrome permissions:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Permission</th>
+          <th>Why it's needed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>sidePanel</td>
+          <td>Display the Praxis panel alongside the video</td>
+        </tr>
+        <tr>
+          <td>storage</td>
+          <td>Save your API key and session history locally</td>
+        </tr>
+        <tr>
+          <td>scripting</td>
+          <td>Read the video player state on YouTube to extract the transcript</td>
+        </tr>
+        <tr>
+          <td>activeTab</td>
+          <td>Access the current tab when you explicitly interact with the extension</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Code execution</h2>
+    <p>The coding challenge runs user-written code in an isolated <code>&lt;iframe&gt;</code> sandbox (JavaScript) or via the <a href="https://github.com/engineer-man/piston" target="_blank" rel="noopener">Piston API</a> (all other languages). The Piston API is a third-party service — code submitted for execution is sent to <code>emkc.org</code>. No identifying information is included in these requests.</p>
+
+    <h2>Children's privacy</h2>
+    <p>Praxis is not directed at children under 13. We do not knowingly collect information from children.</p>
+
+    <h2>Changes to this policy</h2>
+    <p>If this policy changes materially, the "Last updated" date at the top of this page will be updated. Continued use of the extension after changes constitutes acceptance of the revised policy.</p>
+
+    <h2>Contact</h2>
+    <p>Questions about this policy? Open an issue on the <a href="https://github.com/cybort360/praxis" target="_blank" rel="noopener">GitHub repository</a>.</p>
+
+    <footer>
+      &copy; 2026 Praxis &nbsp;·&nbsp; <a href="https://github.com/cybort360/praxis">GitHub</a>
+    </footer>
+
+  </div>
+</body>
+</html>

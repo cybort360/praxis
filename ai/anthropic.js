@@ -103,53 +103,79 @@ Return ONLY a JSON array:
     return this._parseJSON(await this._call(system, user));
   }
 
-  async generateChallenge(transcript, videoTitle) {
-    const system = `You are an expert coding tutor. Generate a JavaScript coding challenge based on what was taught. The challenge should require genuine understanding, not copying from the video. Return JSON only.`;
+  async generateChallenge(summary, videoTitle) {
+    const summaryText = summary
+      ? `${summary.summary}\n\nKey concepts:\n${(summary.keyPoints || []).join('\n')}`
+      : videoTitle;
+    const system = `You are an expert coding tutor. Generate a coding challenge based on what was taught. Detect the primary programming language from the video title and learning summary. The challenge should require genuine understanding, not copying from the video. Return JSON only.`;
 
     const user = `
 Video title: "${videoTitle}"
 
-Transcript:
-${transcript.slice(0, 8000)}
+What was taught:
+${summaryText}
 
-Create one coding challenge. It must:
+First, identify the primary programming language taught. Then create one coding challenge in that language. It must:
 - Be solvable in under 30 minutes
-- Require applying the core concept from the video in a slightly new context
-- Include runnable test cases
+- Require applying the core concept in a slightly new context
+- Include a self-contained testRunner that prints PASS/FAIL lines
 - Have 3 progressive hints
+
+The testRunner must use this exact stdout protocol:
+  PASS: <description>
+  FAIL: <description> | got: <actual> | expected: <expected>
 
 Return ONLY valid JSON:
 {
+  "language": "javascript",
   "title": "Challenge title",
   "description": "What the user needs to build. Be specific about inputs and outputs.",
-  "starterCode": "// starter code with function signature\nfunction solution() {\n  // your code here\n}",
-  "tests": [
-    {
-      "description": "handles basic case",
-      "input": "solution(arg1, arg2)",
-      "expectedOutput": "expectedValue"
-    }
-  ],
+  "starterCode": "starter code with the function signature the user must implement",
+  "testRunner": "self-contained code that calls the user solution and prints PASS/FAIL lines — appended to user code and run as a complete program",
   "hints": [
     "Hint 1 — gentle nudge",
     "Hint 2 — more specific",
     "Hint 3 — near-answer"
   ],
-  "solution": "// full working solution\nfunction solution() { ... }"
-}`;
+  "solution": "full working solution"
+}
+
+LANGUAGE-SPECIFIC RULES for testRunner:
+
+For JavaScript/TypeScript: testRunner is JS that calls the function and uses console.log for PASS/FAIL.
+Example:
+  const r = solution(2, 3);
+  if (r === 5) console.log("PASS: adds two numbers");
+  else console.log(\`FAIL: adds two numbers | got: \${r} | expected: 5\`);
+
+For Python: testRunner is plain Python that calls the function and prints PASS/FAIL.
+Example:
+  r = solution(2, 3)
+  if r == 5: print("PASS: adds two numbers")
+  else: print(f"FAIL: adds two numbers | got: {r} | expected: 5")
+
+For Rust: starterCode contains the fn to implement (no main). testRunner is a fn main() that calls it and prints PASS/FAIL.
+Example testRunner for Rust:
+  fn main() {
+    let r = solution(2, 3);
+    if r == 5 { println!("PASS: adds two numbers"); }
+    else { println!("FAIL: adds two numbers | got: {} | expected: 5", r); }
+  }
+
+For C/C++/Java/Go/other: follow the same PASS/FAIL pattern using that language's print function. testRunner must be a valid entry point (main function) that can run standalone when appended to the user's solution code.`;
 
     const raw = await this._call(system, user);
     return this._parseJSON(raw);
   }
 
-  async evaluateAnswer(question, userAnswer, transcript) {
+  async evaluateAnswer(question, userAnswer, summaryContext) {
     if (!userAnswer?.trim()) throw new Error('evaluateAnswer: userAnswer must not be empty');
     const system = `You are a fair and encouraging coding tutor. Evaluate the user's free-text answer. Be strict about correctness but kind in tone. Return JSON only.`;
 
+    const contextLine = summaryContext ? `\nCourse context: ${summaryContext}` : '';
     const user = `
 Question: ${question}
-User's answer: ${userAnswer}
-Relevant transcript context: ${transcript.slice(0, 2000)}
+User's answer: ${userAnswer}${contextLine}
 
 Return ONLY valid JSON:
 {
@@ -159,5 +185,35 @@ Return ONLY valid JSON:
 
     const raw = await this._call(system, user);
     return this._parseJSON(raw);
+  }
+
+  async chat(messages, summary, videoTitle) {
+    const contextSection = summary
+      ? `What was taught:\n${summary.summary}\n\nKey concepts:\n${(summary.keyPoints || []).join('\n')}`
+      : 'No content summary available for this video.';
+    const system = `You are a concise tutor helping a learner understand a video they just watched. Answer questions based on the video content summary. If the answer is not in the summary, say so. Keep answers to 2–3 sentences unless a longer explanation is clearly needed.\n\nVideo: "${videoTitle}"\n\n${contextSection}`;
+
+    const res = await fetch(this.baseURL, {
+      method: 'POST',
+      headers: {
+        'x-api-key': this.apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: this.model,
+        max_tokens: 512,
+        system,
+        messages: messages.map(m => ({ role: m.role, content: m.content })),
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(`Anthropic API error ${res.status}: ${err?.error?.message || res.statusText}`);
+    }
+
+    const data = await res.json();
+    return { reply: data.content?.[0]?.text ?? '' };
   }
 }

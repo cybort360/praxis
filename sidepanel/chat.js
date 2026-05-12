@@ -4,41 +4,32 @@
 //                        #chat-messages, #chat-input, #chat-send
 
 const Chat = (() => {
-  let _transcript  = '';
-  let _videoTitle  = '';
-  let _messages    = [];
-  let _isOpen      = false;
-  let _isLoading   = false;
+  let _summary    = null;
+  let _videoTitle = '';
+  let _messages   = [];
+  let _isOpen     = false;
+  let _isLoading  = false;
 
   // ── Public API ────────────────────────────────────────────────────────────
 
-  function init(transcript, videoTitle) {
-    const joined = Array.isArray(transcript)
-      ? transcript.map(s => s.text).join(' ').trim()
-      : (typeof transcript === 'string' ? transcript.trim() : '');
-    // Keep a non-empty sentinel so _send() always works; AI handles missing context gracefully
-    _transcript = joined || '__no_transcript__';
-    _videoTitle  = videoTitle || '';
-    _messages    = [];
-    _isOpen      = false;
-    _isLoading   = false;
+  // summary: { title, summary, keyPoints } — the already-generated session summary.
+  // Using the compact summary (~400 chars) instead of the raw transcript (~6 000 chars)
+  // cuts per-message token cost by ~15×.
+  function init(summary, videoTitle) {
+    _summary    = summary || null;
+    _videoTitle = videoTitle || '';
+    _messages   = [];
+    _isOpen     = false;
+    _isLoading  = false;
 
     document.getElementById('chat-messages').innerHTML = '';
     document.getElementById('chat-input').value = '';
     document.getElementById('chat-widget').style.display = 'block';
     _setOpen(false);
-
-    // Warn the user upfront if no transcript was captured
-    if (_transcript === '__no_transcript__') {
-      const warning = document.createElement('div');
-      warning.className = 'chat-bubble chat-bubble-assistant chat-notice';
-      warning.textContent = '⚠️ No captions were found for this video — I can still try to help based on the title, but I won\'t be able to answer questions about the video content.';
-      document.getElementById('chat-messages').appendChild(warning);
-    }
   }
 
   function reset() {
-    _transcript = '';
+    _summary    = null;
     _videoTitle = '';
     _messages   = [];
     _isOpen     = false;
@@ -79,7 +70,7 @@ const Chat = (() => {
   }
 
   async function _send() {
-    if (_isLoading || !_transcript) return;
+    if (_isLoading) return;
     const input = document.getElementById('chat-input');
     const text  = input.value.trim();
     if (!text) return;
@@ -95,7 +86,7 @@ const Chat = (() => {
     try {
       const resp = await chrome.runtime.sendMessage({
         type:    'CHAT_MESSAGE',
-        payload: { messages: _messages, transcript: _transcript, videoTitle: _videoTitle },
+        payload: { messages: _messages, summary: _summary, videoTitle: _videoTitle },
       });
 
       typingEl.remove();

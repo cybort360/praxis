@@ -104,11 +104,16 @@ Return ONLY a JSON array:
     return this._parseJSON(await this._call(system, user));
   }
 
-  async generateChallenge(transcript, videoTitle) {
-    const system = `You are an expert coding tutor. Generate a coding challenge based on what was taught. Detect the primary programming language from the video title and transcript. The challenge should require genuine understanding, not copying from the video. Return JSON only.`;
+  async generateChallenge(summary, videoTitle) {
+    const summaryText = summary
+      ? `${summary.summary}\n\nKey concepts:\n${(summary.keyPoints || []).join('\n')}`
+      : videoTitle;
+    const system = `You are an expert coding tutor. Generate a coding challenge based on what was taught. Detect the primary programming language from the video title and learning summary. The challenge should require genuine understanding, not copying from the video. Return JSON only.`;
     const user = `
 Video title: "${videoTitle}"
-Transcript: ${transcript.slice(0, 8000)}
+
+What was taught:
+${summaryText}
 
 First, identify the primary programming language taught in this video. Then create one coding challenge in that language. It must:
 - Be solvable in under 30 minutes
@@ -161,13 +166,13 @@ For C/C++/Java/Go/other: follow the same PASS/FAIL pattern using that language's
     return this._parseJSON(await this._call(system, user));
   }
 
-  async evaluateAnswer(question, userAnswer, transcript) {
+  async evaluateAnswer(question, userAnswer, summaryContext) {
     if (!userAnswer?.trim()) throw new Error('evaluateAnswer: userAnswer must not be empty');
     const system = `You are a fair and encouraging coding tutor. Evaluate the user's free-text answer. Be strict about correctness but kind in tone. Return JSON only.`;
+    const contextLine = summaryContext ? `\nCourse context: ${summaryContext}` : '';
     const user = `
 Question: ${question}
-User's answer: ${userAnswer}
-Relevant transcript context: ${transcript.slice(0, 2000)}
+User's answer: ${userAnswer}${contextLine}
 
 Return ONLY valid JSON:
 {
@@ -177,12 +182,11 @@ Return ONLY valid JSON:
     return this._parseJSON(await this._call(system, user));
   }
 
-  async chat(messages, transcript, videoTitle) {
-    const transcriptText = transcript === '__no_transcript__' ? '' : transcript;
-    const transcriptSection = transcriptText
-      ? `Transcript:\n${transcriptText.slice(0, 6000)}`
-      : 'No transcript is available for this video.';
-    const systemText = `You are a concise tutor helping a learner understand a video they just watched. Answer questions using only the content of the video transcript. If the answer is not in the transcript, say so. Keep answers to 2–3 sentences unless a longer explanation is clearly needed.\n\nVideo: "${videoTitle}"\n\n${transcriptSection}`;
+  async chat(messages, summary, videoTitle) {
+    const contextSection = summary
+      ? `What was taught:\n${summary.summary}\n\nKey concepts:\n${(summary.keyPoints || []).join('\n')}`
+      : 'No content summary available for this video.';
+    const systemText = `You are a concise tutor helping a learner understand a video they just watched. Answer questions based on the video content summary. If the answer is not in the summary, say so. Keep answers to 2–3 sentences unless a longer explanation is clearly needed.\n\nVideo: "${videoTitle}"\n\n${contextSection}`;
     // Gemini uses 'user'/'model' roles — map 'assistant' → 'model'
     const contents = messages.map(m => ({
       role: m.role === 'assistant' ? 'model' : 'user',

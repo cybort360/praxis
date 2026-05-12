@@ -226,7 +226,7 @@ function renderSummary() {
   document.querySelector('.tab-panel[data-tab="summary"]').classList.add('active');
 
   renderTranscript();
-  Chat.init(state.transcript, state.videoTitle);
+  Chat.init(state.summary, state.videoTitle);
 }
 
 document.getElementById('btn-copy-summary').addEventListener('click', async () => {
@@ -384,7 +384,8 @@ document.getElementById('btn-quiz-submit').addEventListener('click', async () =>
       payload: {
         question: q.question,
         userAnswer: answer,
-        transcript: transcriptToPlainText(state.transcript),
+        // Use key points (~200 chars) instead of raw transcript (~8 000 chars)
+        summaryContext: state.summary?.keyPoints?.join('\n') || '',
       },
     });
 

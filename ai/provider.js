@@ -43,28 +43,22 @@ export class AIProvider {
 
   /**
    * Generate a coding challenge based on what was taught.
-   * @param {string} transcript
+   * @param {{ title: string, summary: string, keyPoints: string[] }} summary - Already-generated summary (compact, ~400 chars)
    * @param {string} videoTitle
    * @returns {Promise<Challenge>}
    *
    * Challenge shape:
    * {
+   *   language: string,            // detected programming language
    *   title: string,
    *   description: string,
    *   starterCode: string,         // pre-loaded into the IDE
-   *   tests: TestCase[],           // run against user's code
+   *   testRunner: string,          // appended to user code and executed; prints PASS/FAIL lines
    *   hints: string[],             // revealed one at a time
    *   solution: string,            // shown only after passing or giving up
    * }
-   *
-   * TestCase shape:
-   * {
-   *   description: string,
-   *   input: string,               // JS expression to pass as argument
-   *   expectedOutput: string,      // JS expression of expected return value
-   * }
    */
-  async generateChallenge(transcript, videoTitle) {
+  async generateChallenge(summary, videoTitle) {
     throw new Error('generateChallenge() must be implemented by the provider');
   }
 
@@ -72,21 +66,21 @@ export class AIProvider {
    * Evaluate a free-text quiz answer and return pass/fail + feedback.
    * @param {string} question
    * @param {string} userAnswer
-   * @param {string} transcript
+   * @param {string} summaryContext - Key points joined as a string (~200 chars); replaces raw transcript
    * @returns {Promise<{ passed: boolean, feedback: string }>}
    */
-  async evaluateAnswer(question, userAnswer, transcript) {
+  async evaluateAnswer(question, userAnswer, summaryContext) {
     throw new Error('evaluateAnswer() must be implemented by the provider');
   }
 
   /**
    * Answer a user's question about the video using conversation history.
    * @param {{ role: 'user'|'assistant', content: string }[]} messages - Full conversation so far
-   * @param {string} transcript - Plain-text transcript (first 6000 chars used)
+   * @param {{ title: string, summary: string, keyPoints: string[] }} summary - Compact session summary (~400 chars); replaces raw transcript
    * @param {string} videoTitle
    * @returns {Promise<{ reply: string }>}
    */
-  async chat(messages, transcript, videoTitle) {
+  async chat(messages, summary, videoTitle) {
     throw new Error('chat() must be implemented by the provider');
   }
 

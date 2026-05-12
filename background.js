@@ -102,8 +102,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 
     case 'CHAT_MESSAGE': {
-      const { messages, transcript, videoTitle } = message.payload;
-      handleChat({ messages, transcript, videoTitle })
+      const { messages, summary, videoTitle } = message.payload;
+      handleChat({ messages, summary, videoTitle })
         .then(result => sendResponse({ ok: true, data: result }))
         .catch(err  => sendResponse({ ok: false, error: err.message }));
       return true;
@@ -133,21 +133,26 @@ async function handleGenerateSession({ transcript, videoTitle }) {
   const plainText = transcriptToPlainText(transcript);
   const timestampedText = transcriptToTimestamped(transcript);
 
-  const [summary, quiz, challenge] = await Promise.all([
-    ai.generateSummary(plainText, videoTitle),
+  // Generate summary first so quiz and challenge can use the compact summary
+  // (~400 chars) instead of resending the full transcript (~8 000 chars each).
+  const summary = await ai.generateSummary(plainText, videoTitle);
+
+  // Quiz still needs the timestamped text for timestamp references.
+  // Challenge uses the compact summary — much cheaper and still accurate.
+  const [quiz, challenge] = await Promise.all([
     ai.generateQuiz(plainText, timestampedText, videoTitle),
-    ai.generateChallenge(plainText, videoTitle),
+    ai.generateChallenge(summary, videoTitle),
   ]);
 
   return { summary, quiz, challenge };
 }
 
-async function handleEvaluateAnswer({ question, userAnswer, transcript }) {
+async function handleEvaluateAnswer({ question, userAnswer, summaryContext }) {
   const ai = await getAIProvider();
-  return ai.evaluateAnswer(question, userAnswer, transcript);
+  return ai.evaluateAnswer(question, userAnswer, summaryContext);
 }
 
-async function handleChat({ messages, transcript, videoTitle }) {
+async function handleChat({ messages, summary, videoTitle }) {
   const ai = await getAIProvider();
-  return ai.chat(messages, transcript, videoTitle);
+  return ai.chat(messages, summary, videoTitle);
 }
