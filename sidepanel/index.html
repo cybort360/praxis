@@ -13,9 +13,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
   <defs>
     <symbol id="ic-logo" viewBox="0 0 24 24" fill="none">
-      <path d="M12 12C10 9.5 8 8 6 8a4 4 0 0 0 0 8c2 0 4-1.5 6-4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-      <path d="M12 12c2 2.5 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.5-6 4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-      <polygon points="10.5,10 10.5,14 14.5,12" fill="currentColor"/>
+      <!--
+        Three interlocked rings in a triangular arrangement.
+        Centers: top (12,7.9), BL (7.5,16.5), BR (16.5,16.5), r=5.8
+        Weave: R1 over R3 · R2 over R1 · R3 over R2
+        Technique: all rings at 0.45 opacity, then over-arcs redrawn at full opacity
+        Intersection points (scaled from 128px master):
+          R1∩R2: (12.57,13.66) and (6.93,10.72)
+          R1∩R3: (11.43,13.66) and (17.07,10.72)
+          R2∩R3: (12,12.82)    and (12,20.18)
+      -->
+      <!-- Base rings (rendered faint so "under" arcs read as receding) -->
+      <circle cx="12"   cy="7.9"  r="5.8" stroke="currentColor" stroke-width="1.35" stroke-opacity="0.45"/>
+      <circle cx="7.5"  cy="16.5" r="5.8" stroke="currentColor" stroke-width="1.35" stroke-opacity="0.45"/>
+      <circle cx="16.5" cy="16.5" r="5.8" stroke="currentColor" stroke-width="1.35" stroke-opacity="0.45"/>
+      <!-- "Over" arcs at full opacity — R1 over R3 -->
+      <path d="M 17.07 10.72 A 5.8 5.8 0 0 1 11.43 13.66" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+      <!-- R2 over R1 -->
+      <path d="M 6.93 10.72 A 5.8 5.8 0 0 1 12.57 13.66" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+      <!-- R3 over R2 -->
+      <path d="M 12 20.18 A 5.8 5.8 0 0 1 12 12.82" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
     </symbol>
     <symbol id="ic-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="3"/>
