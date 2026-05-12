@@ -738,6 +738,96 @@ html, body {
   box-shadow: 0 0 24px var(--error-glow);
 }
 
+/* 18. Completion screen */
+#screen-complete {
+  justify-content: center;
+  align-items: center;
+}
+
+.complete-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 32px 20px 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.complete-fireworks {
+  font-size: 22px;
+  letter-spacing: 6px;
+  line-height: 1;
+  animation: fireworks-pop 0.6s ease both;
+}
+
+@keyframes fireworks-pop {
+  0%   { transform: scale(0.5); opacity: 0; }
+  70%  { transform: scale(1.1); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+.complete-badge {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-surface-2), var(--accent-surface));
+  border: 2px solid rgba(124,106,247,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-2);
+  box-shadow: 0 0 32px var(--accent-glow);
+  animation: badge-glow 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes badge-glow {
+  from { box-shadow: 0 0 20px var(--accent-glow); }
+  to   { box-shadow: 0 0 44px rgba(124,106,247,0.55); }
+}
+
+.complete-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.complete-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  max-width: 240px;
+}
+
+.complete-stats {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.complete-stats .stat-item {
+  flex: 1;
+}
+
+.complete-nudge {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  padding: 10px 14px;
+  background: var(--accent-surface);
+  border: 1px solid rgba(124,106,247,0.2);
+  border-radius: var(--r);
+  width: 100%;
+}
+
+.complete-nudge strong {
+  color: var(--accent-2);
+}
+
 .fail-score { font-size: 15px; font-weight: 600; color: var(--text); }
 .fail-sub   { font-size: 13px; color: var(--text-muted); }
 
@@ -789,10 +879,10 @@ html, body {
 .ide-wrap {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-2);
   border-radius: var(--r-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
 
 .ide-toolbar {
@@ -800,8 +890,8 @@ html, body {
   align-items: center;
   gap: 6px;
   padding: 8px 10px;
-  background: var(--surface-2);
-  border-bottom: 1px solid var(--border);
+  background: #1a1a28;
+  border-bottom: 1px solid var(--border-2);
 }
 
 .ide-lang-tag {
@@ -809,10 +899,10 @@ html, body {
   align-items: center;
   gap: 5px;
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--accent-2);
   font-family: var(--font-mono);
-  background: var(--surface-3);
-  border: 1px solid var(--border);
+  background: var(--accent-surface);
+  border: 1px solid rgba(124,106,247,0.25);
   border-radius: var(--r-full);
   padding: 3px 10px;
   margin-right: auto;
@@ -822,20 +912,22 @@ html, body {
   padding: 4px 12px;
   font-size: 10px;
   font-weight: 700;
-  color: var(--text-faint);
-  background: var(--surface-2);
-  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  background: #1a1a28;
+  border-top: 1px solid var(--border-2);
   text-transform: uppercase;
   letter-spacing: 0.12em;
 }
 
 .ide-output {
   padding: 10px 14px;
-  background: var(--bg-2);
+  background: #0c0c16;
   font-family: var(--font-mono);
   font-size: 12px;
   min-height: 48px;
-  color: var(--text-2);
+  max-height: 120px;
+  overflow-y: auto;
+  color: #c8c8e8;
   white-space: pre-wrap;
   line-height: 1.65;
 }
@@ -1006,37 +1098,42 @@ html, body {
 .CodeMirror {
   height: auto;
   min-height: 140px;
-  background: var(--bg-2);
-  color: #e8e8f4;
+  max-height: 260px;
+  overflow-y: auto;
+  background: #0f0f1c;
+  color: #e2e2f4;
   font-family: var(--font-mono);
   font-size: 13px;
-  line-height: 1.65;
+  line-height: 1.7;
 }
+.CodeMirror-scroll { min-height: 140px; }
 .CodeMirror-gutters {
-  background: var(--bg-2);
-  border-right: 1px solid var(--border);
+  background: #0c0c18;
+  border-right: 1px solid #2a2a42;
+  padding-right: 4px;
 }
-.CodeMirror-linenumber          { color: var(--text-faint); }
-.CodeMirror-cursor              { border-left-color: var(--accent); }
-.CodeMirror-selected            { background: rgba(124,106,247,0.2) !important; }
-.CodeMirror-activeline-background { background: rgba(255,255,255,0.03) !important; }
+.CodeMirror-linenumber          { color: #454568; }
+.CodeMirror-cursor              { border-left: 2px solid #a78bfa; }
+.CodeMirror-selected            { background: rgba(124,106,247,0.22) !important; }
+.CodeMirror-activeline-background { background: rgba(255,255,255,0.04) !important; }
 
-.cm-keyword    { color: #c792ea; }
-.cm-def        { color: #82aaff; }
-.cm-variable   { color: #e8e8f4; }
-.cm-variable-2 { color: #89ddff; }
-.cm-property   { color: #f07178; }
-.cm-string     { color: #c3e88d; }
-.cm-string-2   { color: #c3e88d; }
-.cm-number     { color: #f78c6c; }
-.cm-atom       { color: #f78c6c; }
-.cm-operator   { color: #89ddff; }
-.cm-punctuation{ color: #89ddff; }
-.cm-comment    { color: #546e7a; font-style: italic; }
-.cm-tag        { color: #f07178; }
-.cm-attribute  { color: #ffcb6b; }
-.cm-builtin    { color: #ffcb6b; }
-.cm-bracket    { color: #89ddff; }
+/* Vibrant syntax — One Dark Pro palette */
+.cm-keyword    { color: #d881f5; font-weight: 600; }
+.cm-def        { color: #61afef; }
+.cm-variable   { color: #e2e2f4; }
+.cm-variable-2 { color: #56d1f7; }
+.cm-property   { color: #e06c75; }
+.cm-string     { color: #98d174; }
+.cm-string-2   { color: #98d174; }
+.cm-number     { color: #f9ae58; }
+.cm-atom       { color: #f9ae58; }
+.cm-operator   { color: #56d1f7; }
+.cm-punctuation{ color: #abb2bf; }
+.cm-comment    { color: #5c6370; font-style: italic; }
+.cm-tag        { color: #e06c75; }
+.cm-attribute  { color: #e5c07b; }
+.cm-builtin    { color: #e5c07b; }
+.cm-bracket    { color: #abb2bf; }
 
 /* CodeMirror — light overrides */
 [data-theme="light"] .CodeMirror,

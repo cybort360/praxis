@@ -92,7 +92,7 @@
     <span>Praxis</span>
   </div>
   <div class="app-bar-actions">
-    <button id="btn-history" class="icon-btn hidden" title="Session history">
+    <button id="btn-history" class="icon-btn" title="Session history" style="opacity:0.35;pointer-events:none;">
       <svg class="icon icon-sm"><use href="#ic-history"/></svg>
     </button>
     <button id="btn-reset" class="icon-btn hidden" title="Reset session">
@@ -369,6 +369,33 @@
   <button id="btn-clear-history" class="btn btn-ghost btn-sm" style="margin-top:16px;width:100%;color:var(--error);">
     Clear history
   </button>
+</div>
+
+<!-- SCREEN: Complete -->
+<div id="screen-complete" class="screen">
+  <div class="complete-card">
+    <div class="complete-fireworks" aria-hidden="true">
+      <span>🎉</span><span>✨</span><span>🏆</span><span>✨</span><span>🎉</span>
+    </div>
+    <div class="complete-badge">
+      <svg class="icon icon-xl" aria-hidden="true"><use href="#ic-trophy"/></svg>
+    </div>
+    <h2 class="complete-title">You crushed it!</h2>
+    <p class="complete-subtitle" id="complete-subtitle"></p>
+
+    <div class="complete-stats" id="complete-stats"></div>
+
+    <p class="complete-nudge">The best way to make it stick? <strong>Watch another video.</strong></p>
+
+    <button id="btn-complete-history" class="btn btn-ghost btn-full" style="margin-bottom:8px;">
+      <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-history"/></svg>
+      View my progress
+    </button>
+    <button id="btn-complete-restart" class="btn btn-primary btn-full">
+      <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-play"/></svg>
+      Start a new video
+    </button>
+  </div>
 </div>
 
 <!-- Chat widget (FAB + popup) -->

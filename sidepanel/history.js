@@ -134,8 +134,10 @@ const History = (() => {
       if (list.length > MAX) list.length = MAX;
       await chrome.storage.local.set({ [KEY]: list });
       await _updateStats();
-      // Reveal the history toolbar icon now that there is at least one entry
-      document.getElementById('btn-history').classList.remove('hidden');
+      // Enable the history toolbar icon now that there is at least one entry
+      const histBtn = document.getElementById('btn-history');
+      histBtn.style.opacity = '';
+      histBtn.style.pointerEvents = '';
     } catch (e) {
       console.error('[Praxis] History.saveSession failed:', e);
     }
@@ -214,7 +216,9 @@ const History = (() => {
       await chrome.storage.local.remove(KEY);
       document.getElementById('history-list').innerHTML =
         '<p class="history-empty">No sessions yet — complete a video to see your history here.</p>';
-      document.getElementById('btn-history').classList.add('hidden');
+      const histBtn = document.getElementById('btn-history');
+      histBtn.style.opacity = '0.35';
+      histBtn.style.pointerEvents = 'none';
     } catch (e) {
       console.error('[Praxis] History.clearHistory failed:', e);
     }

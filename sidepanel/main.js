@@ -656,7 +656,11 @@ function runCode() {
           ? resp.stderr.trim() + (nonTestLines ? '\n' + nonTestLines : '')
           : (nonTestLines || '(no output)');
 
-        displayTestResults(parseTestOutput(resp.stdout));
+        const pistonResults = parseTestOutput(resp.stdout);
+        displayTestResults(pistonResults);
+        if (pistonResults.length > 0 && pistonResults.every(r => r.pass)) {
+          setTimeout(() => showCompletionScreen(), 800);
+        }
       }
     );
   }
@@ -670,18 +674,67 @@ window.addEventListener('message', (event) => {
 
   const { logs, testResults: rawResults } = event.data;
   const outputEl = document.getElementById('ide-output');
+  let results;
 
   if (rawResults?.length > 0) {
-    // Legacy tests-array path: sandbox produced structured results
     outputEl.textContent = logs.join('\n') || '(no output)';
-    displayTestResults(rawResults);
+    results = rawResults;
+    displayTestResults(results);
   } else {
-    // testRunner path: PASS/FAIL lines mixed into logs
-    const allOutput  = logs.join('\n');
-    const nonTest    = logs.filter(l => !l.trim().match(/^(PASS|FAIL):/)).join('\n').trim();
+    const allOutput = logs.join('\n');
+    const nonTest   = logs.filter(l => !l.trim().match(/^(PASS|FAIL):/)).join('\n').trim();
     outputEl.textContent = nonTest || '(no output)';
-    displayTestResults(parseTestOutput(allOutput));
+    results = parseTestOutput(allOutput);
+    displayTestResults(results);
   }
+
+  if (results.length > 0 && results.every(r => r.pass)) {
+    setTimeout(() => showCompletionScreen(), 800);
+  }
+});
+
+// ── Completion screen ─────────────────────────────────────────────────────
+async function showCompletionScreen() {
+  const stats = await History.loadStats();
+
+  // Subtitle: personalise based on streak
+  const streak = stats.currentStreak;
+  const subtitle = streak >= 3
+    ? `${streak}-day streak 🔥 — you're on a roll!`
+    : streak === 2
+    ? `2 days in a row — keep it going!`
+    : `You completed the full loop: watched, quizzed, and built.`;
+
+  document.getElementById('complete-subtitle').textContent = subtitle;
+
+  // Mini stats row
+  const statsEl = document.getElementById('complete-stats');
+  statsEl.innerHTML = '';
+  const items = [
+    { emoji: '🔥', value: stats.currentStreak, label: 'streak'   },
+    { emoji: '📚', value: stats.totalSessions,  label: 'sessions' },
+    { emoji: '✅', value: `${state.quizPassed}/${state.quiz.length}`, label: 'quiz'  },
+  ];
+  items.forEach(({ emoji, value, label }) => {
+    const item = document.createElement('div');
+    item.className = 'stat-item';
+    item.innerHTML = `<div class="stat-value">${emoji} ${value}</div><div class="stat-label">${label}</div>`;
+    statsEl.appendChild(item);
+  });
+
+  showScreen('screen-complete');
+}
+
+document.getElementById('btn-complete-restart').addEventListener('click', () => {
+  resetState();
+  showScreen('screen-idle');
+});
+
+document.getElementById('btn-complete-history').addEventListener('click', () => {
+  previousScreen = 'screen-complete';
+  History.renderStats();
+  History.renderHistory();
+  showScreen('screen-history');
 });
 
 // ── Hints ──
@@ -874,9 +927,13 @@ document.getElementById('btn-clear-history').addEventListener('click', async () 
 // ── Init ──
 initSummaryTabs();
 
-// Show history icon if past sessions exist
+// Enable history icon if past sessions already exist
 History.loadHistory().then(list => {
-  if (list.length > 0) document.getElementById('btn-history').classList.remove('hidden');
+  if (list.length > 0) {
+    const btn = document.getElementById('btn-history');
+    btn.style.opacity = '';
+    btn.style.pointerEvents = '';
+  }
 });
 
 restoreOrInit();
