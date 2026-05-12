@@ -79,6 +79,17 @@ export class AIProvider {
     throw new Error('evaluateAnswer() must be implemented by the provider');
   }
 
+  /**
+   * Answer a user's question about the video using conversation history.
+   * @param {{ role: 'user'|'assistant', content: string }[]} messages - Full conversation so far
+   * @param {string} transcript - Plain-text transcript (first 6000 chars used)
+   * @param {string} videoTitle
+   * @returns {Promise<{ reply: string }>}
+   */
+  async chat(messages, transcript, videoTitle) {
+    throw new Error('chat() must be implemented by the provider');
+  }
+
   // ── Shared helper: safe JSON parse from LLM output ──
   _parseJSON(text) {
     // Strip markdown code fences if the model wrapped the JSON

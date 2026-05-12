@@ -101,6 +101,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       return true;
     }
 
+    case 'CHAT_MESSAGE': {
+      const { messages, transcript, videoTitle } = message.payload;
+      handleChat({ messages, transcript, videoTitle })
+        .then(result => sendResponse({ ok: true, data: result }))
+        .catch(err  => sendResponse({ ok: false, error: err.message }));
+      return true;
+    }
+
     case 'FETCH_VTT': {
       // Content script fetch failed (CORS); retry from extension origin.
       fetch(message.payload.url)
@@ -137,4 +145,9 @@ async function handleGenerateSession({ transcript, videoTitle }) {
 async function handleEvaluateAnswer({ question, userAnswer, transcript }) {
   const ai = await getAIProvider();
   return ai.evaluateAnswer(question, userAnswer, transcript);
+}
+
+async function handleChat({ messages, transcript, videoTitle }) {
+  const ai = await getAIProvider();
+  return ai.chat(messages, transcript, videoTitle);
 }

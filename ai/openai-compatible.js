@@ -181,4 +181,33 @@ Return ONLY valid JSON:
 }`;
     return this._parseJSON(await this._call(system, user));
   }
+
+  async chat(messages, transcript, videoTitle) {
+    const system = `You are a concise tutor helping a learner understand a video they just watched. Answer questions using only the content of the video transcript. If the answer is not in the transcript, say so. Keep answers to 2–3 sentences unless a longer explanation is clearly needed.\n\nVideo: "${videoTitle}"\n\nTranscript:\n${transcript.slice(0, 6000)}`;
+    let res;
+    try {
+      res = await fetch(this.baseURL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+          ...this.extraHeaders,
+        },
+        body: JSON.stringify({
+          model: this.model,
+          messages: [{ role: 'system', content: system }, ...messages],
+          max_tokens: 512,
+          temperature: 0.4,
+        }),
+      });
+    } catch (networkErr) {
+      throw new Error(`Network error reaching ${this.baseURL}: ${networkErr.message}`);
+    }
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(`API error ${res.status}: ${err?.error?.message || res.statusText}`);
+    }
+    const data = await res.json();
+    return { reply: data.choices?.[0]?.message?.content ?? '' };
+  }
 }

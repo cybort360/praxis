@@ -176,4 +176,34 @@ Return ONLY valid JSON:
 }`;
     return this._parseJSON(await this._call(system, user));
   }
+
+  async chat(messages, transcript, videoTitle) {
+    const systemText = `You are a concise tutor helping a learner understand a video they just watched. Answer questions using only the content of the video transcript. If the answer is not in the transcript, say so. Keep answers to 2–3 sentences unless a longer explanation is clearly needed.\n\nVideo: "${videoTitle}"\n\nTranscript:\n${transcript.slice(0, 6000)}`;
+    // Gemini uses 'user'/'model' roles — map 'assistant' → 'model'
+    const contents = messages.map(m => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }],
+    }));
+    const url = `${this.baseURL}/${this.model}:generateContent`;
+    let res;
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': this.apiKey },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemText }] },
+          contents,
+          generationConfig: { maxOutputTokens: 512, temperature: 0.4 },
+        }),
+      });
+    } catch (networkErr) {
+      throw new Error(`Network error reaching Gemini: ${networkErr.message}`);
+    }
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(`Gemini API error ${res.status}: ${err?.error?.message || res.statusText}`);
+    }
+    const data = await res.json();
+    return { reply: data.candidates?.[0]?.content?.parts?.[0]?.text ?? '' };
+  }
 }
