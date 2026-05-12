@@ -258,34 +258,72 @@ html, body { width: 1280px; height: 800px; overflow: hidden; background: #111; f
 .transcript-text { font-size: 12.5px; color: #aeaece; line-height: 1.55; }
 
 /* ── History screen ── */
-.stats-card {
+.history-stats-hero { display: flex; gap: 10px; margin-bottom: 20px; }
+.history-streak-card {
+  flex: 1; border-radius: 14px; padding: 20px 14px 16px;
+  background: linear-gradient(150deg, rgba(249,115,22,0.11) 0%, rgba(249,115,22,0.03) 100%);
+  border: 1px solid rgba(249,115,22,0.22);
+  display: flex; flex-direction: column; align-items: center; gap: 0; position: relative; overflow: hidden;
+}
+.history-streak-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 110% 55% at 50% 0%, rgba(249,115,22,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.history-streak-icon { color: #f97316; margin-bottom: 8px; position: relative; z-index: 1; display: flex; }
+.history-streak-number {
+  font-size: 48px; font-weight: 900; line-height: 1; color: #f97316;
+  letter-spacing: -0.04em; position: relative; z-index: 1;
+}
+.history-streak-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(249,115,22,0.6); margin-top: 5px; position: relative; z-index: 1;
+}
+.history-mini-stats { display: flex; flex-direction: column; gap: 10px; width: 104px; flex-shrink: 0; }
+.history-mini-stat {
+  flex: 1; background: #16161f; border: 1px solid #26263c; border-radius: 14px;
+  padding: 12px 10px 10px; display: flex; flex-direction: column; align-items: center; gap: 1px;
+}
+.history-mini-stat-icon { display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+.history-mini-stat-value {
+  font-size: 26px; font-weight: 800; line-height: 1; color: #eeeefb;
+  letter-spacing: -0.03em;
+}
+.history-mini-stat-label {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6e6e9a; margin-top: 2px;
+}
+.history-section-label {
+  font-size: 10px; font-weight: 700; color: #6e6e9a; text-transform: uppercase; letter-spacing: 0.11em;
+  margin: 18px 0 8px;
+}
+.history-section-label:first-child { margin-top: 0; }
+.history-card {
   background: #16161f; border: 1px solid #26263c; border-radius: 12px;
-  padding: 16px; display: flex; gap: 0;
+  margin-bottom: 8px; position: relative; overflow: hidden;
 }
-.stat-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.stat-item + .stat-item { border-left: 1px solid #26263c; }
-.stat-icon-wrap {
-  width: 28px; height: 28px; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
+.history-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--_ha, #26263c); border-radius: 12px 0 0 12px;
 }
-.stat-icon-wrap.flame { background: rgba(251,146,60,0.15); color: #fb923c; }
-.stat-icon-wrap.medal { background: rgba(250,204,21,0.12); color: #facc15; }
-.stat-icon-wrap.layers { background: rgba(124,106,247,0.15); color: #a78bfa; }
-.stat-number { font-size: 20px; font-weight: 800; color: #eeeefb; letter-spacing: -0.02em; }
-.stat-label { font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #6e6e9a; }
-.history-list { display: flex; flex-direction: column; gap: 8px; }
-.history-item {
-  background: #16161f; border: 1px solid #26263c; border-radius: 10px;
-  padding: 12px 14px; cursor: pointer;
+.history-card.ha-green  { --_ha: #34d399; }
+.history-card.ha-amber  { --_ha: #fbbf24; }
+.history-card.ha-purple { --_ha: #7c6af7; }
+.history-card-body { padding: 11px 14px 11px 18px; display: flex; flex-direction: column; gap: 7px; }
+.history-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.history-title {
+  font-size: 13px; font-weight: 600; color: #eeeefb; line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1;
 }
-.history-item-title { font-size: 13px; font-weight: 600; color: #eeeefb; line-height: 1.3; margin-bottom: 5px; }
-.history-item-meta { display: flex; align-items: center; gap: 8px; }
-.history-badge {
-  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
-  background: rgba(52,211,153,0.12); color: #34d399;
+.history-time { font-size: 10.5px; color: #6e6e9a; white-space: nowrap; flex-shrink: 0; padding-top: 1px; }
+.history-card-pills { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.h-pill {
+  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 9999px;
+  display: inline-flex; align-items: center; gap: 3px; letter-spacing: 0.03em; white-space: nowrap; line-height: 1.5;
 }
-.history-date { font-size: 11px; color: #6e6e9a; }
-.history-platform { font-size: 10px; color: #3a3a5c; background: #1d1d2a; padding: 2px 6px; border-radius: 4px; }
+.h-pill-platform { background: #1d1d2a; color: #6e6e9a; border: 1px solid #26263c; text-transform: uppercase; letter-spacing: 0.07em; }
+.h-pill-pass    { background: rgba(52,211,153,0.1);  color: #34d399; border: 1px solid rgba(52,211,153,0.22); }
+.h-pill-partial { background: rgba(251,191,36,0.1);  color: #fbbf24; border: 1px solid rgba(251,191,36,0.22); }
+.h-pill-built   { background: rgba(124,106,247,0.1); color: #a78bfa; border: 1px solid rgba(124,106,247,0.22); }
 
 /* ── Completion screen ── */
 .complete-screen {
@@ -576,62 +614,67 @@ function renderTranscript() {
 }
 
 // ── Screen: History ────────────────────────────────────────────────────
+const _svgFlame = `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/></svg>`;
+const _svgMedal = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.7774 13.6499L13.5693 15.2468C13.6773 15.4691 13.9653 15.6823 14.2083 15.7231L15.6436 15.9636C16.5615 16.1178 16.7775 16.7893 16.1161 17.4516L15.0002 18.5767C14.8112 18.7673 14.7077 19.1347 14.7662 19.3979L15.0857 20.7906C15.3377 21.893 14.7572 22.3195 13.7898 21.7433L12.4445 20.9403C12.2015 20.7952 11.801 20.7952 11.5536 20.9403L10.2082 21.7433C9.24533 22.3195 8.66039 21.8885 8.91236 20.7906L9.23183 19.3979C9.29032 19.1347 9.18683 18.7673 8.99785 18.5767L7.88198 17.4516C7.22505 16.7893 7.43653 16.1178 8.35443 15.9636L9.78977 15.7231C10.0282 15.6823 10.3162 15.4691 10.4242 15.2468L11.2161 13.6499C11.6481 12.7834 12.35 12.7834 12.7774 13.6499Z"/><path d="M17.2588 2.01167H6.74116C5.93143 2.01167 4.85952 1.85424 4.30576 2.69602C4 3.1608 4 3.83334 4 5.17844C4 6.32524 4 6.89864 4.20617 7.38174C4.55829 8.20684 5.34557 8.56526 6.02037 8.95504L9.31672 10.8591C10.6334 11.6197 11.2918 12 12 12C12.7082 12 13.3666 11.6197 14.6833 10.8591L17.9796 8.95504C18.6544 8.56526 19.4417 8.20684 19.7938 7.38174C20 6.89864 20 6.32524 20 5.17844C20 3.83334 20 3.1608 19.6942 2.69602C19.1405 1.85424 18.0686 2.01167 17.2588 2.01167Z"/><path d="M12 2V7"/></svg>`;
+const _svgLayers = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="m6.08 9.5-3.5 1.6a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.84l-3.5-1.6"/><path d="m6.08 14.5-3.5 1.6a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.84l-3.5-1.6"/></svg>`;
+const _svgChk  = `<svg style="width:9px;height:9px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+
 function renderHistory() {
-  const items = [
-    {title:'React Hooks Deep Dive: useCallback, useMemo & Performance Optimization', badge:'Completed', date:'Today', platform:'YouTube'},
-    {title:'TypeScript Generics Explained — From Basics to Advanced Patterns', badge:'Completed', date:'Yesterday', platform:'YouTube'},
-    {title:'Building a REST API with Node.js, Express & MongoDB', badge:'Completed', date:'2 days ago', platform:'Udemy'},
-    {title:'CSS Grid vs Flexbox: When to Use Which', badge:'Completed', date:'4 days ago', platform:'YouTube'},
-    {title:'Python Async/Await and asyncio — The Complete Guide', badge:'Completed', date:'Last week', platform:'Coursera'},
+  const sessions = [
+    { title:'React Hooks Deep Dive: useCallback, useMemo & Performance Optimization', platform:'YouTube', time:'2h ago',  accent:'ha-green',  quiz:'5/5',  quizCls:'h-pill-pass',    built:true  },
+    { title:'TypeScript Generics — From Basics to Advanced Patterns',                platform:'YouTube', time:'Today',   accent:'ha-amber',  quiz:'3/5',  quizCls:'h-pill-partial', built:false },
+    { title:'Building a REST API with Node.js, Express & MongoDB',                   platform:'Udemy',   time:'Yesterday', accent:'ha-green', quiz:'4/4',  quizCls:'h-pill-pass',    built:true  },
+    { title:'CSS Grid vs Flexbox: When to Use Which',                                platform:'YouTube', time:'3 days ago', accent:'ha-amber', quiz:'4/5', quizCls:'h-pill-pass',    built:false },
+    { title:'Python Async/Await and asyncio — The Complete Guide',                   platform:'Coursera',time:'Last week',accent:'ha-purple', quiz:null,   quizCls:'',               built:false },
   ];
-  return `
-  ${header('Summary')}
-  <div class="panel-body">
-    <div class="stats-card">
-      <div class="stat-item">
-        <div class="stat-icon-wrap flame">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/>
-          </svg>
-        </div>
-        <span class="stat-number">7</span>
-        <span class="stat-label">Day Streak</span>
-      </div>
-      <div class="stat-item">
-        <div class="stat-icon-wrap medal">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12.7774 13.6499L13.5693 15.2468C13.6773 15.4691 13.9653 15.6823 14.2083 15.7231L15.6436 15.9636C16.5615 16.1178 16.7775 16.7893 16.1161 17.4516L15.0002 18.5767C14.8112 18.7673 14.7077 19.1347 14.7662 19.3979L15.0857 20.7906C15.3377 21.893 14.7572 22.3195 13.7898 21.7433L12.4445 20.9403C12.2015 20.7952 11.801 20.7952 11.5536 20.9403L10.2082 21.7433C9.24533 22.3195 8.66039 21.8885 8.91236 20.7906L9.23183 19.3979C9.29032 19.1347 9.18683 18.7673 8.99785 18.5767L7.88198 17.4516C7.22505 16.7893 7.43653 16.1178 8.35443 15.9636L9.78977 15.7231C10.0282 15.6823 10.3162 15.4691 10.4242 15.2468L11.2161 13.6499C11.6481 12.7834 12.35 12.7834 12.7774 13.6499Z"/>
-            <path d="M17.2588 2.01167H6.74116C5.93143 2.01167 4.85952 1.85424 4.30576 2.69602C4 3.1608 4 3.83334 4 5.17844C4 6.32524 4 6.89864 4.20617 7.38174C4.55829 8.20684 5.34557 8.56526 6.02037 8.95504L9.31672 10.8591C10.6334 11.6197 11.2918 12 12 12C12.7082 12 13.3666 11.6197 14.6833 10.8591L17.9796 8.95504C18.6544 8.56526 19.4417 8.20684 19.7938 7.38174C20 6.89864 20 6.32524 20 5.17844C20 3.83334 20 3.1608 19.6942 2.69602C19.1405 1.85424 18.0686 2.01167 17.2588 2.01167Z"/>
-            <path d="M12 2V7"/>
-          </svg>
-        </div>
-        <span class="stat-number">12</span>
-        <span class="stat-label">Best Streak</span>
-      </div>
-      <div class="stat-item">
-        <div class="stat-icon-wrap layers">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
-          </svg>
-        </div>
-        <span class="stat-number">23</span>
-        <span class="stat-label">Sessions</span>
-      </div>
-    </div>
-    <div>
-      <div class="section-label">Recent Sessions</div>
-      <div class="history-list">
-        ${items.map(i=>`
-        <div class="history-item">
-          <div class="history-item-title">${i.title}</div>
-          <div class="history-item-meta">
-            <span class="history-badge">${i.badge}</span>
-            <span class="history-date">${i.date}</span>
-            <span class="history-platform">${i.platform}</span>
+
+  const groups = [
+    { label: 'Today',     items: sessions.slice(0,2) },
+    { label: 'Yesterday', items: sessions.slice(2,3) },
+    { label: 'Earlier',   items: sessions.slice(3)   },
+  ];
+
+  const cardsHTML = groups.map(g => `
+    <p class="history-section-label">${g.label}</p>
+    ${g.items.map(s => `
+      <div class="history-card ${s.accent}">
+        <div class="history-card-body">
+          <div class="history-card-top">
+            <p class="history-title">${s.title}</p>
+            <span class="history-time">${s.time}</span>
           </div>
-        </div>`).join('')}
+          <div class="history-card-pills">
+            <span class="h-pill h-pill-platform">${s.platform}</span>
+            ${s.quiz ? `<span class="h-pill ${s.quizCls}">${_svgChk} ${s.quiz}</span>` : ''}
+            ${s.built ? `<span class="h-pill h-pill-built">${_svgChk} Built</span>` : ''}
+          </div>
+        </div>
+      </div>`).join('')}
+  `).join('');
+
+  return `
+  ${header('History')}
+  <div class="panel-body">
+    <div class="history-stats-hero">
+      <div class="history-streak-card">
+        <div class="history-streak-icon">${_svgFlame}</div>
+        <div class="history-streak-number">7</div>
+        <div class="history-streak-label">Day Streak</div>
+      </div>
+      <div class="history-mini-stats">
+        <div class="history-mini-stat">
+          <div class="history-mini-stat-icon" style="color:#eab308">${_svgMedal}</div>
+          <span class="history-mini-stat-value">12</span>
+          <span class="history-mini-stat-label">Best</span>
+        </div>
+        <div class="history-mini-stat">
+          <div class="history-mini-stat-icon" style="color:#7c6af7">${_svgLayers}</div>
+          <span class="history-mini-stat-value">23</span>
+          <span class="history-mini-stat-label">Sessions</span>
+        </div>
       </div>
     </div>
+    ${cardsHTML}
   </div>`;
 }
 
