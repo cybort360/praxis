@@ -364,19 +364,36 @@
   </button>
 </div>
 
-<!-- Chat drawer -->
-<div id="chat-drawer" style="display:none;">
-  <div id="chat-messages" class="chat-messages"></div>
-  <div class="chat-input-row">
-    <input type="text" id="chat-input" placeholder="Ask about this video…" autocomplete="off" />
-    <button id="chat-send" class="chat-send-btn" title="Send">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px">
-        <line x1="22" y1="2" x2="11" y2="13"/>
-        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-      </svg>
-    </button>
+<!-- Chat widget (FAB + popup) -->
+<div id="chat-widget" style="display:none;">
+  <div id="chat-popup" class="chat-popup">
+    <div class="chat-popup-header">
+      <span class="chat-popup-title">Ask about this video</span>
+      <button id="chat-close" class="chat-close-btn" title="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px">
+          <path d="M18 6 6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div id="chat-messages" class="chat-messages"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Ask a question…" autocomplete="off" />
+      <button id="chat-send" class="chat-send-btn" title="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
   </div>
+  <button id="chat-fab" class="chat-fab" title="Ask about this video">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+  </button>
 </div>
 
 <!-- Sandbox iframe -->

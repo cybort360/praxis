@@ -1,6 +1,7 @@
 // sidepanel/chat.js — AI chat module
 // Exposes the Chat global. Loaded before main.js in index.html.
-// Requires DOM elements: #chat-drawer, #chat-messages, #chat-input, #chat-send
+// Requires DOM elements: #chat-widget, #chat-popup, #chat-fab, #chat-close,
+//                        #chat-messages, #chat-input, #chat-send
 
 const Chat = (() => {
   let _transcript  = '';
@@ -22,8 +23,7 @@ const Chat = (() => {
 
     document.getElementById('chat-messages').innerHTML = '';
     document.getElementById('chat-input').value = '';
-    document.getElementById('chat-drawer').style.display = 'flex';
-    document.body.classList.add('chat-visible');
+    document.getElementById('chat-widget').style.display = 'block';
     _setOpen(false);
   }
 
@@ -36,16 +36,16 @@ const Chat = (() => {
 
     document.getElementById('chat-messages').innerHTML = '';
     document.getElementById('chat-input').value = '';
-    document.getElementById('chat-drawer').style.display = 'none';
-    document.body.classList.remove('chat-visible', 'chat-open');
+    document.getElementById('chat-widget').style.display = 'none';
+    _setOpen(false);
   }
 
   // ── Internal helpers ──────────────────────────────────────────────────────
 
   function _setOpen(open) {
     _isOpen = open;
-    document.getElementById('chat-drawer').classList.toggle('open', open);
-    document.body.classList.toggle('chat-open', open);
+    document.getElementById('chat-popup').classList.toggle('open', open);
+    document.getElementById('chat-fab').classList.toggle('active', open);
   }
 
   function _appendBubble(role, text) {
@@ -78,9 +78,7 @@ const Chat = (() => {
     _messages.push({ role: 'user', content: text });
     _appendBubble('user', text);
 
-    if (!_isOpen) _setOpen(true);
-
-    _isLoading    = true;
+    _isLoading     = true;
     input.disabled = true;
     const typingEl = _appendTypingIndicator();
 
@@ -113,20 +111,27 @@ const Chat = (() => {
 
   // ── DOM event wiring (runs once at script load, DOM is ready) ─────────────
 
-  document.getElementById('chat-input').addEventListener('focus', () => {
-    if (!_isOpen && _transcript) _setOpen(true);
+  // FAB toggles the popup open/closed
+  document.getElementById('chat-fab').addEventListener('click', () => {
+    _setOpen(!_isOpen);
+    if (_isOpen) document.getElementById('chat-input').focus();
   });
 
+  // Close button collapses the popup
+  document.getElementById('chat-close').addEventListener('click', () => _setOpen(false));
+
+  // Send on Enter
   document.getElementById('chat-input').addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); _send(); }
   });
 
+  // Send button
   document.getElementById('chat-send').addEventListener('click', () => _send());
 
-  // Collapse when clicking outside the drawer
+  // Collapse when clicking outside the widget
   document.addEventListener('click', e => {
-    const drawer = document.getElementById('chat-drawer');
-    if (_isOpen && !drawer.contains(e.target)) _setOpen(false);
+    const widget = document.getElementById('chat-widget');
+    if (_isOpen && !widget.contains(e.target)) _setOpen(false);
   });
 
   // Collapse on Escape
