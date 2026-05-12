@@ -59,8 +59,13 @@ const History = (() => {
   }
 
   async function loadHistory() {
-    const stored = await chrome.storage.local.get(KEY);
-    return stored[KEY] || [];
+    try {
+      const stored = await chrome.storage.local.get(KEY);
+      return stored[KEY] || [];
+    } catch (e) {
+      console.error('[Praxis] History.loadHistory failed:', e);
+      return [];
+    }
   }
 
   async function renderHistory() {
@@ -80,19 +85,35 @@ const History = (() => {
 
       const body = document.createElement('div');
       body.className = 'history-card-body';
-      body.innerHTML = `
-        <p class="history-title">${entry.videoTitle}</p>
-        <p class="history-meta">${entry.platform} · ${timeAgo(entry.date)}</p>
-      `;
+
+      const titleEl = document.createElement('p');
+      titleEl.className = 'history-title';
+      titleEl.textContent = entry.videoTitle;
+
+      const metaEl = document.createElement('p');
+      metaEl.className = 'history-meta';
+      metaEl.textContent = `${entry.platform} · ${timeAgo(entry.date)}`;
+
+      body.appendChild(titleEl);
+      body.appendChild(metaEl);
 
       const expand = document.createElement('div');
       expand.className = 'history-expand hidden';
-      expand.innerHTML = `
-        <p class="history-summary-text">${entry.summary || '—'}</p>
-        <ul class="history-key-points">
-          ${(entry.keyPoints || []).map(p => `<li>${p}</li>`).join('')}
-        </ul>
-      `;
+
+      const summaryEl = document.createElement('p');
+      summaryEl.className = 'history-summary-text';
+      summaryEl.textContent = entry.summary || '—';
+
+      const kpList = document.createElement('ul');
+      kpList.className = 'history-key-points';
+      (entry.keyPoints || []).forEach(point => {
+        const li = document.createElement('li');
+        li.textContent = point;
+        kpList.appendChild(li);
+      });
+
+      expand.appendChild(summaryEl);
+      expand.appendChild(kpList);
 
       body.addEventListener('click', () => {
         expand.classList.toggle('hidden');
@@ -106,10 +127,14 @@ const History = (() => {
   }
 
   async function clearHistory() {
-    await chrome.storage.local.remove(KEY);
-    document.getElementById('history-list').innerHTML =
-      '<p class="history-empty">No sessions yet — complete a video to see your history here.</p>';
-    document.getElementById('btn-history').classList.add('hidden');
+    try {
+      await chrome.storage.local.remove(KEY);
+      document.getElementById('history-list').innerHTML =
+        '<p class="history-empty">No sessions yet — complete a video to see your history here.</p>';
+      document.getElementById('btn-history').classList.add('hidden');
+    } catch (e) {
+      console.error('[Praxis] History.clearHistory failed:', e);
+    }
   }
 
   return { saveSession, loadHistory, renderHistory, clearHistory };
