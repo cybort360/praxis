@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<!--
+  Praxis – CWS Screenshot Harness  (1280 × 800)
+  Usage:  open this file and add ?screen=summary|quiz|challenge|transcript|history|complete
+  Then screenshot with:
+    chrome --headless=new --screenshot=out.png --window-size=1280,800 "file://…/harness.html?screen=summary"
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+/* ── Layout ── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1280px; height: 800px; overflow: hidden; background: #111; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; }
+
+.frame { display: flex; width: 1280px; height: 800px; }
+
+/* ── YouTube side ── */
+.yt-side {
+  flex: 1;
+  background: #0f0f0f;
+  display: flex;
+  flex-direction: column;
+}
+.yt-topbar {
+  height: 56px; background: #0f0f0f;
+  display: flex; align-items: center; padding: 0 16px; gap: 16px;
+  border-bottom: 1px solid #272727;
+}
+.yt-logo { display: flex; align-items: center; gap: 5px; }
+.yt-logo svg { width: 90px; }
+.yt-search {
+  flex: 1; max-width: 500px; height: 34px;
+  background: #121212; border: 1px solid #303030; border-radius: 2px;
+  display: flex; align-items: center; padding: 0 10px;
+  color: #aaa; font-size: 14px;
+}
+.yt-search-btn {
+  width: 40px; height: 34px;
+  background: #272727; border: 1px solid #303030; border-left: none; border-radius: 0 2px 2px 0;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.yt-content { flex: 1; display: flex; overflow: hidden; }
+.yt-main { flex: 1; display: flex; flex-direction: column; padding: 20px 24px 0; gap: 14px; overflow: hidden; }
+
+/* ── Video player ── */
+.video-player {
+  width: 100%;
+  aspect-ratio: 16/9;
+  max-height: 400px;
+  background: linear-gradient(160deg, #1a1a2e 0%, #16213e 40%, #0f3460 70%, #1a1a2e 100%);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.video-overlay {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 40%, rgba(99,102,241,0.12) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 60%, rgba(168,85,247,0.08) 0%, transparent 55%);
+}
+.video-code {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  color: rgba(255,255,255,0.07); font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; line-height: 1.7; white-space: pre; pointer-events: none; user-select: none;
+}
+.video-controls {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.85));
+  padding: 28px 12px 8px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.progress-bar { height: 3px; background: rgba(255,255,255,0.2); border-radius: 2px; position: relative; }
+.progress-fill { height: 100%; width: 42%; background: #ff0000; border-radius: 2px; }
+.progress-dot { width: 12px; height: 12px; background: #ff0000; border-radius: 50%; position: absolute; top: 50%; left: 42%; transform: translate(-50%,-50%); }
+.ctrl-row { display: flex; align-items: center; gap: 10px; }
+.ctrl-btn { color: white; font-size: 13px; cursor: pointer; opacity: 0.9; }
+.ctrl-time { color: white; font-size: 12px; opacity: 0.85; margin-left: 2px; }
+.ctrl-right { margin-left: auto; display: flex; gap: 10px; }
+.ctrl-vol { color: white; font-size: 12px; opacity: 0.85; }
+.yt-watermark {
+  position: absolute; bottom: 50px; right: 12px;
+  background: rgba(0,0,0,0.6); color: rgba(255,255,255,0.6);
+  font-size: 10px; padding: 2px 6px; border-radius: 2px;
+}
+
+/* ── Video info ── */
+.video-title { color: #f1f1f1; font-size: 18px; font-weight: 600; line-height: 1.3; }
+.video-meta { display: flex; align-items: center; gap: 8px; color: #aaa; font-size: 13px; }
+.meta-dot { width: 3px; height: 3px; background: #aaa; border-radius: 50%; }
+.channel-row { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
+.channel-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, #7c6af7, #a78bfa);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 14px; font-weight: 700;
+}
+.channel-info { display: flex; flex-direction: column; }
+.channel-name { color: #f1f1f1; font-size: 14px; font-weight: 500; }
+.channel-subs { color: #aaa; font-size: 12px; }
+
+/* ── Start Praxis button (injected by extension) ── */
+.start-praxis-btn {
+  position: absolute; top: 12px; right: 12px;
+  background: linear-gradient(135deg, #7c6af7, #a78bfa);
+  color: white; font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+  padding: 7px 14px; border-radius: 8px; border: none; cursor: pointer;
+  box-shadow: 0 2px 12px rgba(124,106,247,0.4);
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* ── Praxis side panel ── */
+.praxis-side {
+  width: 400px;
+  flex-shrink: 0;
+  background: #0d0d14;
+  border-left: 1px solid #1e1e2e;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Panel header ── */
+.panel-header {
+  height: 48px; padding: 0 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid #1e1e2e;
+  background: #0d0d14;
+  flex-shrink: 0;
+}
+.panel-logo { display: flex; align-items: center; gap: 8px; }
+.panel-logo-icon {
+  width: 22px; height: 22px; color: #a78bfa;
+}
+.panel-logo-name { font-size: 14px; font-weight: 800; color: #eeeefb; letter-spacing: -0.02em; }
+.panel-actions { display: flex; gap: 4px; }
+.panel-icon-btn {
+  width: 30px; height: 30px; border-radius: 7px; background: none; border: none; cursor: pointer;
+  color: #6e6e9a; display: flex; align-items: center; justify-content: center;
+}
+.panel-icon-btn:hover { background: #1d1d2a; color: #aeaece; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex; border-bottom: 1px solid #1e1e2e;
+  background: #0d0d14; flex-shrink: 0;
+}
+.tab {
+  flex: 1; padding: 10px 4px; font-size: 11px; font-weight: 600;
+  color: #6e6e9a; cursor: pointer; border: none; background: none;
+  border-bottom: 2px solid transparent; transition: all 0.15s;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.tab.active { color: #a78bfa; border-bottom-color: #7c6af7; }
+
+/* ── Panel body ── */
+.panel-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.panel-body::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-track { background: transparent; }
+.panel-body::-webkit-scrollbar-thumb { background: #2e2e48; border-radius: 2px; }
+
+/* ── Summary screen ── */
+.section-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #3a3a5c; margin-bottom: 4px; }
+.summary-text { font-size: 13px; color: #aeaece; line-height: 1.65; }
+.key-points { display: flex; flex-direction: column; gap: 8px; }
+.key-point {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 12px; background: #16161f; border: 1px solid #26263c;
+  border-radius: 10px;
+}
+.kp-dot {
+  width: 18px; height: 18px; border-radius: 5px; flex-shrink: 0; margin-top: 1px;
+  background: rgba(124,106,247,0.15); display: flex; align-items: center; justify-content: center;
+  color: #a78bfa; font-size: 8px; font-weight: 800;
+}
+.kp-text { font-size: 12px; color: #aeaece; line-height: 1.5; }
+.copy-btn {
+  display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+  background: rgba(124,106,247,0.1); border: 1px solid rgba(124,106,247,0.25);
+  border-radius: 8px; color: #a78bfa; font-size: 11px; font-weight: 600; cursor: pointer;
+  align-self: flex-start;
+}
+
+/* ── Quiz screen ── */
+.quiz-q { font-size: 14px; font-weight: 600; color: #eeeefb; line-height: 1.5; margin-bottom: 14px; }
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  padding: 11px 14px; border-radius: 10px; border: 1.5px solid #26263c;
+  background: #16161f; font-size: 13px; color: #aeaece; cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+}
+.quiz-opt.selected { border-color: #7c6af7; background: rgba(124,106,247,0.1); color: #eeeefb; }
+.quiz-opt.correct  { border-color: #34d399; background: rgba(52,211,153,0.1); color: #eeeefb; }
+.quiz-opt.wrong    { border-color: #f87171; background: rgba(248,113,113,0.1); color: #eeeefb; }
+.opt-letter {
+  width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0;
+  background: rgba(255,255,255,0.06); display: flex; align-items: center;
+  justify-content: center; font-size: 11px; font-weight: 700; color: #6e6e9a;
+}
+.quiz-opt.selected .opt-letter { background: rgba(124,106,247,0.25); color: #a78bfa; }
+.quiz-progress { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.quiz-prog-bar { flex: 1; height: 4px; background: #1d1d2a; border-radius: 2px; }
+.quiz-prog-fill { height: 100%; width: 33%; background: #7c6af7; border-radius: 2px; }
+.quiz-prog-text { font-size: 10px; color: #6e6e9a; font-weight: 600; }
+.quiz-submit {
+  margin-top: 14px; width: 100%; padding: 10px; border-radius: 10px;
+  background: linear-gradient(135deg, #7c6af7, #a78bfa); color: white;
+  font-size: 13px; font-weight: 700; border: none; cursor: pointer;
+}
+
+/* ── Challenge screen ── */
+.challenge-desc { font-size: 13px; color: #aeaece; line-height: 1.6; }
+.code-editor {
+  background: #0f0f1c; border: 1px solid #26263c; border-radius: 10px; overflow: hidden;
+}
+.editor-toolbar {
+  padding: 8px 12px; border-bottom: 1px solid #1e1e2e;
+  display: flex; align-items: center; justify-content: space-between;
+  background: #1a1a28;
+}
+.editor-lang { font-size: 10px; font-weight: 700; color: #a78bfa; background: rgba(124,106,247,0.15); padding: 2px 8px; border-radius: 4px; }
+.editor-run-btn {
+  font-size: 11px; font-weight: 700; color: #0f0f1c;
+  background: #7c6af7; padding: 4px 12px; border-radius: 6px; border: none; cursor: pointer;
+}
+.code-lines { padding: 12px 0; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 11.5px; line-height: 1.7; }
+.code-line { padding: 0 12px; display: flex; gap: 14px; }
+.ln { color: #3a3a5c; width: 18px; text-align: right; flex-shrink: 0; user-select: none; }
+.kw { color: #d881f5; }
+.fn { color: #61afef; }
+.str { color: #98d174; }
+.num { color: #f9ae58; }
+.cm { color: #5c6370; font-style: italic; }
+.pun { color: #aeaece; }
+.test-results { display: flex; flex-direction: column; gap: 6px; }
+.test-result {
+  display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+  background: #16161f; border: 1px solid #26263c; border-radius: 8px; font-size: 12px;
+}
+.test-result.pass { border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.06); }
+.test-result.fail { border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.06); }
+.test-badge {
+  font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px;
+  background: rgba(52,211,153,0.15); color: #34d399;
+}
+.test-badge.fail-badge { background: rgba(248,113,113,0.15); color: #f87171; }
+.test-name { color: #aeaece; }
+
+/* ── Transcript screen ── */
+.transcript-list { display: flex; flex-direction: column; }
+.transcript-row {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 9px 10px; border-radius: 8px; cursor: pointer;
+  border-bottom: 1px solid #1a1a28;
+}
+.transcript-row:hover, .transcript-row.active { background: rgba(124,106,247,0.08); }
+.ts { font-size: 10.5px; font-weight: 600; color: #7c6af7; flex-shrink: 0; padding-top: 2px; width: 40px; }
+.transcript-text { font-size: 12.5px; color: #aeaece; line-height: 1.55; }
+
+/* ── History screen ── */
+.stats-card {
+  background: #16161f; border: 1px solid #26263c; border-radius: 12px;
+  padding: 16px; display: flex; gap: 0;
+}
+.stat-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.stat-item + .stat-item { border-left: 1px solid #26263c; }
+.stat-icon-wrap {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+.stat-icon-wrap.flame { background: rgba(251,146,60,0.15); color: #fb923c; }
+.stat-icon-wrap.medal { background: rgba(250,204,21,0.12); color: #facc15; }
+.stat-icon-wrap.layers { background: rgba(124,106,247,0.15); color: #a78bfa; }
+.stat-number { font-size: 20px; font-weight: 800; color: #eeeefb; letter-spacing: -0.02em; }
+.stat-label { font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #6e6e9a; }
+.history-list { display: flex; flex-direction: column; gap: 8px; }
+.history-item {
+  background: #16161f; border: 1px solid #26263c; border-radius: 10px;
+  padding: 12px 14px; cursor: pointer;
+}
+.history-item-title { font-size: 13px; font-weight: 600; color: #eeeefb; line-height: 1.3; margin-bottom: 5px; }
+.history-item-meta { display: flex; align-items: center; gap: 8px; }
+.history-badge {
+  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
+  background: rgba(52,211,153,0.12); color: #34d399;
+}
+.history-date { font-size: 11px; color: #6e6e9a; }
+.history-platform { font-size: 10px; color: #3a3a5c; background: #1d1d2a; padding: 2px 6px; border-radius: 4px; }
+
+/* ── Completion screen ── */
+.complete-screen {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 24px; gap: 18px;
+}
+.complete-fireworks { font-size: 32px; line-height: 1; }
+.complete-badge {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: linear-gradient(135deg, rgba(124,106,247,0.2), rgba(167,139,250,0.1));
+  border: 2px solid rgba(124,106,247,0.4);
+  box-shadow: 0 0 30px rgba(124,106,247,0.3), inset 0 0 20px rgba(124,106,247,0.05);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+}
+.complete-title { font-size: 22px; font-weight: 800; color: #eeeefb; letter-spacing: -0.02em; text-align: center; }
+.complete-subtitle { font-size: 14px; color: #6e6e9a; text-align: center; line-height: 1.5; max-width: 260px; }
+.complete-stats { display: flex; gap: 12px; }
+.complete-stat {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: #16161f; border: 1px solid #26263c; border-radius: 10px;
+  padding: 10px 18px;
+}
+.cs-num { font-size: 20px; font-weight: 800; color: #a78bfa; }
+.cs-lbl { font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #6e6e9a; }
+.complete-actions { display: flex; gap: 10px; width: 100%; }
+.btn-primary {
+  flex: 1; padding: 11px; border-radius: 10px;
+  background: linear-gradient(135deg, #7c6af7, #a78bfa);
+  color: white; font-size: 13px; font-weight: 700; border: none; cursor: pointer;
+}
+.btn-ghost {
+  flex: 1; padding: 11px; border-radius: 10px;
+  background: #16161f; border: 1px solid #26263c;
+  color: #aeaece; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+
+/* ── Shared ── */
+.panel-section-title { font-size: 13px; font-weight: 700; color: #eeeefb; }
+</style>
+</head>
+<body>
+<script>
+const screen = new URLSearchParams(location.search).get('screen') || 'summary';
+</script>
+
+<div class="frame">
+
+  <!-- ══════════════ YouTube side ══════════════ -->
+  <div class="yt-side">
+    <div class="yt-topbar">
+      <div class="yt-logo">
+        <svg viewBox="0 0 90 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M35 3.5C34.4 1.6 32.9 0.5 31 0.5H10C8.1 0.5 6.6 1.6 6 3.5L3 10l3 6.5c.6 1.9 2.1 3 4 3h21c1.9 0 3.4-1.1 4-3L38 10l-3-6.5z" fill="#FF0000"/>
+          <path d="M16 6.5l8 3.5-8 3.5V6.5z" fill="white"/>
+          <text x="43" y="15" font-family="Arial" font-size="14" font-weight="700" fill="white">YouTube</text>
+        </svg>
+      </div>
+      <div style="display:flex;gap:0;flex:1;max-width:480px;margin-left:20px">
+        <div class="yt-search" style="border-radius:2px 0 0 2px;flex:1">React useCallback tutorial</div>
+        <div class="yt-search-btn">🔍</div>
+      </div>
+    </div>
+
+    <div class="yt-content">
+      <div class="yt-main">
+        <!-- Video player -->
+        <div class="video-player">
+          <div class="video-overlay"></div>
+          <div class="video-code">const useCallback = (fn, deps) => {
+  const ref = useRef(null);
+  if (!ref.current ||
+      !shallowEqual(deps, ref.deps)) {
+    ref.current = fn;
+    ref.deps = deps;
+  }
+  return ref.current;
+};</div>
+          <div class="yt-watermark">42:18</div>
+          <button class="start-praxis-btn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="7.9" r="5.8" stroke="white" stroke-width="1.5" stroke-opacity="0.5"/>
+              <circle cx="7.5" cy="16.5" r="5.8" stroke="white" stroke-width="1.5" stroke-opacity="0.5"/>
+              <circle cx="16.5" cy="16.5" r="5.8" stroke="white" stroke-width="1.5" stroke-opacity="0.5"/>
+              <path d="M 17.07 10.72 A 5.8 5.8 0 0 1 11.43 13.66" stroke="white" stroke-width="1.5"/>
+              <path d="M 6.93 10.72 A 5.8 5.8 0 0 1 12.57 13.66" stroke="white" stroke-width="1.5"/>
+              <path d="M 12 20.18 A 5.8 5.8 0 0 1 12 12.82" stroke="white" stroke-width="1.5"/>
+            </svg>
+            Start Praxis
+          </button>
+          <div class="video-controls">
+            <div class="progress-bar"><div class="progress-fill"></div><div class="progress-dot"></div></div>
+            <div class="ctrl-row">
+              <span class="ctrl-btn">⏸</span>
+              <span class="ctrl-btn">⏭</span>
+              <span class="ctrl-vol">🔊</span>
+              <span class="ctrl-time">18:04 / 42:18</span>
+              <div class="ctrl-right">
+                <span class="ctrl-btn" style="font-size:11px;color:#aaa">CC</span>
+                <span class="ctrl-btn" style="font-size:11px;color:#aaa">⚙️</span>
+                <span class="ctrl-btn" style="font-size:11px;color:#aaa">⛶</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video info -->
+        <div class="video-title">React Hooks Deep Dive: useCallback, useMemo &amp; Performance Optimization</div>
+        <div class="video-meta">
+          <span>1.2M views</span>
+          <div class="meta-dot"></div>
+          <span>3 months ago</span>
+        </div>
+        <div class="channel-row">
+          <div class="channel-avatar">W</div>
+          <div class="channel-info">
+            <span class="channel-name">Web Dev Simplified</span>
+            <span class="channel-subs">4.2M subscribers</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ Praxis panel ══════════════ -->
+  <div class="praxis-side" id="panel"></div>
+
+</div>
+
+<script>
+// ── Logo SVG (inline, reused everywhere) ──────────────────────────────
+const logoSVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="color:#a78bfa">
+  <circle cx="12" cy="7.9" r="5.8" stroke="currentColor" stroke-width="1.35" stroke-opacity="0.45"/>
+  <circle cx="7.5" cy="16.5" r="5.8" stroke="currentColor" stroke-width="1.35" stroke-opacity="0.45"/>
+  <circle cx="16.5" cy="16.5" r="5.8" stroke="currentColor" stroke-width="1.35" stroke-opacity="0.45"/>
+  <path d="M 17.07 10.72 A 5.8 5.8 0 0 1 11.43 13.66" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+  <path d="M 6.93 10.72 A 5.8 5.8 0 0 1 12.57 13.66" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+  <path d="M 12 20.18 A 5.8 5.8 0 0 1 12 12.82" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+</svg>`;
+
+// ── Header (shared) ───────────────────────────────────────────────────
+function header(activeTab) {
+  const tabs = ['Summary','Transcript','Quiz','Challenge'];
+  return `
+  <div class="panel-header">
+    <div class="panel-logo">${logoSVG}<span class="panel-logo-name">Praxis</span></div>
+    <div class="panel-actions">
+      <button class="panel-icon-btn" title="History">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+        </svg>
+      </button>
+      <button class="panel-icon-btn" title="Reset">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="tab-bar">
+    ${tabs.map(t=>`<button class="tab${t===activeTab?' active':''}">${t}</button>`).join('')}
+  </div>`;
+}
+
+// ── Screen: Summary ────────────────────────────────────────────────────
+function renderSummary() {
+  return `
+  ${header('Summary')}
+  <div class="panel-body">
+    <div>
+      <div class="section-label">Summary</div>
+      <p class="summary-text">
+        <code style="color:#a78bfa;font-size:12px">useCallback</code> and
+        <code style="color:#a78bfa;font-size:12px">useMemo</code> are React hooks that
+        memoize values to prevent unnecessary re-renders. The tutorial explains when each
+        hook is appropriate, the cost of overusing them, and how the dependency array
+        controls when values are recalculated.
+      </p>
+    </div>
+    <div>
+      <div class="section-label">Key Points</div>
+      <div class="key-points">
+        <div class="key-point"><div class="kp-dot">1</div><div class="kp-text"><code style="color:#a78bfa;font-size:11px">useCallback</code> memoizes a function reference; without it, a new function is created on every render, causing child components to re-render.</div></div>
+        <div class="key-point"><div class="kp-dot">2</div><div class="kp-text"><code style="color:#a78bfa;font-size:11px">useMemo</code> memoizes a computed value — useful when the calculation is expensive and the inputs rarely change.</div></div>
+        <div class="key-point"><div class="kp-dot">3</div><div class="kp-text">Both hooks take a dependency array. The memoized value is only recomputed when one of the dependencies changes.</div></div>
+        <div class="key-point"><div class="kp-dot">4</div><div class="kp-text">Overusing memoization adds overhead. Profile first — only reach for these hooks when you've identified a real performance issue.</div></div>
+      </div>
+    </div>
+    <button class="copy-btn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copy as Markdown
+    </button>
+  </div>`;
+}
+
+// ── Screen: Quiz ───────────────────────────────────────────────────────
+function renderQuiz() {
+  return `
+  ${header('Quiz')}
+  <div class="panel-body">
+    <div class="quiz-progress">
+      <div class="quiz-prog-bar"><div class="quiz-prog-fill"></div></div>
+      <span class="quiz-prog-text">Question 1 of 3</span>
+    </div>
+    <div style="background:#16161f;border:1px solid #26263c;border-radius:12px;padding:16px">
+      <div class="quiz-q">What happens when you pass an inline function as a prop to a child component wrapped in <code style="color:#a78bfa">React.memo</code>?</div>
+      <div class="quiz-opts">
+        <div class="quiz-opt"><div class="opt-letter">A</div>The child never re-renders because <code style="font-size:11px">React.memo</code> prevents all updates</div>
+        <div class="quiz-opt selected"><div class="opt-letter" style="background:rgba(124,106,247,0.25);color:#a78bfa">B</div>The child re-renders on every parent render because the inline function is a new reference each time</div>
+        <div class="quiz-opt"><div class="opt-letter">C</div>React automatically memoizes inline functions passed as props</div>
+        <div class="quiz-opt"><div class="opt-letter">D</div>The child only re-renders when the function body changes</div>
+      </div>
+      <button class="quiz-submit">Submit Answer →</button>
+    </div>
+  </div>`;
+}
+
+// ── Screen: Challenge ──────────────────────────────────────────────────
+function renderChallenge() {
+  return `
+  ${header('Challenge')}
+  <div class="panel-body">
+    <div>
+      <div class="section-label">Coding Challenge</div>
+      <p class="challenge-desc">Fix the component below so that <code style="color:#a78bfa;font-size:11px">ExpensiveChild</code> only re-renders when <code style="color:#a78bfa;font-size:11px">count</code> actually changes — not on every keystroke in the text input.</p>
+    </div>
+    <div class="code-editor">
+      <div class="editor-toolbar">
+        <span class="editor-lang">JavaScript</span>
+        <button class="editor-run-btn">▶ Run Tests</button>
+      </div>
+      <div class="code-lines">
+        <div class="code-line"><span class="ln">1</span><span><span class="kw">function</span> <span class="fn">App</span><span class="pun">() {</span></span></div>
+        <div class="code-line"><span class="ln">2</span><span>  <span class="kw">const</span> <span class="pun">[</span>count<span class="pun">,</span> setCount<span class="pun">]</span> <span class="pun">=</span> <span class="fn">useState</span><span class="pun">(</span><span class="num">0</span><span class="pun">);</span></span></div>
+        <div class="code-line"><span class="ln">3</span><span>  <span class="kw">const</span> <span class="pun">[</span>text<span class="pun">,</span> setText<span class="pun">]</span> <span class="pun">=</span> <span class="fn">useState</span><span class="pun">(</span><span class="str">''</span><span class="pun">);</span></span></div>
+        <div class="code-line"><span class="ln">4</span><span>&nbsp;</span></div>
+        <div class="code-line"><span class="ln">5</span><span>  <span class="kw">const</span> <span class="fn">handleClick</span> <span class="pun">=</span> <span class="fn">useCallback</span><span class="pun">(()</span> <span class="pun">=></span> <span class="pun">{</span></span></div>
+        <div class="code-line"><span class="ln">6</span><span>    <span class="fn">setCount</span><span class="pun">(</span>c <span class="pun">=></span> c <span class="pun">+</span> <span class="num">1</span><span class="pun">);</span></span></div>
+        <div class="code-line"><span class="ln">7</span><span>  <span class="pun">},</span> <span class="pun">[]);</span></span></div>
+        <div class="code-line"><span class="ln">8</span><span>&nbsp;</span></div>
+        <div class="code-line"><span class="ln">9</span><span>  <span class="kw">return</span> <span class="pun">(</span></span></div>
+        <div class="code-line"><span class="ln">10</span><span>    <span class="pun">&lt;</span><span class="fn">div</span><span class="pun">&gt;</span></span></div>
+        <div class="code-line"><span class="ln">11</span><span>      <span class="pun">&lt;</span><span class="fn">ExpensiveChild</span> <span class="pun">onClick={</span><span class="fn">handleClick</span><span class="pun">} count={</span>count<span class="pun">} /&gt;</span></span></div>
+        <div class="code-line"><span class="ln">12</span><span>      <span class="pun">&lt;</span><span class="fn">input</span> <span class="pun">value={</span>text<span class="pun">}</span> <span class="pun">onChange={e =></span> <span class="fn">setText</span><span class="pun">(e.target.value)}</span> <span class="pun">/&gt;</span></span></div>
+        <div class="code-line"><span class="ln">13</span><span>    <span class="pun">&lt;/</span><span class="fn">div</span><span class="pun">&gt;</span></span></div>
+        <div class="code-line"><span class="ln">14</span><span>  <span class="pun">);</span></span></div>
+        <div class="code-line"><span class="ln">15</span><span><span class="pun">}</span></span></div>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Test Results</div>
+      <div class="test-results">
+        <div class="test-result pass"><span class="test-badge">PASS</span><span class="test-name">handleClick reference is stable across renders</span></div>
+        <div class="test-result pass"><span class="test-badge">PASS</span><span class="test-name">ExpensiveChild does not re-render on text input change</span></div>
+        <div class="test-result pass"><span class="test-badge">PASS</span><span class="test-name">ExpensiveChild re-renders when count changes</span></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── Screen: Transcript ─────────────────────────────────────────────────
+function renderTranscript() {
+  const rows = [
+    ['0:00','Welcome back. Today we are going deep on two of the most misunderstood React hooks.'],
+    ['0:14','I\'m talking about useCallback and useMemo. By the end you\'ll know exactly when to use them.'],
+    ['1:02','Let\'s start with the problem. Every time your component re-renders, every function inside it is re-created.'],
+    ['1:30','That means if you pass a function as a prop, the child component sees a brand new reference on every render.'],
+    ['2:11','React.memo can\'t help you here, because the prop — the function — is always different.'],
+    ['2:48','This is where useCallback comes in. It returns the same function reference as long as the dependencies haven\'t changed.'],
+    ['3:20','Let me show you a real example. Here we have a parent with a counter and a text input...'],
+    ['4:05','Watch the render count on the child. Every keystroke causes it to re-render, even though count didn\'t change.'],
+    ['4:44','Now let\'s wrap handleClick in useCallback with an empty dependency array.'],
+    ['5:12','And there we go — the child no longer re-renders when we type. Exactly what we wanted.'],
+    ['5:55','Now useMemo is similar but for values, not functions. Use it when a calculation is expensive.'],
+    ['6:30','The rule of thumb: profile first. Don\'t add useCallback everywhere — it has its own cost.'],
+  ];
+  return `
+  ${header('Transcript')}
+  <div class="panel-body" style="padding:8px">
+    <div class="transcript-list">
+      ${rows.map((r,i)=>`
+      <div class="transcript-row${i===4?' active':''}">
+        <span class="ts">${r[0]}</span>
+        <span class="transcript-text">${r[1]}</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ── Screen: History ────────────────────────────────────────────────────
+function renderHistory() {
+  const items = [
+    {title:'React Hooks Deep Dive: useCallback, useMemo & Performance Optimization', badge:'Completed', date:'Today', platform:'YouTube'},
+    {title:'TypeScript Generics Explained — From Basics to Advanced Patterns', badge:'Completed', date:'Yesterday', platform:'YouTube'},
+    {title:'Building a REST API with Node.js, Express & MongoDB', badge:'Completed', date:'2 days ago', platform:'Udemy'},
+    {title:'CSS Grid vs Flexbox: When to Use Which', badge:'Completed', date:'4 days ago', platform:'YouTube'},
+    {title:'Python Async/Await and asyncio — The Complete Guide', badge:'Completed', date:'Last week', platform:'Coursera'},
+  ];
+  return `
+  ${header('Summary')}
+  <div class="panel-body">
+    <div class="stats-card">
+      <div class="stat-item">
+        <div class="stat-icon-wrap flame">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/>
+          </svg>
+        </div>
+        <span class="stat-number">7</span>
+        <span class="stat-label">Day Streak</span>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon-wrap medal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+        </div>
+        <span class="stat-number">12</span>
+        <span class="stat-label">Best Streak</span>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon-wrap layers">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+          </svg>
+        </div>
+        <span class="stat-number">23</span>
+        <span class="stat-label">Sessions</span>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Recent Sessions</div>
+      <div class="history-list">
+        ${items.map(i=>`
+        <div class="history-item">
+          <div class="history-item-title">${i.title}</div>
+          <div class="history-item-meta">
+            <span class="history-badge">${i.badge}</span>
+            <span class="history-date">${i.date}</span>
+            <span class="history-platform">${i.platform}</span>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── Screen: Complete ───────────────────────────────────────────────────
+function renderComplete() {
+  return `
+  ${header('Challenge')}
+  <div class="complete-screen">
+    <div class="complete-fireworks">🎉</div>
+    <div class="complete-badge">🏆</div>
+    <div class="complete-title">Challenge Passed!</div>
+    <div class="complete-subtitle">You're on a 7-day streak. Keep the momentum going.</div>
+    <div class="complete-stats">
+      <div class="complete-stat"><span class="cs-num">7</span><span class="cs-lbl">Day Streak</span></div>
+      <div class="complete-stat"><span class="cs-num">3/3</span><span class="cs-lbl">Tests Passed</span></div>
+      <div class="complete-stat"><span class="cs-num">23</span><span class="cs-lbl">Total Sessions</span></div>
+    </div>
+    <div class="complete-actions">
+      <button class="btn-ghost">📋 History</button>
+      <button class="btn-primary">Start Next →</button>
+    </div>
+  </div>`;
+}
+
+// ── Render ──────────────────────────────────────────────────────────────
+const renderers = {
+  summary:    renderSummary,
+  quiz:       renderQuiz,
+  challenge:  renderChallenge,
+  transcript: renderTranscript,
+  history:    renderHistory,
+  complete:   renderComplete,
+};
+document.getElementById('panel').innerHTML = (renderers[screen] || renderSummary)();
+</script>
+</body>
+</html>
