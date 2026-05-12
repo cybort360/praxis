@@ -78,6 +78,10 @@
       <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
       <path d="M12 17h.01"/>
     </symbol>
+    <symbol id="ic-history" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <polyline points="12 6 12 12 16 14"/>
+    </symbol>
   </defs>
 </svg>
 
@@ -88,11 +92,14 @@
     <span>Praxis</span>
   </div>
   <div class="app-bar-actions">
-    <button id="btn-theme" class="icon-btn" title="Toggle theme">
-      <svg class="icon icon-sm" id="theme-icon"><use href="#ic-sun"/></svg>
+    <button id="btn-history" class="icon-btn hidden" title="Session history">
+      <svg class="icon icon-sm"><use href="#ic-history"/></svg>
     </button>
     <button id="btn-reset" class="icon-btn hidden" title="Reset session">
       <svg class="icon icon-sm"><use href="#ic-refresh"/></svg>
+    </button>
+    <button id="btn-theme" class="icon-btn" title="Toggle theme">
+      <svg class="icon icon-sm" id="theme-icon"><use href="#ic-sun"/></svg>
     </button>
   </div>
 </header>
@@ -206,12 +213,24 @@
     </span>
     <h2 id="summary-title"></h2>
   </div>
-  <p id="summary-text"></p>
-  <ul id="summary-points"></ul>
-  <button id="btn-start-quiz" class="btn btn-primary btn-full">
-    Take the Quiz
-    <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-arrow-right"/></svg>
-  </button>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="summary">Summary</button>
+    <button class="tab-btn" data-tab="transcript">Transcript</button>
+  </div>
+
+  <div class="tab-panel active" data-tab="summary">
+    <p id="summary-text"></p>
+    <ul id="summary-points"></ul>
+    <button id="btn-start-quiz" class="btn btn-primary btn-full">
+      Take the Quiz
+      <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-arrow-right"/></svg>
+    </button>
+  </div>
+
+  <div class="tab-panel" data-tab="transcript">
+    <div id="transcript-list" class="transcript-list"></div>
+  </div>
 </div>
 
 <!-- SCREEN: Quiz -->
@@ -324,6 +343,42 @@
   <div id="hint-display" class="hint-box hidden"></div>
 </div>
 
+<!-- SCREEN: History -->
+<div id="screen-history" class="screen">
+  <div class="screen-header">
+    <div class="step-header-row">
+      <span class="step-badge">
+        <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-history"/></svg>
+        History
+      </span>
+      <button id="btn-back-history" class="btn btn-ghost btn-sm">
+        <svg class="icon icon-xs" aria-hidden="true"><use href="#ic-chevron-left"/></svg>
+        Back
+      </button>
+    </div>
+    <h2>Session History</h2>
+  </div>
+  <div id="history-list"></div>
+  <button id="btn-clear-history" class="btn btn-ghost btn-sm" style="margin-top:16px;width:100%;color:var(--error);">
+    Clear history
+  </button>
+</div>
+
+<!-- Chat drawer -->
+<div id="chat-drawer" style="display:none;">
+  <div id="chat-messages" class="chat-messages"></div>
+  <div class="chat-input-row">
+    <input type="text" id="chat-input" placeholder="Ask about this video…" autocomplete="off" />
+    <button id="chat-send" class="chat-send-btn" title="Send">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px">
+        <line x1="22" y1="2" x2="11" y2="13"/>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
 <!-- Sandbox iframe -->
 <iframe id="sandbox" src="sandbox.html" style="display:none;" sandbox="allow-scripts"></iframe>
 
@@ -335,6 +390,8 @@
 <script src="vendor/clike.min.js"></script>
 <script src="vendor/go.min.js"></script>
 <script src="vendor/shell.min.js"></script>
+<script src="history.js"></script>
+<script src="chat.js"></script>
 <script src="main.js"></script>
 </body>
 </html>
