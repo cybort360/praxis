@@ -239,7 +239,7 @@
     if (trackEl?.src) {
       const vttText = await fetchVTT(trackEl.src);
       if (vttText) {
-        const result = parseVTT(vttText);
+        const result = parseCaption(vttText);
         if (result.length) return result;
       }
     }
@@ -269,12 +269,13 @@
       if (result.length) return result;
     }
 
-    // Strategy 3 — VTT file captured by vtt-interceptor.js (document_start).
-    // Intercepts fetch/XHR calls the video player makes to load .vtt files,
-    // storing them in window.__llVttList before the player finishes loading.
+    // Strategy 3 — caption file captured by vtt-interceptor.js (document_start).
+    // Intercepts fetch/XHR calls the video player makes to load caption files
+    // (VTT, SRT, or caption-API URLs), storing them in window.__llVttList.
+    // parseCaption auto-detects the format.
     for (const cached of (window.__llVttList || [])) {
       if (!cached?.text) continue;
-      const result = parseVTT(cached.text);
+      const result = parseCaption(cached.text);
       if (result.length) return result;
     }
 
@@ -298,6 +299,55 @@
       chrome.runtime.sendMessage({ type: 'FETCH_VTT', payload: { url } })
     );
     return result?.ok ? result.text : null;
+  }
+
+  // ── Caption format auto-detect ────────────────────────────────────────────
+  // Tries VTT first, then SRT. Returns whichever produces segments.
+  function parseCaption(text) {
+    if (!text) return [];
+    const t = text.trimStart ? text.trimStart() : text.replace(/^\s+/, '');
+    if (t.startsWith('WEBVTT')) return parseVTT(text);
+    // SRT: first non-empty line is a sequence number
+    const srt = parseSRT(text);
+    if (srt.length) return srt;
+    // Attempt VTT anyway (some platforms omit the WEBVTT header)
+    return parseVTT(text);
+  }
+
+  // ── SRT parser ────────────────────────────────────────────────────────────
+  function parseSRT(srt) {
+    const segments = [];
+    const blocks   = srt.trim().split(/\n\n+/);
+    for (const block of blocks) {
+      const lines = block.trim().split('\n');
+      if (lines.length < 2) continue;
+      // Skip the optional sequence-number line (pure integer)
+      const timingIdx = lines.findIndex(l => l.includes(' --> '));
+      if (timingIdx === -1) continue;
+      // SRT timestamps use comma for ms: 00:00:01,500
+      const t = parseSRTTimestamp(lines[timingIdx].split(' --> ')[0].trim());
+      if (t === null) continue;
+      const text = lines.slice(timingIdx + 1)
+        .join(' ')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&amp;/g,  '&')
+        .replace(/&#39;/g,  "'")
+        .replace(/&lt;/g,   '<')
+        .replace(/&gt;/g,   '>')
+        .trim();
+      if (text) segments.push({ t, text });
+    }
+    return segments;
+  }
+
+  function parseSRTTimestamp(ts) {
+    // Accepts HH:MM:SS,mmm or HH:MM:SS.mmm
+    const m = ts.match(/(\d+):(\d+):(\d+)[,.](\d+)/);
+    if (!m) return null;
+    return parseInt(m[1], 10) * 3600
+         + parseInt(m[2], 10) * 60
+         + parseInt(m[3], 10)
+         + parseInt(m[4], 10) / 1000;
   }
 
   // ── VTT parser ────────────────────────────────────────────────────────────
