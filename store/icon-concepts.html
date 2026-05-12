@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a0a12;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: 36px 40px;
+    color: #eeeefb;
+  }
+  h1 { font-size: 11px; font-weight: 600; color: #3a3a5c; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 32px; }
+  .row { display: flex; gap: 32px; flex-wrap: wrap; }
+  .option {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .sizes { display: flex; align-items: flex-end; gap: 14px; }
+  .size-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .size-tag { font-size: 9px; color: #2e2e48; font-weight: 500; }
+  .name { font-size: 12px; font-weight: 700; color: #eeeefb; }
+  .desc { font-size: 11px; color: #5c5c8a; line-height: 1.5; max-width: 180px; }
+</style>
+</head>
+<body>
+<h1>Praxis — Icon Concepts</h1>
+<div class="row">
+
+  <!-- ═══ 1. SPARK / BOLT ═══ -->
+  <div class="option">
+    <div class="sizes">
+      <!-- 128 -->
+      <div class="size-col">
+        <svg width="128" height="128" viewBox="0 0 128 128" fill="none">
+          <defs>
+            <linearGradient id="g1" x1="20%" y1="0%" x2="80%" y2="100%">
+              <stop offset="0%" stop-color="#8b78f8"/>
+              <stop offset="100%" stop-color="#6047e8"/>
+            </linearGradient>
+          </defs>
+          <rect width="128" height="128" rx="26" fill="url(#g1)"/>
+          <!-- Clean lightning bolt -->
+          <path d="M74 14 L36 66 H58 L42 114 L92 58 H68 Z"
+                fill="white" stroke="white" stroke-width="1" stroke-linejoin="round"/>
+          <!-- Subtle inner highlight -->
+          <path d="M74 14 L55 56 H68 Z" fill="rgba(255,255,255,0.35)"/>
+        </svg>
+        <span class="size-tag">128</span>
+      </div>
+      <!-- 48 -->
+      <div class="size-col">
+        <svg width="48" height="48" viewBox="0 0 128 128" fill="none">
+          <defs><linearGradient id="g1b" x1="20%" y1="0%" x2="80%" y2="100%">
+            <stop offset="0%" stop-color="#8b78f8"/><stop offset="100%" stop-color="#6047e8"/>
+          </linearGradient></defs>
+          <rect width="128" height="128" rx="26" fill="url(#g1b)"/>
+          <path d="M74 14 L36 66 H58 L42 114 L92 58 H68 Z" fill="white" stroke="white" stroke-width="1" stroke-linejoin="round"/>
+          <path d="M74 14 L55 56 H68 Z" fill="rgba(255,255,255,0.35)"/>
+        </svg>
+        <span class="size-tag">48</span>
+      </div>
+      <!-- 16 -->
+      <div class="size-col">
+        <svg width="16" height="16" viewBox="0 0 128 128" fill="none">
+          <defs><linearGradient id="g1c" x1="20%" y1="0%" x2="80%" y2="100%">
+            <stop offset="0%" stop-color="#8b78f8"/><stop offset="100%" stop-color="#6047e8"/>
+          </linearGradient></defs>
+          <rect width="128" height="128" rx="26" fill="url(#g1c)"/>
+          <path d="M74 14 L36 66 H58 L42 114 L92 58 H68 Z" fill="white"/>
+        </svg>
+        <span class="size-tag">16</span>
+      </div>
+    </div>
+    <div class="name">⚡ Spark</div>
+    <div class="desc">The "eureka" moment — when knowledge clicks and you're ready to build.</div>
+  </div>
+
+  <!-- ═══ 2. INTERLOCKED RINGS ═══ -->
+  <!--
+    Three rings: top C1=(64,42), BL C2=(40,88), BR C3=(88,88), r=31
+    Intersections (computed):
+      R1∩R2: (67.05,72.85) and (36.95,57.15)
+      R1∩R3: (60.95,72.85) and (91.05,57.15)
+      R2∩R3: (64,68.38)    and (64,107.62)
+    Cyclic weave: R1 over R3, R2 over R1, R3 over R2
+    Technique: draw all rings → cover "under" arcs with bg gradient → redraw "over" arcs
+  -->
+  <div class="option">
+    <div class="sizes">
+      <!-- 128 -->
+      <div class="size-col">
+        <svg width="128" height="128" viewBox="0 0 128 128" fill="none">
+          <defs>
+            <linearGradient id="g2" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#8b78f8"/>
+              <stop offset="100%" stop-color="#5538d4"/>
+            </linearGradient>
+            <radialGradient id="g2glow" cx="64" cy="73" r="26" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="white" stop-opacity="0.18"/>
+              <stop offset="100%" stop-color="white" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="128" height="128" rx="26" fill="url(#g2)"/>
+          <!-- Step 1 – all three rings -->
+          <circle cx="64" cy="42" r="31" stroke="white" stroke-width="7" stroke-opacity="0.9" fill="none"/>
+          <circle cx="40" cy="88" r="31" stroke="white" stroke-width="7" stroke-opacity="0.9" fill="none"/>
+          <circle cx="88" cy="88" r="31" stroke="white" stroke-width="7" stroke-opacity="0.9" fill="none"/>
+          <!-- Step 2 – erase "under" arcs with bg-coloured stroke -->
+          <path d="M 60.95 72.85 A 31 31 0 0 1 91.05 57.15" stroke="url(#g2)" stroke-width="11.5"/><!-- R3 under R1 -->
+          <path d="M 67.05 72.85 A 31 31 0 0 1 36.95 57.15" stroke="url(#g2)" stroke-width="11.5"/><!-- R1 under R2 -->
+          <path d="M 64 68.38 A 31 31 0 0 1 64 107.62"       stroke="url(#g2)" stroke-width="11.5"/><!-- R2 under R3 -->
+          <!-- Step 3 – redraw "over" arcs on top -->
+          <path d="M 91.05 57.15 A 31 31 0 0 1 60.95 72.85" stroke="white" stroke-width="7" stroke-opacity="0.9"/><!-- R1 over R3 -->
+          <path d="M 36.95 57.15 A 31 31 0 0 1 67.05 72.85" stroke="white" stroke-width="7" stroke-opacity="0.9"/><!-- R2 over R1 -->
+          <path d="M 64 107.62 A 31 31 0 0 1 64 68.38"       stroke="white" stroke-width="7" stroke-opacity="0.9"/><!-- R3 over R2 -->
+          <!-- Soft centre glow where all three rings meet -->
+          <circle cx="64" cy="73" r="26" fill="url(#g2glow)"/>
+        </svg>
+        <span class="size-tag">128</span>
+      </div>
+      <!-- 48 -->
+      <div class="size-col">
+        <svg width="48" height="48" viewBox="0 0 128 128" fill="none">
+          <defs>
+            <linearGradient id="g2b" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#8b78f8"/><stop offset="100%" stop-color="#5538d4"/>
+            </linearGradient>
+          </defs>
+          <rect width="128" height="128" rx="26" fill="url(#g2b)"/>
+          <circle cx="64" cy="42" r="31" stroke="white" stroke-width="7"   stroke-opacity="0.9" fill="none"/>
+          <circle cx="40" cy="88" r="31" stroke="white" stroke-width="7"   stroke-opacity="0.9" fill="none"/>
+          <circle cx="88" cy="88" r="31" stroke="white" stroke-width="7"   stroke-opacity="0.9" fill="none"/>
+          <path d="M 60.95 72.85 A 31 31 0 0 1 91.05 57.15" stroke="url(#g2b)" stroke-width="11.5"/>
+          <path d="M 67.05 72.85 A 31 31 0 0 1 36.95 57.15" stroke="url(#g2b)" stroke-width="11.5"/>
+          <path d="M 64 68.38 A 31 31 0 0 1 64 107.62"       stroke="url(#g2b)" stroke-width="11.5"/>
+          <path d="M 91.05 57.15 A 31 31 0 0 1 60.95 72.85" stroke="white" stroke-width="7" stroke-opacity="0.9"/>
+          <path d="M 36.95 57.15 A 31 31 0 0 1 67.05 72.85" stroke="white" stroke-width="7" stroke-opacity="0.9"/>
+          <path d="M 64 107.62 A 31 31 0 0 1 64 68.38"       stroke="white" stroke-width="7" stroke-opacity="0.9"/>
+        </svg>
+        <span class="size-tag">48</span>
+      </div>
+      <!-- 16 -->
+      <div class="size-col">
+        <svg width="16" height="16" viewBox="0 0 128 128" fill="none">
+          <defs>
+            <linearGradient id="g2c" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#8b78f8"/><stop offset="100%" stop-color="#5538d4"/>
+            </linearGradient>
+          </defs>
+          <rect width="128" height="128" rx="26" fill="url(#g2c)"/>
+          <circle cx="64" cy="42" r="31" stroke="white" stroke-width="8.5" stroke-opacity="0.9" fill="none"/>
+          <circle cx="40" cy="88" r="31" stroke="white" stroke-width="8.5" stroke-opacity="0.9" fill="none"/>
+          <circle cx="88" cy="88" r="31" stroke="white" stroke-width="8.5" stroke-opacity="0.9" fill="none"/>
+          <path d="M 60.95 72.85 A 31 31 0 0 1 91.05 57.15" stroke="url(#g2c)" stroke-width="14"/>
+          <path d="M 67.05 72.85 A 31 31 0 0 1 36.95 57.15" stroke="url(#g2c)" stroke-width="14"/>
+          <path d="M 64 68.38 A 31 31 0 0 1 64 107.62"       stroke="url(#g2c)" stroke-width="14"/>
+          <path d="M 91.05 57.15 A 31 31 0 0 1 60.95 72.85" stroke="white" stroke-width="8.5" stroke-opacity="0.9"/>
+          <path d="M 36.95 57.15 A 31 31 0 0 1 67.05 72.85" stroke="white" stroke-width="8.5" stroke-opacity="0.9"/>
+          <path d="M 64 107.62 A 31 31 0 0 1 64 68.38"       stroke="white" stroke-width="8.5" stroke-opacity="0.9"/>
+        </svg>
+        <span class="size-tag">16</span>
+      </div>
+    </div>
+    <div class="name">🔗 Interlocked</div>
+    <div class="desc">Three rings — watch, quiz, build. Each one depends on the others. Remove one, the whole thing falls.</div>
+  </div>
+
+  <!-- ═══ 3. GEM / DIAMOND ═══ -->
+  <div class="option">
+    <div class="sizes">
+      <!-- 128 -->
+      <div class="size-col">
+        <svg width="128" height="128" viewBox="0 0 128 128" fill="none">
+          <defs>
+            <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#6d5ce8"/>
+              <stop offset="100%" stop-color="#9b88ff"/>
+            </linearGradient>
+            <linearGradient id="g3t" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0.7"/>
+            </linearGradient>
+            <linearGradient id="g3b" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.65"/>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0.25"/>
+            </linearGradient>
+          </defs>
+          <rect width="128" height="128" rx="26" fill="url(#g3)"/>
+          <!-- Gem top row (crown facets) -->
+          <polygon points="64,16 44,52 64,52" fill="url(#g3t)"/>
+          <polygon points="64,16 84,52 64,52" fill="white" opacity="0.75"/>
+          <polygon points="64,16 44,52 26,40" fill="white" opacity="0.55"/>
+          <polygon points="64,16 84,52 102,40" fill="white" opacity="0.45"/>
+          <polygon points="26,40 44,52 22,56" fill="white" opacity="0.35"/>
+          <polygon points="102,40 84,52 106,56" fill="white" opacity="0.3"/>
+          <!-- Gem bottom (pavilion) -->
+          <polygon points="22,56 44,52 64,112" fill="url(#g3b)"/>
+          <polygon points="106,56 84,52 64,112" fill="white" opacity="0.2"/>
+          <polygon points="44,52 84,52 64,112" fill="white" opacity="0.45"/>
+          <!-- Waist line -->
+          <line x1="22" y1="56" x2="106" y2="56" stroke="white" stroke-width="2.5" opacity="0.5"/>
+        </svg>
+        <span class="size-tag">128</span>
+      </div>
+      <!-- 48 -->
+      <div class="size-col">
+        <svg width="48" height="48" viewBox="0 0 128 128" fill="none">
+          <defs>
+            <linearGradient id="g3d" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#6d5ce8"/><stop offset="100%" stop-color="#9b88ff"/>
+            </linearGradient>
+          </defs>
+          <rect width="128" height="128" rx="26" fill="url(#g3d)"/>
+          <polygon points="64,16 44,52 64,52" fill="white"/>
+          <polygon points="64,16 84,52 64,52" fill="white" opacity="0.75"/>
+          <polygon points="26,40 44,52 22,56" fill="white" opacity="0.55"/>
+          <polygon points="102,40 84,52 106,56" fill="white" opacity="0.45"/>
+          <polygon points="22,56 44,52 64,112" fill="white" opacity="0.5"/>
+          <polygon points="106,56 84,52 64,112" fill="white" opacity="0.25"/>
+          <polygon points="44,52 84,52 64,112" fill="white" opacity="0.4"/>
+          <line x1="22" y1="56" x2="106" y2="56" stroke="white" stroke-width="2.5" opacity="0.5"/>
+        </svg>
+        <span class="size-tag">48</span>
+      </div>
+      <!-- 16 -->
+      <div class="size-col">
+        <svg width="16" height="16" viewBox="0 0 128 128" fill="none">
+          <defs><linearGradient id="g3e" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#6d5ce8"/><stop offset="100%" stop-color="#9b88ff"/>
+          </linearGradient></defs>
+          <rect width="128" height="128" rx="26" fill="url(#g3e)"/>
+          <polygon points="64,16 20,56 64,112 108,56" fill="white" opacity="0.9"/>
+          <polygon points="64,16 44,52 84,52" fill="white"/>
+          <line x1="20" y1="56" x2="108" y2="56" stroke="url(#g3e)" stroke-width="4"/>
+        </svg>
+        <span class="size-tag">16</span>
+      </div>
+    </div>
+    <div class="name">💎 Gem</div>
+    <div class="desc">Raw content → refined knowledge. Every facet is a different perspective.</div>
+  </div>
+
+  <!-- ═══ 4. ORBIT / NODES ═══ -->
+  <div class="option">
+    <div class="sizes">
+      <!-- 128 -->
+      <div class="size-col">
+        <svg width="128" height="128" viewBox="0 0 128 128" fill="none">
+          <defs>
+            <linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#7c6af7"/>
+              <stop offset="100%" stop-color="#4f3de0"/>
+            </linearGradient>
+          </defs>
+          <rect width="128" height="128" rx="26" fill="url(#g4)"/>
+          <!-- Connecting arcs (curved lines between nodes) -->
+          <path d="M 64 28 Q 100 52 90 94" stroke="white" stroke-width="6" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <path d="M 64 28 Q 28 52 38 94" stroke="white" stroke-width="6" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <path d="M 38 94 Q 64 108 90 94" stroke="white" stroke-width="6" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <!-- Top node — Watch/Learn (large, bright) -->
+          <circle cx="64" cy="28" r="16" fill="white"/>
+          <!-- Play triangle inside top node -->
+          <polygon points="59,22 59,34 72,28" fill="url(#g4)"/>
+          <!-- Bottom-left node — Quiz -->
+          <circle cx="38" cy="94" r="12" fill="white" opacity="0.85"/>
+          <!-- Question mark inside -->
+          <text x="38" y="99" text-anchor="middle" font-family="'SF Pro', system-ui" font-weight="800" font-size="14" fill="#7c6af7">?</text>
+          <!-- Bottom-right node — Build -->
+          <circle cx="90" cy="94" r="12" fill="white" opacity="0.85"/>
+          <!-- Code brackets inside -->
+          <text x="90" y="99" text-anchor="middle" font-family="'SF Pro Mono', monospace" font-weight="700" font-size="12" fill="#7c6af7">{}</text>
+        </svg>
+        <span class="size-tag">128</span>
+      </div>
+      <!-- 48 -->
+      <div class="size-col">
+        <svg width="48" height="48" viewBox="0 0 128 128" fill="none">
+          <defs><linearGradient id="g4b" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#7c6af7"/><stop offset="100%" stop-color="#4f3de0"/>
+          </linearGradient></defs>
+          <rect width="128" height="128" rx="26" fill="url(#g4b)"/>
+          <path d="M 64 28 Q 100 52 90 94" stroke="white" stroke-width="6" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <path d="M 64 28 Q 28 52 38 94" stroke="white" stroke-width="6" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <path d="M 38 94 Q 64 108 90 94" stroke="white" stroke-width="6" stroke-linecap="round" opacity="0.4" fill="none"/>
+          <circle cx="64" cy="28" r="16" fill="white"/>
+          <polygon points="59,22 59,34 72,28" fill="url(#g4b)"/>
+          <circle cx="38" cy="94" r="12" fill="white" opacity="0.85"/>
+          <circle cx="90" cy="94" r="12" fill="white" opacity="0.85"/>
+        </svg>
+        <span class="size-tag">48</span>
+      </div>
+      <!-- 16 -->
+      <div class="size-col">
+        <svg width="16" height="16" viewBox="0 0 128 128" fill="none">
+          <defs><linearGradient id="g4c" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#7c6af7"/><stop offset="100%" stop-color="#4f3de0"/>
+          </linearGradient></defs>
+          <rect width="128" height="128" rx="26" fill="url(#g4c)"/>
+          <line x1="64" y1="28" x2="38" y2="94" stroke="white" stroke-width="7" opacity="0.5"/>
+          <line x1="64" y1="28" x2="90" y2="94" stroke="white" stroke-width="7" opacity="0.5"/>
+          <line x1="38" y1="94" x2="90" y2="94" stroke="white" stroke-width="7" opacity="0.5"/>
+          <circle cx="64" cy="28" r="14" fill="white"/>
+          <circle cx="38" cy="94" r="10" fill="white" opacity="0.85"/>
+          <circle cx="90" cy="94" r="10" fill="white" opacity="0.85"/>
+        </svg>
+        <span class="size-tag">16</span>
+      </div>
+    </div>
+    <div class="name">◈ Three Nodes</div>
+    <div class="desc">Watch → Quiz → Build. The three stages of Praxis encoded in the mark itself.</div>
+  </div>
+
+</div>
+</body>
+</html>
