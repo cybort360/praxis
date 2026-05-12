@@ -174,7 +174,7 @@
       transition: 'opacity .15s, transform .1s', lineHeight: '1',
       fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
     });
-    setButtonState('Start LearnLoop', iconPlay());
+    setButtonState('Start Praxis', iconPlay());
     startButton.onmouseenter = () => {
       startButton.style.opacity   = '0.88';
       startButton.style.transform = 'translateY(-1px)';
@@ -226,7 +226,7 @@
 
   function resetButton() {
     isTriggering = false;
-    setButtonState('Start LearnLoop', iconPlay());
+    setButtonState('Start Praxis', iconPlay());
   }
 
   // ── Transcript strategies ─────────────────────────────────────────────────

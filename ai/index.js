@@ -43,7 +43,7 @@ export async function getAIProvider() {
         defaultModel: 'meta-llama/llama-3.3-70b-instruct:free',
         extraHeaders: {
           'HTTP-Referer': 'https://github.com/learnloop',
-          'X-Title': 'LearnLoop',
+          'X-Title': 'Praxis',
         },
       });
 

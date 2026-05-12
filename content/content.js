@@ -190,7 +190,7 @@
       fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
       lineHeight: '1',
     });
-    setButtonState('Start LearnLoop', iconPlay());
+    setButtonState('Start Praxis', iconPlay());
     startButton.onmouseenter = () => { startButton.style.opacity = '0.88'; startButton.style.transform = 'translateY(-1px)'; };
     startButton.onmouseleave = () => { startButton.style.opacity = '1';    startButton.style.transform = 'translateY(0)'; };
     startButton.addEventListener('click', () => {
@@ -215,9 +215,9 @@
     try {
       transcript = await fetchTranscript(videoId);
     } catch (e) {
-      console.warn('[LearnLoop] Could not fetch transcript:', e.message);
+      console.warn('[Praxis] Could not fetch transcript:', e.message);
       isTriggering = false;
-      setButtonState('Start LearnLoop', iconPlay());
+      setButtonState('Start Praxis', iconPlay());
       showToast('No captions found — captions are required');
       return;
     }

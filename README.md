@@ -1,4 +1,4 @@
-# LearnLoop
+# Praxis
 
 Watch tutorials. Get quizzed. Build. Actually learn.
 
@@ -8,7 +8,7 @@ Watch tutorials. Get quizzed. Build. Actually learn.
 2. Enable **Developer mode** (top right toggle)
 3. Click **Load unpacked**
 4. Select this `learnloop` folder
-5. Click the LearnLoop icon in the toolbar → enter your API key and choose your AI provider
+5. Click the Praxis icon in the toolbar → enter your API key and choose your AI provider
 6. Go to any YouTube coding tutorial
 7. The side panel opens automatically — work through the summary, quiz, and challenge
 

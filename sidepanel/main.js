@@ -112,7 +112,7 @@ function persistState(currentScreen) {
   const { videoTitle, transcript, tabId, summary, quiz, challenge, quizIndex, quizPassed } = state;
   chrome.storage.session.set({
     savedSession: { videoTitle, transcript, tabId, summary, quiz, challenge, quizIndex, quizPassed, currentScreen }
-  }).catch(e => console.error('[LearnLoop] persistState failed:', e));
+  }).catch(e => console.error('[Praxis] persistState failed:', e));
 }
 
 async function restoreOrInit() {
@@ -150,7 +150,7 @@ async function restoreOrInit() {
 
     showScreen('screen-idle');
   } catch (e) {
-    console.error('[LearnLoop] restoreOrInit failed:', e);
+    console.error('[Praxis] restoreOrInit failed:', e);
     showScreen('screen-idle');
   }
 }
