@@ -27,6 +27,14 @@ const Chat = (() => {
     document.getElementById('chat-input').value = '';
     document.getElementById('chat-widget').style.display = 'block';
     _setOpen(false);
+
+    // Warn the user upfront if no transcript was captured
+    if (_transcript === '__no_transcript__') {
+      const warning = document.createElement('div');
+      warning.className = 'chat-bubble chat-bubble-assistant chat-notice';
+      warning.textContent = '⚠️ No captions were found for this video — I can still try to help based on the title, but I won\'t be able to answer questions about the video content.';
+      document.getElementById('chat-messages').appendChild(warning);
+    }
   }
 
   function reset() {

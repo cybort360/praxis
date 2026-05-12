@@ -1398,3 +1398,12 @@ html, body {
   0%, 60%, 100% { transform: translateY(0); }
   30%            { transform: translateY(-5px); }
 }
+
+.chat-notice {
+  font-size: 11px;
+  font-style: italic;
+  opacity: 0.75;
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--text-muted);
+}
