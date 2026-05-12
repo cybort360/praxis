@@ -130,7 +130,12 @@ Return ONLY valid JSON:
     {
       "description": "handles basic case",
       "input": "solution(arg1, arg2)",
-      "expectedOutput": "expectedValue"
+      "expectedOutput": "42"
+    },
+    {
+      "description": "handles string return",
+      "input": "solution('hello')",
+      "expectedOutput": "'Hello, world!'"
     }
   ],
   "hints": [
@@ -139,7 +144,9 @@ Return ONLY valid JSON:
     "Hint 3 — near-answer"
   ],
   "solution": "// full working solution\nfunction solution() { ... }"
-}`;
+}
+
+IMPORTANT: "input" must be a JavaScript expression (e.g. solution(true)). "expectedOutput" must also be a valid JavaScript expression — wrap strings in single quotes (e.g. 'Access Denied'), use bare numbers (e.g. 42) or booleans (e.g. true) for non-string values.`;
     return this._parseJSON(await this._call(system, user));
   }
 

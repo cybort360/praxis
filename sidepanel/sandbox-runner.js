@@ -23,7 +23,15 @@ window.addEventListener('message', (event) => {
       (tests || []).forEach(test => {
         try {
           const actual   = new Function(code + '\nreturn (' + test.input + ')')();
-          const expected = new Function('return (' + test.expectedOutput + ')')();
+          // expectedOutput should be a JS expression (e.g. "'hello'" for strings).
+          // If the AI produced a plain string without quotes, eval will throw —
+          // catch that and fall back to treating it as a literal string value.
+          let expected;
+          try {
+            expected = new Function('return (' + test.expectedOutput + ')')();
+          } catch (_) {
+            expected = test.expectedOutput;
+          }
           const pass = JSON.stringify(actual) === JSON.stringify(expected);
           testResults.push({
             description: test.description,
