@@ -13,9 +13,11 @@ const Chat = (() => {
   // ── Public API ────────────────────────────────────────────────────────────
 
   function init(transcript, videoTitle) {
-    _transcript = Array.isArray(transcript)
-      ? transcript.map(s => s.text).join(' ')
-      : (transcript || '');
+    const joined = Array.isArray(transcript)
+      ? transcript.map(s => s.text).join(' ').trim()
+      : (typeof transcript === 'string' ? transcript.trim() : '');
+    // Keep a non-empty sentinel so _send() always works; AI handles missing context gracefully
+    _transcript = joined || '__no_transcript__';
     _videoTitle  = videoTitle || '';
     _messages    = [];
     _isOpen      = false;

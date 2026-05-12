@@ -183,7 +183,11 @@ Return ONLY valid JSON:
   }
 
   async chat(messages, transcript, videoTitle) {
-    const system = `You are a concise tutor helping a learner understand a video they just watched. Answer questions using only the content of the video transcript. If the answer is not in the transcript, say so. Keep answers to 2–3 sentences unless a longer explanation is clearly needed.\n\nVideo: "${videoTitle}"\n\nTranscript:\n${transcript.slice(0, 6000)}`;
+    const transcriptText = transcript === '__no_transcript__' ? '' : transcript;
+    const transcriptSection = transcriptText
+      ? `Transcript:\n${transcriptText.slice(0, 6000)}`
+      : 'No transcript is available for this video.';
+    const system = `You are a concise tutor helping a learner understand a video they just watched. Answer questions using only the content of the video transcript. If the answer is not in the transcript, say so. Keep answers to 2–3 sentences unless a longer explanation is clearly needed.\n\nVideo: "${videoTitle}"\n\n${transcriptSection}`;
     let res;
     try {
       res = await fetch(this.baseURL, {

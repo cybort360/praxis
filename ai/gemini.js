@@ -178,7 +178,11 @@ Return ONLY valid JSON:
   }
 
   async chat(messages, transcript, videoTitle) {
-    const systemText = `You are a concise tutor helping a learner understand a video they just watched. Answer questions using only the content of the video transcript. If the answer is not in the transcript, say so. Keep answers to 2–3 sentences unless a longer explanation is clearly needed.\n\nVideo: "${videoTitle}"\n\nTranscript:\n${transcript.slice(0, 6000)}`;
+    const transcriptText = transcript === '__no_transcript__' ? '' : transcript;
+    const transcriptSection = transcriptText
+      ? `Transcript:\n${transcriptText.slice(0, 6000)}`
+      : 'No transcript is available for this video.';
+    const systemText = `You are a concise tutor helping a learner understand a video they just watched. Answer questions using only the content of the video transcript. If the answer is not in the transcript, say so. Keep answers to 2–3 sentences unless a longer explanation is clearly needed.\n\nVideo: "${videoTitle}"\n\n${transcriptSection}`;
     // Gemini uses 'user'/'model' roles — map 'assistant' → 'model'
     const contents = messages.map(m => ({
       role: m.role === 'assistant' ? 'model' : 'user',
